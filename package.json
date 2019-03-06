@@ -1,0 +1,43 @@
+{
+  "name": "projector",
+  "version": "1.0.0",
+  "description": "Standalone threejs scatterplot projector",
+  "author": {
+    "name": "Andy Coenen",
+    "email": "andycoenen@google.com"
+  },
+  "license": "MIT",
+  "repository": "PAIR-code/projector",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "bundle": "rm -rf lib && webpack --config ./webpack/lib.config.ts && webpack --config ./webpack/lib.min.config.ts",
+    "build": "rm -rf dist && tsc && yarn bundle",
+    "demo": "webpack-dev-server --config ./webpack/demo.config.ts"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.3",
+    "@types/node": "^10.12.21",
+    "@types/react": "^16.8.6",
+    "@types/react-dom": "^16.8.2",
+    "@types/three": "^0.93.25",
+    "dts-bundle-webpack": "^1.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "23",
+    "prettier": "^1.16.4",
+    "ts-jest": "^23.10.5",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.2.4",
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "three": "^0.102.1",
+    "three-orbitcontrols-ts": "^0.1.2"
+  },
+  "publishConfig": {
+    "registry": "https://wombat-dressing-room.appspot.com"
+  }
+}

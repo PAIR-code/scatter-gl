@@ -1,1 +1,1 @@
-export { ProjectorScatterPlotAdapter } from './projector-scatter-plot-adapter';
+export { Projector, ProjectorParams } from './projector';

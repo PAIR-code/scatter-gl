@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three-orbitcontrols-ts';
 
-import * as vector from './vector';
+import { Projector } from './projector';
+import { Point2D, Point3D } from './types';
 import * as util from './util';
-import { ProjectorEventContext } from './projector-event-context';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import {
   ScatterBoundingBox,
@@ -53,8 +53,8 @@ export enum MouseMode {
 /** Defines a camera, suitable for serialization. */
 export class CameraDef {
   orthographic: boolean = false;
-  position: vector.Point3D;
-  target: vector.Point3D;
+  position: Point3D;
+  target: Point3D;
   zoom: number;
 }
 
@@ -102,10 +102,7 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  constructor(
-    private container: HTMLElement,
-    private projectorEventContext: ProjectorEventContext
-  ) {
+  constructor(private container: HTMLElement, private projector: Projector) {
     this.getLayoutValues();
 
     this.scene = new THREE.Scene();
@@ -316,7 +313,7 @@ export class ScatterPlot {
     // Only call event handlers if the click originated from the scatter plot.
     if (!this.isDragSequence && notify) {
       const selection = this.nearestPoint != null ? [this.nearestPoint] : [];
-      this.projectorEventContext.notifySelectionChanged(selection);
+      this.projector.onSelect(selection);
     }
     this.isDragSequence = false;
     this.render();
@@ -372,8 +369,9 @@ export class ScatterPlot {
       this.render();
     } else if (!this.mouseIsDown) {
       this.setNearestPointToMouse(e);
+      console.log('👍', this.nearestPoint);
       if (this.nearestPoint !== null) {
-        this.projectorEventContext.notifyHoverOverPoint(this.nearestPoint);
+        this.projector.onHover(this.nearestPoint);
       }
     }
   }
@@ -467,7 +465,7 @@ export class ScatterPlot {
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.projectorEventContext.notifySelectionChanged(pointIndices);
+    this.projector.onSelect(pointIndices);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {
@@ -485,7 +483,7 @@ export class ScatterPlot {
     this.nearestPoint = pointIndices != null ? pointIndices[0] : null;
   }
 
-  private getLayoutValues(): vector.Point2D {
+  private getLayoutValues(): Point2D {
     this.width = this.container.offsetWidth;
     this.height = Math.max(1, this.container.offsetHeight);
     console.log(this.width, this.height);
@@ -548,19 +546,19 @@ export class ScatterPlot {
   }
 
   /** Gets the current camera position. */
-  getCameraPosition(): vector.Point3D {
+  getCameraPosition(): Point3D {
     const currPos = this.camera.position;
     return [currPos.x, currPos.y, currPos.z];
   }
 
   /** Gets the current camera target. */
-  getCameraTarget(): vector.Point3D {
+  getCameraTarget(): Point3D {
     let currTarget = this.orbitCameraControls.target;
     return [currTarget.x, currTarget.y, currTarget.z];
   }
 
   /** Sets up the camera from given position and target coordinates. */
-  setCameraPositionAndTarget(position: vector.Point3D, target: vector.Point3D) {
+  setCameraPositionAndTarget(position: Point3D, target: Point3D) {
     this.stopOrbitAnimation();
     this.camera.position.set(position[0], position[1], position[2]);
     this.orbitCameraControls.target.set(target[0], target[1], target[2]);

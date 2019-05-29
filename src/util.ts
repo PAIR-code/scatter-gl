@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import * as vector from './vector';
+import { Point2D } from './types';
 import { DataPoint } from './data';
 
 /**
@@ -78,12 +78,12 @@ export function vector3DToScreenCoords(
   w: number,
   h: number,
   v: THREE.Vector3
-): vector.Point2D {
+): Point2D {
   let dpr = window.devicePixelRatio;
   let pv = new THREE.Vector3().copy(v).project(cam);
 
   // The screen-space origin is at the middle of the screen, with +y up.
-  let coords: vector.Point2D = [
+  let coords: Point2D = [
     ((pv.x + 1) / 2) * w * dpr,
     -(((pv.y - 1) / 2) * h) * dpr,
   ];

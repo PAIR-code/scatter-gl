@@ -1,13 +1,18 @@
 import { state } from './core';
-import { ProjectorScatterPlotAdapter } from '../src';
-import { dummyProjectorEventContext } from '../src/projector-event-context';
+
+import { Projector } from '../src/projector';
 
 const containerElement = document.getElementById('container')!;
 
-const scatterPlotAdapter = new ProjectorScatterPlotAdapter(
+const scatterPlotAdapter = new Projector({
   containerElement,
-  dummyProjectorEventContext
-);
+  onHover: (point: number) => {
+    console.log('🔥hover', point);
+  },
+  onSelect: (points: number[]) => {
+    console.log('🔥select', points);
+  },
+});
 
 const { projection } = state;
 scatterPlotAdapter.updateScatterPlotWithNewProjection(projection);

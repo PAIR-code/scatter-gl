@@ -13,10 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import * as vector from './vector';
-import * as util from './util';
+import { Vector } from './types';
 
-export type DistanceFunction = (a: vector.Vector, b: vector.Vector) => number;
+export type DistanceFunction = (a: Vector, b: Vector) => number;
 export type ProjectionComponents3D = [string, string, string];
 
 export interface PointMetadata {
@@ -83,43 +82,6 @@ export interface DataPoint {
 
   /** index in the original data source */
   index: number;
-}
-
-const IS_FIREFOX = navigator.userAgent.toLowerCase().indexOf('firefox') >= 0;
-/** Controls whether nearest neighbors computation is done on the GPU or CPU. */
-const KNN_GPU_ENABLED = util.hasWebGLSupport() && !IS_FIREFOX;
-
-export const TSNE_SAMPLE_SIZE = 10000;
-export const UMAP_SAMPLE_SIZE = 5000;
-export const PCA_SAMPLE_SIZE = 50000;
-/** Number of dimensions to sample when doing approximate PCA. */
-export const PCA_SAMPLE_DIM = 200;
-/** Number of pca components to compute. */
-const NUM_PCA_COMPONENTS = 10;
-
-/** Id of message box used for umap optimization progress bar. */
-const UMAP_MSG_ID = 'umap-optimization';
-
-/**
- * Reserved metadata attributes used for sequence information
- * NOTE: Use "__seq_next__" as "__next__" is deprecated.
- */
-const SEQUENCE_METADATA_ATTRS = ['__next__', '__seq_next__'];
-
-function getSequenceNextPointIndex(
-  pointMetadata: PointMetadata
-): number | null {
-  let sequenceAttr: string | number | null = null;
-  for (let metadataAttr of SEQUENCE_METADATA_ATTRS) {
-    if (metadataAttr in pointMetadata && pointMetadata[metadataAttr] !== '') {
-      sequenceAttr = pointMetadata[metadataAttr];
-      break;
-    }
-  }
-  if (sequenceAttr == null) {
-    return null;
-  }
-  return +sequenceAttr;
 }
 
 export class DataSet {

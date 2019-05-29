@@ -15,21 +15,11 @@ limitations under the License.
 
 import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
-import { DataSet, Projection, DistanceFunction } from './data';
+import { DataSet, Projection } from './data';
 import * as util from './util';
-import { ProjectorEventContext } from './projector-event-context';
+
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
 import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
-
-const LABEL_FONT_SIZE = 10;
-const LABEL_SCALE_DEFAULT = 1.0;
-const LABEL_SCALE_LARGE = 2;
-const LABEL_FILL_COLOR_SELECTED = 0x000000;
-const LABEL_FILL_COLOR_HOVER = 0x000000;
-const LABEL_FILL_COLOR_NEIGHBOR = 0x000000;
-const LABEL_STROKE_COLOR_SELECTED = 0xffffff;
-const LABEL_STROKE_COLOR_HOVER = 0xffffff;
-const LABEL_STROKE_COLOR_NEIGHBOR = 0xffffff;
 
 const POINT_COLOR_UNSELECTED = 0xe3e3e3;
 const POINT_COLOR_NO_SELECTION = 0x7575d9;
@@ -68,11 +58,17 @@ const SCATTER_PLOT_CUBE_LENGTH = 2;
 //   .clamp(true);
 const NN_COLOR_SCALE = [];
 
+export interface ProjectorParams {
+  containerElement: HTMLElement;
+  onHover?: (point: number) => void;
+  onSelect?: (points: number[]) => void;
+}
+
 /**
- * Interprets projector events and assembes the arrays and commands necessary
+ * Interprets projector events and assembles the arrays and commands necessary
  * to use the ScatterPlot to render the current projected data set.
  */
-export class ProjectorScatterPlotAdapter {
+export class Projector {
   public scatterPlot: ScatterPlot;
   private projection: Projection;
   private labelPointAccessor: string;
@@ -83,39 +79,36 @@ export class ProjectorScatterPlotAdapter {
   private hoverPointIndex: number;
   private selectedPointIndices: number[];
 
-  constructor(
-    private scatterPlotContainer: HTMLElement,
-    projectorEventContext: ProjectorEventContext
-  ) {
-    this.scatterPlot = new ScatterPlot(
-      scatterPlotContainer,
-      projectorEventContext
-    );
-    projectorEventContext.registerProjectionChangedListener(projection => {
-      this.projection = projection;
-      this.updateScatterPlotWithNewProjection(projection);
-    });
-    projectorEventContext.registerSelectionChangedListener(
-      selectedPointIndices => {
-        // this.selectedPointIndices = selectedPointIndices;
-        // this.updateScatterPlotPositions();
-        // this.updateScatterPlotAttributes();
-        // this.scatterPlot.render();
-      }
-    );
-    projectorEventContext.registerHoverListener(hoverPointIndex => {
-      // this.hoverPointIndex = hoverPointIndex;
-      // this.updateScatterPlotAttributes();
-      // this.scatterPlot.render();
-    });
-    projectorEventContext.registerDistanceMetricChangedListener(
-      distanceMetric => {
-        // this.updateScatterPlotAttributes();
-        // this.scatterPlot.render();
-      }
-    );
+  constructor(private params: ProjectorParams) {
+    const { containerElement } = this.params;
+    this.scatterPlot = new ScatterPlot(containerElement, this);
+    // eventContext.registerProjectionChangedListener(projection => {
+    //   this.projection = projection;
+    //   this.updateScatterPlotWithNewProjection(projection);
+    // });
+    // eventContext.registerSelectionChangedListener(selectedPointIndices => {
+    //   // this.selectedPointIndices = selectedPointIndices;
+    //   // this.updateScatterPlotPositions();
+    //   // this.updateScatterPlotAttributes();
+    //   // this.scatterPlot.render();
+    // });
+    // eventContext.registerHoverListener(hoverPointIndex => {
+    //   // this.hoverPointIndex = hoverPointIndex;
+    //   // this.updateScatterPlotAttributes();
+    //   // this.scatterPlot.render();
+    // });
+    // eventContext.registerDistanceMetricChangedListener(distanceMetric => {
+    //   // this.updateScatterPlotAttributes();
+    //   // this.scatterPlot.render();
+    // });
     this.createVisualizers();
   }
+
+  // TODO(andycoene): Implement methods!!!
+  onSelect(selection: number[]) {}
+
+  // TODO(andycoene): Implement methods!!!
+  onHover(point: number) {}
 
   notifyProjectionPositionsUpdated() {
     this.updateScatterPlotPositions();
@@ -465,7 +458,7 @@ export class ProjectorScatterPlotAdapter {
       this.spriteVisualizer = new ScatterPlotVisualizerSprites();
       scatterPlot.addVisualizer(this.spriteVisualizer);
       // this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-      //   this.scatterPlotContainer
+      //   this.containerElement
       // );
     }
   }

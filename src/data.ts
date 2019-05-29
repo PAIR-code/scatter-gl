@@ -67,6 +67,9 @@ export interface Sequence {
 
 export interface DataPoint {
   /** The point in the original space. */
+  originalVector: Float32Array;
+
+  /** The point in the projected space. */
   vector: Float32Array;
 
   /*
@@ -80,9 +83,6 @@ export interface DataPoint {
 
   /** index in the original data source */
   index: number;
-
-  /** This is where the calculated projections space are cached */
-  projections: { [key: string]: number };
 }
 
 const IS_FIREFOX = navigator.userAgent.toLowerCase().indexOf('firefox') >= 0;
@@ -122,12 +122,10 @@ function getSequenceNextPointIndex(
   return +sequenceAttr;
 }
 
-export type ProjectionType = 'tsne' | 'umap' | 'pca' | 'custom';
+export class DataSet {
+  constructor(public points: DataPoint[]) {}
+}
 
 export class Projection {
-  constructor(
-    public projectionType: ProjectionType,
-    public projectionComponents: ProjectionComponents3D,
-    public dimensionality: number
-  ) {}
+  constructor(public dataSet: DataSet, public components: number) {}
 }

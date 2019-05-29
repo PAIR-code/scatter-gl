@@ -1,7 +1,7 @@
-import * as path from 'path';
+const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-export default {
+module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   module: {
@@ -21,12 +21,8 @@ export default {
     demo: './demo/index.tsx',
   },
   output: {
-    path: path.join(__dirname, '../dist'),
+    path: path.join(__dirname, '../demo_build'),
     filename: 'bundle.min.js',
-  },
-  devServer: {
-    contentBase: path.join(__dirname, '../dist'),
-    port: 8080,
   },
   plugins: [
     new HtmlWebpackPlugin({

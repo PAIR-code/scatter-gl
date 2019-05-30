@@ -1,6 +1,6 @@
-# Projector
+# Scatter Projector
 
-Standalone projector from the embdding projector for use in various 2D/3D
+Standalone scatter plot projector from the embdding projector for use in various 2D/3D
 projection apps.
 
 ```bash

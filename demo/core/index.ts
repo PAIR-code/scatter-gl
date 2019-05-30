@@ -26,7 +26,6 @@ class State {
       const label = this.labelNames.get(this.labels[i]) || '';
 
       dataPoints.push({
-        originalVector: new Float32Array(vector),
         vector: new Float32Array(fmnist.projection[i]),
         metadata: {
           label,

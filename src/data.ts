@@ -13,11 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import { Vector } from './types';
-
-export type DistanceFunction = (a: Vector, b: Vector) => number;
-export type ProjectionComponents3D = [string, string, string];
-
 export interface PointMetadata {
   [key: string]: number | string;
 }
@@ -26,19 +21,6 @@ export interface PointMetadata {
 export interface SpriteMetadata {
   imagePath: string;
   singleImageDim: [number, number];
-}
-
-export interface DataProto {
-  shape: [number, number];
-  tensor: number[];
-  metadata: {
-    columns: Array<{
-      name: string;
-      stringValues: string[];
-      numericValues: number[];
-    }>;
-    sprite: { imageBase64: string; singleImageDim: [number, number] };
-  };
 }
 
 /** Statistics for a metadata column. */
@@ -65,9 +47,6 @@ export interface Sequence {
 }
 
 export interface DataPoint {
-  /** The point in the original space. */
-  originalVector: Float32Array;
-
   /** The point in the projected space. */
   vector: Float32Array;
 

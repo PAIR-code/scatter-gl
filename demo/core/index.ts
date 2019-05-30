@@ -1,6 +1,6 @@
 import * as fmnist from '../../data/fmnist.json';
 
-import { DataPoint, Projection, DataSet } from '../../src/data';
+import { DataPoint, Projection } from '../../src/data';
 
 class State {
   data: number[][] = [];
@@ -34,8 +34,7 @@ class State {
       });
     }
 
-    const dataSet = new DataSet(dataPoints);
-    this.projection = new Projection(dataSet, 3);
+    this.projection = new Projection(dataPoints, 3);
   }
 }
 

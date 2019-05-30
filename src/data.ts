@@ -63,13 +63,16 @@ export interface DataPoint {
   index: number;
 }
 
-export class DataSet {
+export class Projection {
+  public spriteAndMetadataInfo?: SpriteAndMetadataInfo;
+
   constructor(
     public points: DataPoint[] = [],
+    public components: number,
     public sequences: Sequence[] = []
   ) {}
-}
 
-export class Projection {
-  constructor(public dataSet: DataSet, public components: number) {}
+  setSpriteAndMetadataInfo(spriteAndMetadataInfo: SpriteAndMetadataInfo) {
+    this.spriteAndMetadataInfo = spriteAndMetadataInfo;
+  }
 }

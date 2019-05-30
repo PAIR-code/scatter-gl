@@ -16,3 +16,4 @@ const projector = new Projector({
 
 const { projection } = state;
 projector.updateScatterPlotWithNewProjection(projection);
+// projector.set3DLabelMode(true);

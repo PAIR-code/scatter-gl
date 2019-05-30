@@ -136,3 +136,20 @@ export function scaleExponential(
   const percentDomain = (value ** Math.E - domain[0]) / domainDifference;
   return percentDomain * rangeDifference + range[0];
 }
+
+export function packRgbIntoUint8Array(
+  rgbArray: Uint8Array,
+  labelIndex: number,
+  r: number,
+  g: number,
+  b: number
+) {
+  rgbArray[labelIndex * 3] = r;
+  rgbArray[labelIndex * 3 + 1] = g;
+  rgbArray[labelIndex * 3 + 2] = b;
+}
+
+export function styleRgbFromHexColor(hex: number): [number, number, number] {
+  const c = new THREE.Color(hex);
+  return [(c.r * 255) | 0, (c.g * 255) | 0, (c.b * 255) | 0];
+}

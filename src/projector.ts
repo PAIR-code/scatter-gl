@@ -16,12 +16,21 @@ limitations under the License.
 import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
 import { Projection } from './data';
+import { LabelRenderParams } from './render';
 import * as util from './util';
 
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
 import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
 import { ScatterPlotVisualizerCanvasLabels } from './scatter-plot-visualizer-canvas-labels';
 import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polylines';
+
+const LABEL_FONT_SIZE = 10;
+const LABEL_SCALE_DEFAULT = 1.0;
+const LABEL_SCALE_LARGE = 2;
+const LABEL_FILL_COLOR_SELECTED = 0x000000;
+const LABEL_FILL_COLOR_HOVER = 0x000000;
+const LABEL_STROKE_COLOR_SELECTED = 0xffffff;
+const LABEL_STROKE_COLOR_HOVER = 0xffffff;
 
 const POINT_COLOR_UNSELECTED = 0xe3e3e3;
 const POINT_COLOR_NO_SELECTION = 0x7575d9;
@@ -30,7 +39,6 @@ const POINT_COLOR_HOVER = 0x760b4f;
 
 const POINT_SCALE_DEFAULT = 1.0;
 const POINT_SCALE_SELECTED = 1.2;
-const POINT_SCALE_NEIGHBOR = 1.2;
 const POINT_SCALE_HOVER = 1.2;
 
 const LABELS_3D_COLOR_UNSELECTED = 0xffffff;
@@ -38,17 +46,6 @@ const LABELS_3D_COLOR_NO_SELECTION = 0xffffff;
 
 const SPRITE_IMAGE_COLOR_UNSELECTED = 0xffffff;
 const SPRITE_IMAGE_COLOR_NO_SELECTION = 0xffffff;
-
-const POLYLINE_START_HUE = 60;
-const POLYLINE_END_HUE = 360;
-const POLYLINE_SATURATION = 1;
-const POLYLINE_LIGHTNESS = 0.3;
-
-const POLYLINE_DEFAULT_OPACITY = 0.2;
-const POLYLINE_DEFAULT_LINEWIDTH = 2;
-const POLYLINE_SELECTED_OPACITY = 0.9;
-const POLYLINE_SELECTED_LINEWIDTH = 3;
-const POLYLINE_DESELECTED_OPACITY = 0.05;
 
 const SCATTER_PLOT_CUBE_LENGTH = 2;
 
@@ -65,7 +62,6 @@ export interface ProjectorParams {
 export class Projector {
   public scatterPlot: ScatterPlot;
   private projection: Projection;
-  private labelPointAccessor: string;
   private containerElement: HTMLElement;
 
   private renderLabelsIn3D = false;
@@ -96,7 +92,7 @@ export class Projector {
 
   set3DLabelMode(renderLabelsIn3D: boolean) {
     this.renderLabelsIn3D = renderLabelsIn3D;
-    this.createVisualizers(renderLabelsIn3D);
+    this.createVisualizers();
     this.updateScatterPlotAttributes();
     this.scatterPlot.render();
   }
@@ -111,9 +107,7 @@ export class Projector {
       this.polylineVisualizer.setProjection(projection);
     }
     if (this.labels3DVisualizer != null) {
-      this.labels3DVisualizer.setLabelStrings(
-        this.generate3DLabelsArray(this.labelPointAccessor)
-      );
+      this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
     }
     if (this.spriteVisualizer == null) {
       return;
@@ -138,15 +132,6 @@ export class Projector {
       metadata.spriteMetadata.singleImageDim,
       spriteIndices
     );
-  }
-
-  setLabelPointAccessor(labelPointAccessor: string) {
-    this.labelPointAccessor = labelPointAccessor;
-    if (this.labels3DVisualizer != null) {
-      this.labels3DVisualizer.setLabelStrings(
-        this.generate3DLabelsArray(labelPointAccessor)
-      );
-    }
   }
 
   resize() {
@@ -176,31 +161,20 @@ export class Projector {
       selectedSet,
       hoverIndex
     );
-    //   const labels = this.generateVisibleLabelRenderParams(
-    //     dataSet,
-    //     selectedSet,
-    //     neighbors,
-    //     hoverIndex
-    //   );
-    //   const polylineColors = this.generateLineSegmentColorMap(
-    //     dataSet,
-    //     pointColorer
-    //   );
-    //   const polylineOpacities = this.generateLineSegmentOpacityArray(
-    //     dataSet,
-    //     selectedSet
-    //   );
-    //   const polylineWidths = this.generateLineSegmentWidthArray(
-    //     dataSet,
-    //     selectedSet
-    //   );
+    const labels = this.generateVisibleLabelRenderParams(
+      selectedSet,
+      hoverIndex
+    );
+    // const polylineColors = this.generateLineSegmentColorMap(pointColorer);
+    // const polylineOpacities = this.generateLineSegmentOpacityArray(selectedSet);
+    // const polylineWidths = this.generateLineSegmentWidthArray(selectedSet);
 
     this.scatterPlot.setPointColors(pointColors);
     this.scatterPlot.setPointScaleFactors(pointScaleFactors);
-    // this.scatterPlot.setLabels(labels);
+    this.scatterPlot.setLabels(labels);
     // this.scatterPlot.setPolylineColors(polylineColors);
-    //   this.scatterPlot.setPolylineOpacities(polylineOpacities);
-    //   this.scatterPlot.setPolylineWidths(polylineWidths);
+    // this.scatterPlot.setPolylineOpacities(polylineOpacities);
+    // this.scatterPlot.setPolylineWidths(polylineWidths);
   }
 
   render() {
@@ -241,6 +215,90 @@ export class Projector {
       }
     });
     return positions;
+  }
+
+  generateVisibleLabelRenderParams(
+    selectedPointIndices: number[],
+    hoverPointIndex: number
+  ): LabelRenderParams {
+    const selectedPointCount =
+      selectedPointIndices == null ? 0 : selectedPointIndices.length;
+    const n = selectedPointCount + (hoverPointIndex != null ? 1 : 0);
+
+    const visibleLabels = new Uint32Array(n);
+    const scale = new Float32Array(n);
+    const opacityFlags = new Int8Array(n);
+    const fillColors = new Uint8Array(n * 3);
+    const strokeColors = new Uint8Array(n * 3);
+    const labelStrings: string[] = [];
+
+    scale.fill(LABEL_SCALE_DEFAULT);
+    opacityFlags.fill(1);
+
+    let dst = 0;
+
+    if (hoverPointIndex != null) {
+      labelStrings.push(this.getLabelText(hoverPointIndex));
+      visibleLabels[dst] = hoverPointIndex;
+      scale[dst] = LABEL_SCALE_LARGE;
+      opacityFlags[dst] = 0;
+      const fillRgb = util.styleRgbFromHexColor(LABEL_FILL_COLOR_HOVER);
+      util.packRgbIntoUint8Array(
+        fillColors,
+        dst,
+        fillRgb[0],
+        fillRgb[1],
+        fillRgb[2]
+      );
+      const strokeRgb = util.styleRgbFromHexColor(LABEL_STROKE_COLOR_HOVER);
+      util.packRgbIntoUint8Array(
+        strokeColors,
+        dst,
+        strokeRgb[0],
+        strokeRgb[1],
+        strokeRgb[1]
+      );
+      ++dst;
+    }
+
+    // Selected points
+    {
+      const n = selectedPointCount;
+      const fillRgb = util.styleRgbFromHexColor(LABEL_FILL_COLOR_SELECTED);
+      const strokeRgb = util.styleRgbFromHexColor(LABEL_STROKE_COLOR_SELECTED);
+      for (let i = 0; i < n; ++i) {
+        const labelIndex = selectedPointIndices[i];
+        labelStrings.push(this.getLabelText(labelIndex));
+        visibleLabels[dst] = labelIndex;
+        scale[dst] = LABEL_SCALE_LARGE;
+        opacityFlags[dst] = n === 1 ? 0 : 1;
+        util.packRgbIntoUint8Array(
+          fillColors,
+          dst,
+          fillRgb[0],
+          fillRgb[1],
+          fillRgb[2]
+        );
+        util.packRgbIntoUint8Array(
+          strokeColors,
+          dst,
+          strokeRgb[0],
+          strokeRgb[1],
+          strokeRgb[2]
+        );
+        ++dst;
+      }
+    }
+
+    return new LabelRenderParams(
+      new Float32Array(visibleLabels),
+      labelStrings,
+      scale,
+      opacityFlags,
+      LABEL_FONT_SIZE,
+      fillColors,
+      strokeColors
+    );
   }
 
   generatePointScaleFactorArray(
@@ -359,22 +417,22 @@ export class Projector {
     return colors;
   }
 
-  generate3DLabelsArray(accessor: string) {
+  generate3DLabelsArray() {
     const { projection } = this;
-    if (projection == null || accessor == null) {
+    if (projection == null) {
       return [];
     }
     let labels: string[] = [];
     const n = projection.points.length;
     for (let i = 0; i < n; ++i) {
-      labels.push(this.getLabelText(i, accessor));
+      labels.push(this.getLabelText(i));
     }
     return labels;
   }
 
-  private getLabelText(i: number, accessor: string) {
+  private getLabelText(i: number) {
     const { projection } = this;
-    return projection.points[i].metadata[accessor].toString();
+    return projection.points[i].metadata.label.toString();
   }
 
   updateScatterPlotWithNewProjection(
@@ -396,15 +454,13 @@ export class Projector {
     this.scatterPlot.setCameraParametersForNextCameraCreation(null, false);
   }
 
-  private createVisualizers(renderLabelsIn3D = false) {
+  private createVisualizers() {
     const scatterPlot = this.scatterPlot;
     scatterPlot.removeAllVisualizers();
 
-    if (renderLabelsIn3D) {
+    if (this.renderLabelsIn3D) {
       this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels();
-      this.labels3DVisualizer.setLabelStrings(
-        this.generate3DLabelsArray(this.labelPointAccessor)
-      );
+      this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
 
       scatterPlot.addVisualizer(this.labels3DVisualizer);
     } else {

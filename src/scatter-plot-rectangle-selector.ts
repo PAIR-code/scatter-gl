@@ -52,24 +52,35 @@ export class ScatterPlotRectangleSelector {
     container: HTMLElement,
     selectionCallback: (boundingBox: ScatterBoundingBox) => void
   ) {
-    // this.svgElement = container.querySelector('#selector') as SVGElement;
-    // this.rectElement = document.createElementNS(
-    //   'http://www.w3.org/2000/svg',
-    //   'rect'
-    // );
-    // this.rectElement.style.stroke = STROKE;
-    // this.rectElement.style.strokeDasharray = STROKE_DASHARRAY;
-    // this.rectElement.style.strokeWidth = '' + STROKE_WIDTH;
-    // this.rectElement.style.fill = FILL;
-    // this.rectElement.style.fillOpacity = '' + FILL_OPACITY;
-    // this.svgElement.appendChild(this.rectElement);
-    // this.selectionCallback = selectionCallback;
-    // this.isMouseDown = false;
+    this.svgElement = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'svg'
+    );
+    this.svgElement.style.display = 'none';
+    this.svgElement.style.height = '100%';
+    this.svgElement.style.width = '100%';
+    this.svgElement.style.position = 'absolute';
+
+    container.insertAdjacentElement('afterbegin', this.svgElement);
+
+    this.rectElement = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'rect'
+    );
+    this.rectElement.style.stroke = STROKE;
+    this.rectElement.style.strokeDasharray = STROKE_DASHARRAY;
+    this.rectElement.style.strokeWidth = '' + STROKE_WIDTH;
+    this.rectElement.style.fill = FILL;
+    this.rectElement.style.fillOpacity = '' + FILL_OPACITY;
+    this.svgElement.appendChild(this.rectElement);
+    this.selectionCallback = selectionCallback;
+    this.isMouseDown = false;
   }
 
   onMouseDown(offsetX: number, offsetY: number) {
     this.isMouseDown = true;
     this.rectElement.style.display = 'block';
+    this.svgElement.style.display = 'block';
 
     this.startCoordinates = [offsetX, offsetY];
     this.lastBoundingBox = {
@@ -103,6 +114,7 @@ export class ScatterPlotRectangleSelector {
 
   onMouseUp() {
     this.isMouseDown = false;
+    this.svgElement.style.display = 'none';
     this.rectElement.style.display = 'none';
     this.rectElement.setAttribute('width', '0');
     this.rectElement.setAttribute('height', '0');

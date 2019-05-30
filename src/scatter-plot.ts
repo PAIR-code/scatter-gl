@@ -357,6 +357,7 @@ export class ScatterPlot {
     this.mouseIsDown = false;
   }
 
+  private lastHovered: number | null = null;
   /**
    * When the mouse moves, find the nearest point (if any) and send it to the
    * hoverlisteners (usually called from embedding.ts)
@@ -369,8 +370,8 @@ export class ScatterPlot {
       this.render();
     } else if (!this.mouseIsDown) {
       this.setNearestPointToMouse(e);
-      console.log('👍', this.nearestPoint);
-      if (this.nearestPoint !== null) {
+      if (this.nearestPoint != this.lastHovered) {
+        this.lastHovered = this.nearestPoint;
         this.projector.onHover(this.nearestPoint);
       }
     }
@@ -419,6 +420,7 @@ export class ScatterPlot {
     if (this.worldSpacePointPositions == null) {
       return [];
     }
+
     const pointCount = this.worldSpacePointPositions.length / 3;
     const dpr = window.devicePixelRatio || 1;
     const x = Math.floor(boundingBox.x * dpr);
@@ -479,14 +481,14 @@ export class ScatterPlot {
       width: 1,
       height: 1,
     };
+
     const pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.nearestPoint = pointIndices != null ? pointIndices[0] : null;
+    this.nearestPoint = pointIndices.length ? pointIndices[0] : null;
   }
 
   private getLayoutValues(): Point2D {
     this.width = this.container.offsetWidth;
     this.height = Math.max(1, this.container.offsetHeight);
-    console.log(this.width, this.height);
     return [this.width, this.height];
   }
 
@@ -667,7 +669,7 @@ export class ScatterPlot {
 
     {
       const axes = this.remove3dAxisFromScene();
-      this.renderer.render(this.scene, this.camera /* this.pickingTexture */);
+      this.renderer.render(this.scene, this.camera, this.pickingTexture);
       if (axes != null) {
         this.scene.add(axes);
       }

@@ -427,7 +427,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'color'
     ) as THREE.BufferAttribute;
     colors.array = this.pickingColors;
-    // colors.count = this.pickingColors.length / RGB_NUM_ELEMENTS;
     colors.needsUpdate = true;
 
     let scaleFactors = (this.points
@@ -435,8 +434,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'scaleFactor'
     ) as THREE.BufferAttribute;
     scaleFactors.array = rc.pointScaleFactors;
-    // scaleFactors.count = rc.pointScaleFactors.length;
-    // scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
     scaleFactors.needsUpdate = true;
   }
 

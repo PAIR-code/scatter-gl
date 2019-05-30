@@ -20,6 +20,8 @@ import * as util from './util';
 
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
 import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
+import { ScatterPlotVisualizerCanvasLabels } from './scatter-plot-visualizer-canvas-labels';
+import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polylines';
 
 const POINT_COLOR_UNSELECTED = 0xe3e3e3;
 const POINT_COLOR_NO_SELECTION = 0x7575d9;
@@ -60,7 +62,7 @@ const NN_COLOR_SCALE = [];
 
 export interface ProjectorParams {
   containerElement: HTMLElement;
-  onHover?: (point: number) => void;
+  onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
 }
 
@@ -72,15 +74,19 @@ export class Projector {
   public scatterPlot: ScatterPlot;
   private projection: Projection;
   private labelPointAccessor: string;
+  private containerElement: HTMLElement;
 
-  private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private spriteVisualizer: ScatterPlotVisualizerSprites;
+  private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
+  private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
+  private polylineVisualizer: ScatterPlotVisualizerPolylines;
 
   private hoverPointIndex: number;
   private selectedPointIndices: number[];
 
   constructor(private params: ProjectorParams) {
     const { containerElement } = this.params;
+    this.containerElement = containerElement;
     this.scatterPlot = new ScatterPlot(containerElement, this);
     // eventContext.registerProjectionChangedListener(projection => {
     //   this.projection = projection;
@@ -105,10 +111,14 @@ export class Projector {
   }
 
   // TODO(andycoene): Implement methods!!!
-  onSelect(selection: number[]) {}
+  onSelect(selection: number[]) {
+    if (this.params.onSelect) this.params.onSelect(selection);
+  }
 
   // TODO(andycoene): Implement methods!!!
-  onHover(point: number) {}
+  onHover(point: number | null) {
+    if (this.params.onHover) this.params.onHover(point);
+  }
 
   notifyProjectionPositionsUpdated() {
     this.updateScatterPlotPositions();
@@ -117,13 +127,14 @@ export class Projector {
 
   setProjection(projection: Projection) {
     this.projection = projection;
-    // if (this.polylineVisualizer != null) {
-    //   this.polylineVisualizer.setDataSet(dataSet);
-    // }
-    // if (this.labels3DVisualizer != null) {
-    //   this.labels3DVisualizer.setLabelStrings(
-    //       this.generate3DLabelsArray(dataSet, this.labelPointAccessor));
-    // }
+    if (this.polylineVisualizer != null) {
+      // this.polylineVisualizer.setDataSet(dataSet);
+    }
+    if (this.labels3DVisualizer != null) {
+      // this.labels3DVisualizer.setLabelStrings(
+      //   this.generate3DLabelsArray(dataSet, this.labelPointAccessor)
+      // );
+    }
     if (this.spriteVisualizer == null) {
       return;
     }
@@ -148,15 +159,15 @@ export class Projector {
     //     spriteIndices);
   }
 
-  setLabelPointAccessor(labelPointAccessor: string) {
-    this.labelPointAccessor = labelPointAccessor;
-    if (this.labels3DVisualizer != null) {
-      const ds = this.projection.dataSet;
-      this.labels3DVisualizer.setLabelStrings(
-        this.generate3DLabelsArray(ds, labelPointAccessor) || []
-      );
-    }
-  }
+  // setLabelPointAccessor(labelPointAccessor: string) {
+  //   this.labelPointAccessor = labelPointAccessor;
+  //   if (this.labels3DVisualizer != null) {
+  //     const ds = this.projection.dataSet;
+  //     this.labels3DVisualizer.setLabelStrings(
+  //       this.generate3DLabelsArray(ds, labelPointAccessor) || []
+  //     );
+  //   }
+  // }
 
   resize() {
     this.scatterPlot.resize();
@@ -409,16 +420,18 @@ export class Projector {
     return colors;
   }
 
-  generate3DLabelsArray(ds: DataSet, accessor: string) {
-    if (ds == null || accessor == null) {
-      return null;
-    }
-    let labels: string[] = [];
-    const n = ds.points.length;
-    for (let i = 0; i < n; ++i) {
-      labels.push(this.getLabelText(ds, i, accessor));
-    }
-    return labels;
+  generate3DLabelsArray() {
+    // generate3DLabelsArray(ds: DataSet, accessor: string) {
+    // if (ds == null || accessor == null) {
+    //   return null;
+    // }
+    // let labels: string[] = [];
+    // const n = ds.points.length;
+    // for (let i = 0; i < n; ++i) {
+    //   labels.push(this.getLabelText(ds, i, accessor));
+    // }
+    // return labels;
+    return [];
   }
 
   private getLabelText(ds: DataSet, i: number, accessor: string) {
@@ -449,17 +462,18 @@ export class Projector {
 
     if (renderLabelsIn3D) {
       this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels();
-      // this.labels3DVisualizer.setLabelStrings(
-      //   this.generate3DLabelsArray(ds, this.labelPointAccessor)
-      // );
+      this.labels3DVisualizer.setLabelStrings(
+        // this.generate3DLabelsArray(ds, this.labelPointAccessor || [])
+        this.generate3DLabelsArray()
+      );
 
       scatterPlot.addVisualizer(this.labels3DVisualizer);
     } else {
       this.spriteVisualizer = new ScatterPlotVisualizerSprites();
       scatterPlot.addVisualizer(this.spriteVisualizer);
-      // this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-      //   this.containerElement
-      // );
+      this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
+        this.containerElement
+      );
     }
   }
 

@@ -4,9 +4,9 @@ import { Projector } from '../src/projector';
 
 const containerElement = document.getElementById('container')!;
 
-const scatterPlotAdapter = new Projector({
+const projector = new Projector({
   containerElement,
-  onHover: (point: number) => {
+  onHover: (point: number | null) => {
     console.log('🔥hover', point);
   },
   onSelect: (points: number[]) => {
@@ -15,4 +15,4 @@ const scatterPlotAdapter = new Projector({
 });
 
 const { projection } = state;
-scatterPlotAdapter.updateScatterPlotWithNewProjection(projection);
+projector.updateScatterPlotWithNewProjection(projection);

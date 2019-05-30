@@ -85,7 +85,10 @@ export interface DataPoint {
 }
 
 export class DataSet {
-  constructor(public points: DataPoint[]) {}
+  constructor(
+    public points: DataPoint[] = [],
+    public sequences: Sequence[] = []
+  ) {}
 }
 
 export class Projection {

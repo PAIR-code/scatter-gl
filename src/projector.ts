@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
 import { Projection } from './data';
 import { LabelRenderParams } from './render';
+import { InteractionMode } from './types';
 import * as util from './util';
 
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
@@ -53,6 +54,7 @@ export interface ProjectorParams {
   containerElement: HTMLElement;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
+  projection: Projection;
 }
 
 /**
@@ -60,7 +62,7 @@ export interface ProjectorParams {
  * to use the ScatterPlot to render the current projected data set.
  */
 export class Projector {
-  public scatterPlot: ScatterPlot;
+  private scatterPlot: ScatterPlot;
   private projection: Projection;
   private containerElement: HTMLElement;
 
@@ -75,19 +77,12 @@ export class Projector {
   private hoverPointIndex: number;
   private selectedPointIndices: number[];
 
-  constructor(private params: ProjectorParams) {
-    const { containerElement } = this.params;
+  constructor(params: ProjectorParams) {
+    const { containerElement, projection } = params;
     this.containerElement = containerElement;
-    this.scatterPlot = new ScatterPlot(containerElement, this);
+    this.scatterPlot = new ScatterPlot(params);
     this.createVisualizers();
-  }
-
-  onSelect(selection: number[]) {
-    if (this.params.onSelect) this.params.onSelect(selection);
-  }
-
-  onHover(point: number | null) {
-    if (this.params.onHover) this.params.onHover(point);
+    this.updateProjection(projection);
   }
 
   set3DLabelMode(renderLabelsIn3D: boolean) {
@@ -97,11 +92,39 @@ export class Projector {
     this.scatterPlot.render();
   }
 
+  setPanMode() {
+    this.scatterPlot.setInteractionMode(InteractionMode.PAN);
+  }
+
+  setSelectMode() {
+    this.scatterPlot.setInteractionMode(InteractionMode.SELECT);
+  }
+
   setLegendPointColorer(legendPointColorer: (index: number) => string) {
     this.legendPointColorer = legendPointColorer;
   }
 
-  setProjection(projection: Projection) {
+  resize() {
+    this.scatterPlot.resize();
+  }
+
+  updateProjection(projection: Projection, canBeRendered = true) {
+    if (projection == null) {
+      this.createVisualizers();
+      this.scatterPlot.render();
+      return;
+    }
+    this.setProjection(projection);
+    this.scatterPlot.setDimensions(projection.components);
+    if (canBeRendered) {
+      this.updateScatterPlotAttributes();
+      this.updateScatterPlotPositions();
+      this.scatterPlot.render();
+    }
+    this.scatterPlot.setCameraParametersForNextCameraCreation(null, false);
+  }
+
+  private setProjection(projection: Projection) {
     this.projection = projection;
     if (this.polylineVisualizer != null) {
       this.polylineVisualizer.setProjection(projection);
@@ -134,16 +157,12 @@ export class Projector {
     );
   }
 
-  resize() {
-    this.scatterPlot.resize();
-  }
-
-  updateScatterPlotPositions() {
+  private updateScatterPlotPositions() {
     const newPositions = this.generatePointPositionArray();
     this.scatterPlot.setPointPositions(newPositions);
   }
 
-  updateScatterPlotAttributes() {
+  private updateScatterPlotAttributes() {
     if (this.projection == null) {
       return;
     }
@@ -177,11 +196,7 @@ export class Projector {
     // this.scatterPlot.setPolylineWidths(polylineWidths);
   }
 
-  render() {
-    this.scatterPlot.render();
-  }
-
-  generatePointPositionArray(): Float32Array {
+  private generatePointPositionArray(): Float32Array {
     const { projection } = this;
     if (projection == null) return new Float32Array([]);
 
@@ -217,7 +232,7 @@ export class Projector {
     return positions;
   }
 
-  generateVisibleLabelRenderParams(
+  private generateVisibleLabelRenderParams(
     selectedPointIndices: number[],
     hoverPointIndex: number
   ): LabelRenderParams {
@@ -301,7 +316,7 @@ export class Projector {
     );
   }
 
-  generatePointScaleFactorArray(
+  private generatePointScaleFactorArray(
     selectedPointIndices: number[],
     hoverPointIndex: number
   ): Float32Array {
@@ -333,7 +348,7 @@ export class Projector {
     return scale;
   }
 
-  generatePointColorArray(
+  private generatePointColorArray(
     legendPointColorer: (index: number) => string,
     selectedPointIndices: number[],
     hoverPointIndex: number,
@@ -417,7 +432,7 @@ export class Projector {
     return colors;
   }
 
-  generate3DLabelsArray() {
+  private generate3DLabelsArray() {
     const { projection } = this;
     if (projection == null) {
       return [];
@@ -433,25 +448,6 @@ export class Projector {
   private getLabelText(i: number) {
     const { projection } = this;
     return projection.points[i].metadata.label.toString();
-  }
-
-  updateScatterPlotWithNewProjection(
-    projection: Projection,
-    canBeRendered = true
-  ) {
-    if (projection == null) {
-      this.createVisualizers();
-      this.scatterPlot.render();
-      return;
-    }
-    this.setProjection(projection);
-    this.scatterPlot.setDimensions(projection.components);
-    if (canBeRendered) {
-      this.updateScatterPlotAttributes();
-      this.updateScatterPlotPositions();
-      this.scatterPlot.render();
-    }
-    this.scatterPlot.setCameraParametersForNextCameraCreation(null, false);
   }
 
   private createVisualizers() {

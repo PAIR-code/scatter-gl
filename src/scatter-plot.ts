@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three-orbitcontrols-ts';
 
-import { Projector } from './projector';
-import { Point2D, Point3D } from './types';
+import { Point2D, Point3D, InteractionMode } from './types';
 import * as util from './util';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import {
@@ -44,18 +43,18 @@ export type OnCameraMoveListener = (
   cameraTarget: THREE.Vector3
 ) => void;
 
-/** Supported modes of interaction. */
-export enum MouseMode {
-  AREA_SELECT,
-  CAMERA_AND_CLICK_SELECT,
-}
-
 /** Defines a camera, suitable for serialization. */
 export class CameraDef {
   orthographic: boolean = false;
   position: Point3D;
   target: Point3D;
   zoom: number;
+}
+
+export interface ScatterPlotParams {
+  containerElement: HTMLElement;
+  onHover?: (point: number | null) => void;
+  onSelect?: (points: number[]) => void;
 }
 
 /**
@@ -65,6 +64,10 @@ export class CameraDef {
  * array of visualizers and dispatches application events to them.
  */
 export class ScatterPlot {
+  private container: HTMLElement;
+  private onHover: (point: number | null) => void = () => {};
+  private onSelect: (point: number[]) => void = () => {};
+
   private visualizers: ScatterPlotVisualizer[] = [];
 
   private onCameraMoveListeners: OnCameraMoveListener[] = [];
@@ -72,7 +75,7 @@ export class ScatterPlot {
   private height: number;
   private width: number;
 
-  private mouseMode: MouseMode;
+  private interactionMode = InteractionMode.PAN;
   private backgroundColor: number = BACKGROUND_COLOR;
 
   private dimensionality: number = 3;
@@ -102,8 +105,12 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  constructor(private container: HTMLElement, private projector: Projector) {
-    this.getLayoutValues();
+  constructor(params: ScatterPlotParams) {
+    this.container = params.containerElement;
+    this.onHover = params.onHover || this.onHover;
+    this.onSelect = params.onSelect || this.onSelect;
+
+    this.computeLayoutValues();
 
     this.scene = new THREE.Scene();
     this.renderer = new THREE.WebGLRenderer({
@@ -306,6 +313,17 @@ export class ScatterPlot {
     }
   }
 
+  setInteractionMode(interactionMode: InteractionMode) {
+    this.interactionMode = interactionMode;
+    if (interactionMode === InteractionMode.SELECT) {
+      this.selecting = true;
+      this.container.style.cursor = 'crosshair';
+    } else {
+      this.selecting = false;
+      this.container.style.cursor = 'default';
+    }
+  }
+
   private onClick(e: MouseEvent | null, notify = true) {
     if (e && this.selecting) {
       return;
@@ -313,7 +331,7 @@ export class ScatterPlot {
     // Only call event handlers if the click originated from the scatter plot.
     if (!this.isDragSequence && notify) {
       const selection = this.nearestPoint != null ? [this.nearestPoint] : [];
-      this.projector.onSelect(selection);
+      this.onSelect(selection);
     }
     this.isDragSequence = false;
     this.render();
@@ -372,7 +390,7 @@ export class ScatterPlot {
       this.setNearestPointToMouse(e);
       if (this.nearestPoint != this.lastHovered) {
         this.lastHovered = this.nearestPoint;
-        this.projector.onHover(this.nearestPoint);
+        this.onHover(this.nearestPoint);
       }
     }
   }
@@ -401,7 +419,7 @@ export class ScatterPlot {
 
     // If shift is released, stop selecting
     if (e.keyCode === SHIFT_KEY) {
-      this.selecting = this.getMouseMode() === MouseMode.AREA_SELECT;
+      this.selecting = this.interactionMode === InteractionMode.PAN;
       if (!this.selecting) {
         this.container.style.cursor = 'default';
       }
@@ -467,7 +485,7 @@ export class ScatterPlot {
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.projector.onSelect(pointIndices);
+    this.onSelect(pointIndices);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {
@@ -486,7 +504,7 @@ export class ScatterPlot {
     this.nearestPoint = pointIndices.length ? pointIndices[0] : null;
   }
 
-  private getLayoutValues(): Point2D {
+  private computeLayoutValues(): Point2D {
     this.width = this.container.offsetWidth;
     this.height = Math.max(1, this.container.offsetHeight);
     return [this.width, this.height];
@@ -681,17 +699,6 @@ export class ScatterPlot {
     this.renderer.render(this.scene, this.camera);
   }
 
-  setMouseMode(mouseMode: MouseMode) {
-    this.mouseMode = mouseMode;
-    if (mouseMode === MouseMode.AREA_SELECT) {
-      this.selecting = true;
-      this.container.style.cursor = 'crosshair';
-    } else {
-      this.selecting = false;
-      this.container.style.cursor = 'default';
-    }
-  }
-
   /** Set the colors for every data point. (RGB triplets) */
   setPointColors(colors: Float32Array) {
     this.pointColors = colors;
@@ -720,10 +727,6 @@ export class ScatterPlot {
     this.polylineWidths = widths;
   }
 
-  getMouseMode(): MouseMode {
-    return this.mouseMode;
-  }
-
   resetZoom() {
     this.recreateCamera(this.makeDefaultCameraDef(this.dimensionality));
     this.render();
@@ -739,7 +742,7 @@ export class ScatterPlot {
 
   resize(render = true) {
     const [oldW, oldH] = [this.width, this.height];
-    const [newW, newH] = this.getLayoutValues();
+    const [newW, newH] = this.computeLayoutValues();
 
     if (this.dimensionality === 3) {
       const camera = this.camera as THREE.PerspectiveCamera;

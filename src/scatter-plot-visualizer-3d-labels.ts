@@ -113,24 +113,24 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private glyphTexture: GlyphTexture;
 
   private createGlyphTexture(): GlyphTexture {
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.width = MAX_CANVAS_DIMENSION;
     canvas.height = FONT_SIZE;
-    let ctx = canvas.getContext('2d')!;
-    ctx.font = 'bold ' + FONT_SIZE * 0.75 + 'px roboto';
+    const ctx = canvas.getContext('2d')!;
+    ctx.font = 'bold ' + FONT_SIZE + 'px roboto';
     ctx.textBaseline = 'top';
     ctx.fillStyle = LABEL_BACKGROUND;
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
     ctx.fillStyle = LABEL_COLOR;
-    let spaceOffset = ctx.measureText(' ').width;
+    const spaceOffset = ctx.measureText(' ').width;
     // For each letter, store length, position at the encoded index.
-    let glyphLengths = new Float32Array(NUM_GLYPHS);
-    let glyphOffset = new Float32Array(NUM_GLYPHS);
+    const glyphLengths = new Float32Array(NUM_GLYPHS);
+    const glyphOffset = new Float32Array(NUM_GLYPHS);
     let leftCoord = 0;
     for (let i = 0; i < NUM_GLYPHS; i++) {
-      let text = ' ' + String.fromCharCode(i);
-      let textLength = ctx.measureText(text).width;
+      const text = ' ' + String.fromCharCode(i);
+      const textLength = ctx.measureText(text).width;
       glyphLengths[i] = textLength - spaceOffset;
       glyphOffset[i] = leftCoord;
       ctx.fillText(text, leftCoord - spaceOffset, 0);
@@ -361,7 +361,9 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     if (this.geometry == null) {
       return;
     }
-    this.colorLabels(rc.pointColors);
+    // Only do this if the user selects a label coloring scheme...
+
+    // this.colorLabels(rc.pointColors);
     this.material.uniforms.texture.value = this.glyphTexture.texture;
     this.material.uniforms.picking.value = false;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;

@@ -7,7 +7,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
         use: 'ts-loader',
       },
@@ -15,10 +15,10 @@ module.exports = {
   },
   resolve: {
     modules: ['node_modules'],
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: ['.ts', '.js'],
   },
   entry: {
-    demo: './demo/index.tsx',
+    demo: './demo/index.ts',
   },
   output: {
     path: path.join(__dirname, '../demo_build'),

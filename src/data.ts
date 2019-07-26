@@ -67,7 +67,7 @@ export class Projection {
   public spriteAndMetadataInfo?: SpriteAndMetadataInfo;
 
   constructor(
-    public points: DataPoint[] = [],
+    public points: DataPoint[],
     public components: number,
     public sequences: Sequence[] = []
   ) {}

@@ -3,15 +3,20 @@ import { state } from './core';
 import { Projector, InteractionMode } from '../src';
 
 const containerElement = document.getElementById('container')!;
+const messagesElement = document.getElementById('messages')!;
 
 const { projection } = state;
 const projector = new Projector({
   containerElement,
   onHover: (point: number | null) => {
-    console.log('🔥hover', point);
+    const message = `🔥hover ${point}`;
+    console.log(message);
+    messagesElement.innerHTML = message;
   },
   onSelect: (points: number[]) => {
-    console.log('🔥select', points);
+    const message = `🔥select ${points}`;
+    console.log(message);
+    messagesElement.innerHTML = message;
   },
   projection,
 });

@@ -17,17 +17,18 @@ import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { RenderContext } from './render';
 import * as util from './util';
+import {
+  LABEL_3D_FONT_SIZE,
+  LABEL_3D_SCALE,
+  LABEL_3D_COLOR,
+  LABEL_3D_BACKGROUND,
+  RGB_NUM_ELEMENTS,
+  UV_NUM_ELEMENTS,
+  XYZ_NUM_ELEMENTS,
+} from './constants';
 
-const FONT_SIZE = 80;
-const ONE_OVER_FONT_SIZE = 1 / FONT_SIZE;
-const LABEL_SCALE = 2.2; // at 1:1 texel/pixel ratio
-const LABEL_COLOR = 'black';
-const LABEL_BACKGROUND = 'white';
 const MAX_CANVAS_DIMENSION = 8192;
 const NUM_GLYPHS = 256;
-const RGB_ELEMENTS_PER_ENTRY = 3;
-const XYZ_ELEMENTS_PER_ENTRY = 3;
-const UV_ELEMENTS_PER_ENTRY = 2;
 const VERTICES_PER_GLYPH = 2 * 3; // 2 triangles, 3 verts per triangle
 
 /**
@@ -66,7 +67,7 @@ const VERTEX_SHADER = `
   
         mat4 pointToCamera = mat4(vRight, vUp, vAt, vec4(0, 0, 0, 1));
   
-        vec2 scaledPos = posObj * ${ONE_OVER_FONT_SIZE} * ${LABEL_SCALE};
+        vec2 scaledPos = posObj * ${1 / LABEL_3D_FONT_SIZE} * ${LABEL_3D_SCALE};
   
         vec4 posRotated = pointToCamera * vec4(scaledPos, 0, 1);
         vec4 mvPosition = modelViewMatrix * (vec4(position, 0) + posRotated);
@@ -115,14 +116,14 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private createGlyphTexture(): GlyphTexture {
     const canvas = document.createElement('canvas');
     canvas.width = MAX_CANVAS_DIMENSION;
-    canvas.height = FONT_SIZE;
+    canvas.height = LABEL_3D_FONT_SIZE;
     const ctx = canvas.getContext('2d')!;
-    ctx.font = 'bold ' + FONT_SIZE + 'px roboto';
+    ctx.font = 'bold ' + LABEL_3D_FONT_SIZE + 'px roboto';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = LABEL_BACKGROUND;
+    ctx.fillStyle = LABEL_3D_BACKGROUND;
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
-    ctx.fillStyle = LABEL_COLOR;
+    ctx.fillStyle = LABEL_3D_COLOR;
     const spaceOffset = ctx.measureText(' ').width;
     // For each letter, store length, position at the encoded index.
     const glyphLengths = new Float32Array(NUM_GLYPHS);
@@ -159,20 +160,20 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
 
   private createColorBuffers(pointCount: number) {
     this.pickingColors = new Float32Array(
-      this.totalVertexCount * RGB_ELEMENTS_PER_ENTRY
+      this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     this.renderColors = new Float32Array(
-      this.totalVertexCount * RGB_ELEMENTS_PER_ENTRY
+      this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     for (let i = 0; i < pointCount; i++) {
       let color = new THREE.Color(i);
       this.labelVertexMap[i].forEach(j => {
-        this.pickingColors[RGB_ELEMENTS_PER_ENTRY * j] = color.r;
-        this.pickingColors[RGB_ELEMENTS_PER_ENTRY * j + 1] = color.g;
-        this.pickingColors[RGB_ELEMENTS_PER_ENTRY * j + 2] = color.b;
-        this.renderColors[RGB_ELEMENTS_PER_ENTRY * j] = 1.0;
-        this.renderColors[RGB_ELEMENTS_PER_ENTRY * j + 1] = 1.0;
-        this.renderColors[RGB_ELEMENTS_PER_ENTRY * j + 2] = 1.0;
+        this.pickingColors[RGB_NUM_ELEMENTS * j] = color.r;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = color.g;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = color.b;
+        this.renderColors[RGB_NUM_ELEMENTS * j] = 1.0;
+        this.renderColors[RGB_NUM_ELEMENTS * j + 1] = 1.0;
+        this.renderColors[RGB_NUM_ELEMENTS * j + 2] = 1.0;
       });
     }
   }
@@ -181,8 +182,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     if (this.labelStrings == null || this.worldSpacePointPositions == null) {
       return;
     }
-    const pointCount =
-      this.worldSpacePointPositions.length / XYZ_ELEMENTS_PER_ENTRY;
+    const pointCount = this.worldSpacePointPositions.length / XYZ_NUM_ELEMENTS;
     if (pointCount !== this.labelStrings.length) {
       return;
     }
@@ -204,25 +204,18 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     this.createColorBuffers(pointCount);
 
     let positionArray = new Float32Array(
-      this.totalVertexCount * XYZ_ELEMENTS_PER_ENTRY
+      this.totalVertexCount * XYZ_NUM_ELEMENTS
     );
-    this.positions = new THREE.BufferAttribute(
-      positionArray,
-      XYZ_ELEMENTS_PER_ENTRY
-    );
+    this.positions = new THREE.BufferAttribute(positionArray, XYZ_NUM_ELEMENTS);
 
-    let posArray = new Float32Array(
-      this.totalVertexCount * XYZ_ELEMENTS_PER_ENTRY
-    );
-    let uvArray = new Float32Array(
-      this.totalVertexCount * UV_ELEMENTS_PER_ENTRY
-    );
+    let posArray = new Float32Array(this.totalVertexCount * XYZ_NUM_ELEMENTS);
+    let uvArray = new Float32Array(this.totalVertexCount * UV_NUM_ELEMENTS);
     let colorsArray = new Float32Array(
-      this.totalVertexCount * RGB_ELEMENTS_PER_ENTRY
+      this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     let positionObject = new THREE.BufferAttribute(posArray, 2);
-    let uv = new THREE.BufferAttribute(uvArray, UV_ELEMENTS_PER_ENTRY);
-    let colors = new THREE.BufferAttribute(colorsArray, RGB_ELEMENTS_PER_ENTRY);
+    let uv = new THREE.BufferAttribute(uvArray, UV_NUM_ELEMENTS);
+    let colors = new THREE.BufferAttribute(colorsArray, RGB_NUM_ELEMENTS);
 
     this.geometry = new THREE.BufferGeometry();
     this.geometry.addAttribute('posObj', positionObject);
@@ -243,10 +236,10 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       for (let j = 0; j < label.length; j++) {
         let letterCode = label.charCodeAt(j);
         let letterWidth = this.glyphTexture.lengths[letterCode];
-        let scale = FONT_SIZE;
+        let scale = LABEL_3D_FONT_SIZE;
         let right = (leftOffset + letterWidth) / scale;
         let left = leftOffset / scale;
-        let top = FONT_SIZE / scale;
+        let top = LABEL_3D_FONT_SIZE / scale;
 
         // First triangle
         positionObject.setXY(lettersSoFar * VERTICES_PER_GLYPH + 0, left, 0);
@@ -302,7 +295,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     colors.array = this.renderColors;
 
-    const n = pointColors.length / XYZ_ELEMENTS_PER_ENTRY;
+    const n = pointColors.length / XYZ_NUM_ELEMENTS;
     let src = 0;
     for (let i = 0; i < n; ++i) {
       const c = new THREE.Color(
@@ -314,7 +307,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       for (let j = 0; j < m; ++j) {
         colors.setXYZ(this.labelVertexMap[i][j], c.r, c.g, c.b);
       }
-      src += RGB_ELEMENTS_PER_ENTRY;
+      src += RGB_NUM_ELEMENTS;
     }
     colors.needsUpdate = true;
   }

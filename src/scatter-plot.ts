@@ -24,8 +24,7 @@ import {
   ScatterPlotRectangleSelector,
 } from './scatter-plot-rectangle-selector';
 import { CameraType, LabelRenderParams, RenderContext } from './render';
-
-const BACKGROUND_COLOR = 0xffffff;
+import { BACKGROUND_COLOR } from './constants';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the

@@ -17,15 +17,14 @@ import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { CameraType, RenderContext } from './render';
 import * as util from './util';
-
-const NUM_POINTS_FOG_THRESHOLD = 5000;
-const MIN_POINT_SIZE = 5.0;
-const IMAGE_SIZE = 30;
-
-// Constants relating to the indices of buffer arrays.
-const RGB_NUM_ELEMENTS = 3;
-const INDEX_NUM_ELEMENTS = 1;
-const XYZ_NUM_ELEMENTS = 3;
+import {
+  SPRITES_NUM_POINTS_FOG_THRESHOLD,
+  SPRITES_MIN_POINT_SIZE,
+  SPRITES_IMAGE_SIZE,
+  RGB_NUM_ELEMENTS,
+  INDEX_NUM_ELEMENTS,
+  XYZ_NUM_ELEMENTS,
+} from './constants';
 
 const VERTEX_SHADER = `
     // Index of the specific vertex (passed in as bufferAttribute), and the
@@ -76,7 +75,9 @@ const VERTEX_SHADER = `
       }
   
       gl_PointSize =
-        max(outputPointSize * scaleFactor, ${MIN_POINT_SIZE.toFixed(1)});
+        max(outputPointSize * scaleFactor, ${SPRITES_MIN_POINT_SIZE.toFixed(
+          1
+        )});
     }`;
 
 const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
@@ -265,7 +266,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
 
   private calculatePointSize(sceneIs3D: boolean): number {
     if (this.texture != null) {
-      return sceneIs3D ? IMAGE_SIZE : this.spriteDimensions[0];
+      return sceneIs3D ? SPRITES_IMAGE_SIZE : this.spriteDimensions[0];
     }
     const n =
       this.worldSpacePointPositions != null
@@ -326,7 +327,9 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       // by making the "far" value (that is, the distance from the camera to the
       // far edge of the fog) proportional to the number of points.
       let multiplier =
-        2 - Math.min(n, NUM_POINTS_FOG_THRESHOLD) / NUM_POINTS_FOG_THRESHOLD;
+        2 -
+        Math.min(n, SPRITES_NUM_POINTS_FOG_THRESHOLD) /
+          SPRITES_NUM_POINTS_FOG_THRESHOLD;
       this.fog.far = farthestPointZ * multiplier;
     } else {
       this.fog.near = Infinity;

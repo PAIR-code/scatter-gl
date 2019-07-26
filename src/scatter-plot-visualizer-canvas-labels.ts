@@ -19,9 +19,9 @@ import { CameraType, RenderContext } from './render';
 import { BoundingBox, CollisionGrid } from './label';
 import * as util from './util';
 
+import { LABEL_STROKE_WIDTH, LABEL_FILL_WIDTH } from './constants';
+
 const MAX_LABELS_ON_SCREEN = 10000;
-const LABEL_STROKE_WIDTH = 3;
-const LABEL_FILL_WIDTH = 6;
 
 /**
  * Creates and maintains a 2d canvas on top of the GL canvas. All labels, when

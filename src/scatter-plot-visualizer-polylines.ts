@@ -18,9 +18,7 @@ import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { RenderContext } from './render';
 import { DataSet } from './data';
 import * as util from './util';
-
-const RGB_NUM_ELEMENTS = 3;
-const XYZ_NUM_ELEMENTS = 3;
+import { RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS } from './constants';
 
 /**
  * Renders polylines that connect multiple points in the dataset.

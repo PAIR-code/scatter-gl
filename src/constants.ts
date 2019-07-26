@@ -13,6 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+export const RGB_NUM_ELEMENTS = 3;
+export const XYZ_NUM_ELEMENTS = 3;
+export const UV_NUM_ELEMENTS = 2;
+export const INDEX_NUM_ELEMENTS = 1;
+
+export const BACKGROUND_COLOR = 0xffffff;
+
 export const LABEL_FONT_SIZE = 10;
 export const LABEL_SCALE_DEFAULT = 1.0;
 export const LABEL_SCALE_LARGE = 2;
@@ -20,6 +27,15 @@ export const LABEL_FILL_COLOR_SELECTED = 0x000000;
 export const LABEL_FILL_COLOR_HOVER = 0x000000;
 export const LABEL_STROKE_COLOR_SELECTED = 0xffffff;
 export const LABEL_STROKE_COLOR_HOVER = 0xffffff;
+export const LABEL_STROKE_WIDTH = 3;
+export const LABEL_FILL_WIDTH = 6;
+
+export const LABEL_3D_FONT_SIZE = 80;
+export const LABEL_3D_SCALE = 2.2; // at 1:1 texel/pixel ratio
+export const LABEL_3D_COLOR = 'black';
+export const LABEL_3D_BACKGROUND = 'white';
+export const LABEL_3D_COLOR_UNSELECTED = 0xffffff;
+export const LABEL_3D_COLOR_NO_SELECTION = 0xffffff;
 
 export const POINT_COLOR_UNSELECTED = 0xe3e3e3;
 export const POINT_COLOR_NO_SELECTION = 0x7575d9;
@@ -29,12 +45,6 @@ export const POINT_COLOR_HOVER = 0x760b4f;
 export const POINT_SCALE_DEFAULT = 1.0;
 export const POINT_SCALE_SELECTED = 1.2;
 export const POINT_SCALE_HOVER = 1.2;
-
-export const LABELS_3D_COLOR_UNSELECTED = 0xffffff;
-export const LABELS_3D_COLOR_NO_SELECTION = 0xffffff;
-
-export const SPRITE_IMAGE_COLOR_UNSELECTED = 0xffffff;
-export const SPRITE_IMAGE_COLOR_NO_SELECTION = 0xffffff;
 
 export const SCATTER_PLOT_CUBE_LENGTH = 2;
 
@@ -54,3 +64,9 @@ export const SELECT_FILL_OPACITY = 0.2;
 export const SELECT_STROKE = '#aaaaaa';
 export const SELECT_STROKE_WIDTH = 2;
 export const SELECT_STROKE_DASHARRAY = '10 5';
+
+export const SPRITES_NUM_POINTS_FOG_THRESHOLD = 5000;
+export const SPRITES_MIN_POINT_SIZE = 5.0;
+export const SPRITES_IMAGE_SIZE = 30;
+export const SPRITE_IMAGE_COLOR_UNSELECTED = 0xffffff;
+export const SPRITE_IMAGE_COLOR_NO_SELECTION = 0xffffff;

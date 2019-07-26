@@ -1,4 +1,4 @@
-/* Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2019 Google LLC. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@ limitations under the License.
 
 import * as THREE from 'three';
 import { Point2D } from './types';
+import {
+  POLYLINE_START_HUE,
+  POLYLINE_END_HUE,
+  POLYLINE_SATURATION,
+  POLYLINE_LIGHTNESS,
+} from './constants';
 
 /** Projects a 3d point into screen space */
 export function vector3DToScreenCoords(
@@ -152,4 +158,19 @@ export function packRgbIntoUint8Array(
 export function styleRgbFromHexColor(hex: number): [number, number, number] {
   const c = new THREE.Color(hex);
   return [(c.r * 255) | 0, (c.g * 255) | 0, (c.b * 255) | 0];
+}
+
+const polylineSaturation = `${100 * POLYLINE_SATURATION}%`;
+const polylineLightness = `${100 * POLYLINE_LIGHTNESS}%`;
+
+export function getDefaultPointInPolylineColor(
+  index: number,
+  totalPoints: number
+): THREE.Color {
+  let hue =
+    POLYLINE_START_HUE +
+    ((POLYLINE_END_HUE - POLYLINE_START_HUE) * index) / totalPoints;
+
+  const hsl = `hsl(${hue}, ${polylineSaturation}, ${polylineLightness})`;
+  return new THREE.Color(hsl);
 }

@@ -1,4 +1,4 @@
-/* Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2019 Google LLC. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-const FILL = '#dddddd';
-const FILL_OPACITY = 0.2;
-const STROKE = '#aaaaaa';
-const STROKE_WIDTH = 2;
-const STROKE_DASHARRAY = '10 5';
+import {
+  SELECT_FILL,
+  SELECT_FILL_OPACITY,
+  SELECT_STROKE,
+  SELECT_STROKE_WIDTH,
+  SELECT_STROKE_DASHARRAY,
+} from './constants';
 
 export interface ScatterBoundingBox {
   // The bounding box (x, y) position refers to the bottom left corner of the
@@ -67,11 +69,11 @@ export class ScatterPlotRectangleSelector {
       'http://www.w3.org/2000/svg',
       'rect'
     );
-    this.rectElement.style.stroke = STROKE;
-    this.rectElement.style.strokeDasharray = STROKE_DASHARRAY;
-    this.rectElement.style.strokeWidth = '' + STROKE_WIDTH;
-    this.rectElement.style.fill = FILL;
-    this.rectElement.style.fillOpacity = '' + FILL_OPACITY;
+    this.rectElement.style.stroke = SELECT_STROKE;
+    this.rectElement.style.strokeDasharray = SELECT_STROKE_DASHARRAY;
+    this.rectElement.style.strokeWidth = '' + SELECT_STROKE_WIDTH;
+    this.rectElement.style.fill = SELECT_FILL;
+    this.rectElement.style.fillOpacity = '' + SELECT_FILL_OPACITY;
     this.svgElement.appendChild(this.rectElement);
     this.selectionCallback = selectionCallback;
     this.isMouseDown = false;

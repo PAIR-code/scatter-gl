@@ -5,7 +5,7 @@ import { Projector, InteractionMode } from '../src';
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
-const { projection } = state;
+const { dataSet } = state;
 const projector = new Projector({
   containerElement,
   onHover: (point: number | null) => {
@@ -18,7 +18,7 @@ const projector = new Projector({
     console.log(message);
     messagesElement.innerHTML = message;
   },
-  projection,
+  dataSet,
 });
 
 const setInteractionMode = (mode: InteractionMode) => () => {

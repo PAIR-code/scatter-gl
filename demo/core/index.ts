@@ -1,6 +1,6 @@
 import * as fmnist from '../../data/fmnist.json';
 
-import { DataPoint, Projection } from '../../src/data';
+import { DataPoint, DataSet } from '../../src/data';
 
 class State {
   data: number[][] = [];
@@ -8,7 +8,7 @@ class State {
   labelNames = new Map<number, string>();
 
   // Projector-compatible data points wrapper for visualization
-  projection: Projection;
+  dataSet: DataSet;
 
   constructor() {
     // Populate the label names
@@ -34,7 +34,7 @@ class State {
       });
     }
 
-    this.projection = new Projection(dataPoints, 3);
+    this.dataSet = new DataSet(dataPoints, 3);
   }
 }
 

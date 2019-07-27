@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "three": "^0.106.2",
+    "three-orbitcontrols": "^2.102.2",
     "three-orbitcontrols-ts": "^0.1.2"
   },
   "prettier": {

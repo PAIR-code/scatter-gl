@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three-orbitcontrols-ts';
+import * as OrbitControls from 'three-orbitcontrols';
 
 import { Point2D, Point3D, InteractionMode } from './types';
 import * as util from './util';
@@ -51,6 +51,7 @@ const START_CAMERA_TARGET_2D = new THREE.Vector3(0, 0, 0);
 
 const ORBIT_MOUSE_ROTATION_SPEED = 1;
 const ORBIT_ANIMATION_ROTATION_CYCLE_IN_SECONDS = 7;
+const ORBIT_ZOOM_SPEED = 0.125;
 
 export type OnCameraMoveListener = (
   cameraPosition: THREE.Vector3,
@@ -187,13 +188,14 @@ export class ScatterPlot {
       this.orbitCameraControls.dispose();
     }
     const occ = new OrbitControls(camera, this.renderer.domElement);
-    (occ as any).target0 = new THREE.Vector3(
+    occ.target0 = new THREE.Vector3(
       cameraDef.target[0],
       cameraDef.target[1],
       cameraDef.target[2]
     );
-    (occ as any).position0 = new THREE.Vector3().copy(camera.position);
-    (occ as any).zoom0 = cameraDef.zoom;
+    occ.position0 = new THREE.Vector3().copy(camera.position);
+    occ.zoom0 = cameraDef.zoom;
+    occ.zoomSpeed = ORBIT_ZOOM_SPEED;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
@@ -201,7 +203,7 @@ export class ScatterPlot {
       occ.mouseButtons.ORBIT = THREE.MOUSE.LEFT;
       occ.mouseButtons.PAN = THREE.MOUSE.RIGHT;
     } else {
-      (occ.mouseButtons as any).ORBIT = null;
+      occ.mouseButtons.ORBIT = null;
       occ.mouseButtons.PAN = THREE.MOUSE.LEFT;
     }
     occ.reset();

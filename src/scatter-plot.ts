@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import * as OrbitControls from 'three-orbitcontrols';
+import { OrbitControls } from './orbit-controls';
 
 import { Point2D, Point3D, InteractionMode } from './types';
 import * as util from './util';

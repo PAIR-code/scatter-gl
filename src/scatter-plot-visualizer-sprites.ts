@@ -40,6 +40,8 @@ const VERTEX_SHADER = `
     uniform float pointSize;
     uniform float spritesPerRow;
     uniform float spritesPerColumn;
+
+    varying float fogDepth;
   
     void main() {
       // Pass index and color values to fragment shader.
@@ -60,6 +62,7 @@ const VERTEX_SHADER = `
       float outputPointSize = pointSize;
       if (sizeAttenuation) {
         outputPointSize = -pointSize / cameraSpacePos.z;
+        fogDepth = pointSize / outputPointSize * 1.2;
       } else {  // Create size attenuation (if we're in 2D mode)
         const float PI = 3.1415926535897932384626433832795;
         const float minScale = 0.1;  // minimum scaling factor
@@ -111,9 +114,12 @@ const FRAGMENT_SHADER = `
     uniform bool isImage;
   
     ${THREE.ShaderChunk['common']}
-    ${THREE.ShaderChunk['fog_pars_fragment']}
     ${FRAGMENT_SHADER_POINT_TEST_CHUNK}
-  
+    uniform vec3 fogColor;
+    varying float fogDepth;
+		uniform float fogNear;
+    uniform float fogFar;
+      
     void main() {
       if (isImage) {
         // Coordinates of the vertex within the entire sprite image.
@@ -127,7 +133,8 @@ const FRAGMENT_SHADER = `
         }
         gl_FragColor = vec4(vColor, 1);
       }
-      ${THREE.ShaderChunk['fog_fragment']}
+      float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
+      gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
     }`;
 
 const FRAGMENT_SHADER_PICKING = `
@@ -136,9 +143,12 @@ const FRAGMENT_SHADER_PICKING = `
     uniform bool isImage;
   
     ${FRAGMENT_SHADER_POINT_TEST_CHUNK}
+
+    varying float fogDepth;
   
     void main() {
       xyIndex; // Silence 'unused variable' warning.
+      fogDepth; // Silence 'unused variable' warning.
       if (isImage) {
         gl_FragColor = vec4(vColor, 1);
       } else {
@@ -407,7 +417,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'position'
     ) as THREE.BufferAttribute;
     positions.array = newPositions;
-    // positions.count = newPositions.length / XYZ_NUM_ELEMENTS;
+    positions.count = newPositions.length / XYZ_NUM_ELEMENTS;
     positions.needsUpdate = true;
   }
 
@@ -430,6 +440,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'color'
     ) as THREE.BufferAttribute;
     colors.array = this.pickingColors;
+    colors.count = this.pickingColors.length / RGB_NUM_ELEMENTS;
     colors.needsUpdate = true;
 
     let scaleFactors = (this.points
@@ -437,6 +448,8 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'scaleFactor'
     ) as THREE.BufferAttribute;
     scaleFactors.array = rc.pointScaleFactors;
+    scaleFactors.count = rc.pointScaleFactors.length;
+    scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
     scaleFactors.needsUpdate = true;
   }
 
@@ -445,16 +458,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       return;
     }
     const sceneIs3D: boolean = rc.camera instanceof THREE.PerspectiveCamera;
-
     this.setFogDistances(
       sceneIs3D,
       rc.nearestCameraSpacePointZ,
       rc.farthestCameraSpacePointZ
     );
-
     this.scene.fog = this.fog;
     this.scene.fog.color = new THREE.Color(rc.backgroundColor);
-
     this.renderMaterial.uniforms.fogColor.value = this.scene.fog.color;
     this.renderMaterial.uniforms.fogNear.value = this.fog.near;
     this.renderMaterial.uniforms.fogFar.value = this.fog.far;
@@ -468,19 +478,19 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       sceneIs3D
     );
     this.points.material = this.renderMaterial;
-
     let colors = (this.points.geometry as THREE.BufferGeometry).getAttribute(
       'color'
     ) as THREE.BufferAttribute;
     this.renderColors = rc.pointColors;
     colors.array = this.renderColors;
+    colors.count = this.renderColors.length / RGB_NUM_ELEMENTS;
     colors.needsUpdate = true;
-
     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
     scaleFactors.array = rc.pointScaleFactors;
+    scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
     scaleFactors.needsUpdate = true;
   }
 

@@ -69,18 +69,6 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/three@0.81":
-  version "0.81.1"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.81.1.tgz#83e360fd3b3564640ce9bd967599c572f461815a"
-  integrity sha1-g+Ng/Ts1ZGQM6b2WdZnFcvRhgVo=
-  dependencies:
-    "@types/webvr-api" "*"
-
-"@types/webvr-api@*":
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.35.tgz#13b3cf1cd90544524d932ed36e6b109a2ec73d22"
-  integrity sha512-jdpJqweU5v7hYwUlHKQU6wzjQvUfBfmTz4WBwVd/5PVGYalKm6YbEnM/3T+M+QzRYf2R/ojBGnrWpjHBZFR3Og==
-
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -5135,10 +5123,10 @@ three-orbitcontrols-ts@^0.1.2:
   dependencies:
     three "^0.83.0"
 
-three@0.77:
-  version "0.77.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.77.1.tgz#f17d7596e49fd07864b146d00d848b8ed1b0f6f4"
-  integrity sha1-8X11luSf0HhksUbQDYSLjtGw9vQ=
+three@^0.106.2:
+  version "0.106.2"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.106.2.tgz#6752d304c470e4df230944ecd45325e7bf79e1f8"
+  integrity sha512-4Tlx43uoxnIaZFW2Bzkd1rXsatvVHEWAZJy8LuE+s6Q8c66ogNnhfq1bHiBKPAnXP230LD11H/ScIZc2LZMviA==
 
 three@^0.83.0:
   version "0.83.0"

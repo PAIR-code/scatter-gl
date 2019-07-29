@@ -83,19 +83,41 @@ export function getNearFarPoints(
   return [shortestDist, furthestDist];
 }
 
-/**
- * Generate a texture for the points/images and sets some initial params
- */
-export function createTexture(
-  image: HTMLImageElement | HTMLCanvasElement
+function prepareTexture(
+  texture: THREE.Texture,
+  needsUpdate = true
 ): THREE.Texture {
-  let tex = new THREE.Texture(image);
-  tex.needsUpdate = true;
+  texture.needsUpdate = needsUpdate;
   // Used if the texture isn't a power of 2.
-  tex.minFilter = THREE.LinearFilter;
-  tex.generateMipmaps = false;
-  tex.flipY = false;
-  return tex;
+  texture.minFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  texture.flipY = false;
+  return texture;
+}
+
+/**
+ * Generate a texture from a canvas and sets some initial params
+ */
+export function createTextureFromCanvas(
+  image: HTMLCanvasElement
+): THREE.Texture {
+  const texture = new THREE.Texture(image);
+  return prepareTexture(texture);
+}
+
+/**
+ * Generate a texture from an image and sets some initial params
+ */
+export function createTextureFromImage(
+  image: HTMLImageElement,
+  onImageLoad: () => void
+): THREE.Texture {
+  const texture = new THREE.Texture(image);
+  image.onload = () => {
+    texture.needsUpdate = true;
+    onImageLoad();
+  };
+  return prepareTexture(texture, false);
 }
 
 /** Checks to see if the browser supports webgl. */

@@ -70,7 +70,9 @@ export class Projector {
 
   private scatterPlot: ScatterPlot;
 
-  private renderLabelsIn3D = false;
+  private labels3DMode = false;
+  private spriteImageMode = false;
+
   private legendPointColorer: LegendPointColorer;
 
   private spriteVisualizer: ScatterPlotVisualizerSprites;
@@ -89,8 +91,8 @@ export class Projector {
     this.updateDataSet(dataSet);
   }
 
-  set3DLabelMode(renderLabelsIn3D: boolean) {
-    this.renderLabelsIn3D = renderLabelsIn3D;
+  set3DLabelMode(labels3DMode: boolean) {
+    this.labels3DMode = labels3DMode;
     this.createVisualizers();
     this.updateScatterPlotAttributes();
     this.scatterPlot.render();
@@ -143,7 +145,7 @@ export class Projector {
     if (this.spriteVisualizer == null) {
       return;
     }
-    this.spriteVisualizer.clearSpriteAtlas();
+    this.spriteVisualizer.clearSpriteSheet();
 
     if (dataSet == null || dataSet.spriteMetadata == null) {
       return;
@@ -155,16 +157,19 @@ export class Projector {
     ) {
       return;
     }
+    this.spriteImageMode = true;
     const n = dataSet.points.length;
     const spriteIndices = new Float32Array(n);
     for (let i = 0; i < n; ++i) {
       spriteIndices[i] = dataSet.points[i].index;
     }
 
-    this.spriteVisualizer.setSpriteAtlas(
-      spriteMetadata.spriteImage,
+    const onImageLoad = () => this.render();
+    this.spriteVisualizer.setSpriteSheet(
+      spriteMetadata.spriteImage as HTMLImageElement,
       spriteMetadata.singleSpriteSize,
-      spriteIndices
+      spriteIndices,
+      onImageLoad
     );
   }
 
@@ -185,7 +190,9 @@ export class Projector {
     const pointColors = this.generatePointColorArray(
       pointColorer,
       selectedSet,
-      hoverIndex
+      hoverIndex,
+      this.labels3DMode,
+      this.spriteImageMode
     );
     const pointScaleFactors = this.generatePointScaleFactorArray(
       selectedSet,
@@ -554,7 +561,7 @@ export class Projector {
     const scatterPlot = this.scatterPlot;
     scatterPlot.removeAllVisualizers();
 
-    if (this.renderLabelsIn3D) {
+    if (this.labels3DMode) {
       this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels();
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
 

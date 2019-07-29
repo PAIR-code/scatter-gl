@@ -19,7 +19,7 @@ export interface PointMetadata {
 
 /** Matches the json format of `projector_config.proto` */
 export interface SpriteMetadata {
-  spriteImage?: HTMLImageElement;
+  spriteImage?: HTMLImageElement | string;
   singleSpriteSize: [number, number];
 }
 

@@ -167,6 +167,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private scene: THREE.Scene;
   private fog: THREE.Fog;
   private texture: THREE.Texture;
+  private spriteSheetImage: HTMLImageElement;
   private standinTextureForPoints: THREE.Texture;
   private spritesPerRow: number;
   private spritesPerColumn: number;
@@ -181,33 +182,11 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private renderColors: Float32Array;
 
   constructor() {
-    this.standinTextureForPoints = util.createTexture(
+    this.standinTextureForPoints = util.createTextureFromCanvas(
       document.createElement('canvas')
     );
     this.renderMaterial = this.createRenderMaterial(false);
     this.pickingMaterial = this.createPickingMaterial(false);
-  }
-
-  private createTextureFromSpriteAtlas(
-    spriteAtlas: HTMLImageElement,
-    spriteDimensions: [number, number],
-    spriteIndices: Float32Array
-  ) {
-    this.texture = util.createTexture(spriteAtlas);
-    this.spritesPerRow = spriteAtlas.width / spriteDimensions[0];
-    this.spritesPerColumn = spriteAtlas.height / spriteDimensions[1];
-    this.spriteDimensions = spriteDimensions;
-    this.spriteIndexBufferAttribute = new THREE.BufferAttribute(
-      spriteIndices,
-      INDEX_NUM_ELEMENTS
-    );
-
-    if (this.points != null) {
-      (this.points.geometry as THREE.BufferGeometry).addAttribute(
-        'spriteIndex',
-        this.spriteIndexBufferAttribute
-      );
-    }
   }
 
   private createUniforms(): any {
@@ -349,7 +328,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
 
   dispose() {
     this.disposeGeometry();
-    this.disposeTextureAtlas();
+    this.disposeSpriteSheet();
   }
 
   private disposeGeometry() {
@@ -361,36 +340,63 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     }
   }
 
-  private disposeTextureAtlas() {
+  private disposeSpriteSheet() {
     if (this.texture != null) {
       this.texture.dispose();
     }
     (this.texture as any) = null;
     (this.renderMaterial as any) = null;
     (this.pickingMaterial as any) = null;
+    (this.spriteSheetImage as any) = null;
   }
 
   setScene(scene: THREE.Scene) {
     this.scene = scene;
   }
 
-  setSpriteAtlas(
-    spriteImage: HTMLImageElement,
+  setSpriteSheet(
+    spriteSheet: HTMLImageElement | string,
     spriteDimensions: [number, number],
-    spriteIndices: Float32Array
+    spriteIndices: Float32Array,
+    onImageLoad: () => void
   ) {
-    this.disposeTextureAtlas();
-    this.createTextureFromSpriteAtlas(
-      spriteImage,
-      spriteDimensions,
-      spriteIndices
+    this.disposeSpriteSheet();
+
+    // Load the sprite sheet as an image if a URL is supplied
+    if (typeof spriteSheet === 'string') {
+      const spriteSheetUrl = spriteSheet;
+      spriteSheet = new Image();
+      spriteSheet.src = spriteSheetUrl;
+    }
+    this.spriteSheetImage = spriteSheet as HTMLImageElement;
+
+    // Create texture from sprite sheet image
+    this.texture = util.createTextureFromImage(this.spriteSheetImage, () => {
+      // Set the sprites per row uniforms when the image is finally loaded
+      this.spritesPerRow = this.spriteSheetImage.width / spriteDimensions[0];
+      this.spritesPerColumn =
+        this.spriteSheetImage.height / spriteDimensions[1];
+      onImageLoad();
+    });
+    this.spriteDimensions = spriteDimensions;
+    this.spriteIndexBufferAttribute = new THREE.BufferAttribute(
+      spriteIndices,
+      INDEX_NUM_ELEMENTS
     );
+
+    if (this.points != null) {
+      (this.points.geometry as THREE.BufferGeometry).addAttribute(
+        'spriteIndex',
+        this.spriteIndexBufferAttribute
+      );
+    }
+
     this.renderMaterial = this.createRenderMaterial(true);
     this.pickingMaterial = this.createPickingMaterial(true);
   }
 
-  clearSpriteAtlas() {
-    this.disposeTextureAtlas();
+  clearSpriteSheet() {
+    this.disposeSpriteSheet();
     this.renderMaterial = this.createRenderMaterial(false);
     this.pickingMaterial = this.createPickingMaterial(false);
   }

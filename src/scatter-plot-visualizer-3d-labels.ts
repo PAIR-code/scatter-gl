@@ -137,7 +137,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       ctx.fillText(text, leftCoord - spaceOffset, 0);
       leftCoord += textLength;
     }
-    const tex = util.createTexture(canvas);
+    const tex = util.createTextureFromCanvas(canvas);
     return { texture: tex, lengths: glyphLengths, offsets: glyphOffset };
   }
 

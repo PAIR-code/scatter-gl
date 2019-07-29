@@ -19,25 +19,8 @@ export interface PointMetadata {
 
 /** Matches the json format of `projector_config.proto` */
 export interface SpriteMetadata {
-  imagePath: string;
-  singleImageDim: [number, number];
-}
-
-/** Statistics for a metadata column. */
-export interface ColumnStats {
-  name: string;
-  isNumeric: boolean;
-  tooManyUniqueValues: boolean;
-  uniqueEntries?: Array<{ label: string; count: number }>;
-  min: number;
-  max: number;
-}
-
-export interface SpriteAndMetadataInfo {
-  stats?: ColumnStats[];
-  pointsInfo?: PointMetadata[];
   spriteImage?: HTMLImageElement;
-  spriteMetadata?: SpriteMetadata;
+  singleSpriteSize: [number, number];
 }
 
 /** A single collection of points which make up a sequence through space. */
@@ -48,23 +31,23 @@ export interface Sequence {
 
 export interface DataPoint {
   /** The point in the projected space. */
-  vector: Float32Array;
+  vector: Float32Array | number[];
+
+  /** index in the original data source */
+  index: number;
 
   /*
    * Metadata for each point. Each metadata is a set of key/value pairs
    * where the value can be a string or a number.
    */
-  metadata: PointMetadata;
+  metadata?: PointMetadata;
 
   /** index of the sequence, used for highlighting on click */
   sequenceIndex?: number;
-
-  /** index in the original data source */
-  index: number;
 }
 
 export class DataSet {
-  public spriteAndMetadataInfo?: SpriteAndMetadataInfo;
+  public spriteMetadata?: SpriteMetadata;
 
   constructor(
     public points: DataPoint[],
@@ -72,7 +55,7 @@ export class DataSet {
     public sequences: Sequence[] = []
   ) {}
 
-  setSpriteAndMetadataInfo(spriteAndMetadataInfo: SpriteAndMetadataInfo) {
-    this.spriteAndMetadataInfo = spriteAndMetadataInfo;
+  setSpriteMetadata(spriteMetadata: SpriteMetadata) {
+    this.spriteMetadata = spriteMetadata;
   }
 }

@@ -145,11 +145,14 @@ export class Projector {
     }
     this.spriteVisualizer.clearSpriteAtlas();
 
-    if (dataSet == null || dataSet.spriteAndMetadataInfo == null) {
+    if (dataSet == null || dataSet.spriteMetadata == null) {
       return;
     }
-    const metadata = dataSet.spriteAndMetadataInfo;
-    if (metadata.spriteImage == null || metadata.spriteMetadata == null) {
+    const { spriteMetadata } = dataSet;
+    if (
+      spriteMetadata.spriteImage == null ||
+      spriteMetadata.singleSpriteSize == null
+    ) {
       return;
     }
     const n = dataSet.points.length;
@@ -159,8 +162,8 @@ export class Projector {
     }
 
     this.spriteVisualizer.setSpriteAtlas(
-      metadata.spriteImage,
-      metadata.spriteMetadata.singleImageDim,
+      spriteMetadata.spriteImage,
+      spriteMetadata.singleSpriteSize,
       spriteIndices
     );
   }
@@ -543,7 +546,8 @@ export class Projector {
 
   private getLabelText(i: number) {
     const { dataSet } = this;
-    return dataSet.points[i].metadata.label.toString();
+    const metadata = dataSet.points[i].metadata;
+    return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
   private createVisualizers() {
@@ -562,16 +566,5 @@ export class Projector {
         this.containerElement
       );
     }
-  }
-
-  private getSpriteImageMode(): boolean {
-    const { dataSet } = this;
-    if (dataSet == null) {
-      return false;
-    }
-    if (dataSet.spriteAndMetadataInfo == null) {
-      return false;
-    }
-    return dataSet.spriteAndMetadataInfo.spriteImage != null;
   }
 }

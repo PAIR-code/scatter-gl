@@ -6,6 +6,15 @@ const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
 const { dataSet } = state;
+
+const spriteImageElement = new Image();
+spriteImageElement.src = 'spritesheet.png';
+
+dataSet.setSpriteMetadata({
+  spriteImage: spriteImageElement,
+  singleSpriteSize: [28, 28],
+});
+
 const projector = new Projector({
   containerElement,
   onHover: (point: number | null) => {

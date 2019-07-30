@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-export interface ILabelStyles {
+export interface LabelStyles {
   fontSize: number;
   scaleDefault: number;
   scaleLarge: number;
@@ -25,7 +25,7 @@ export interface ILabelStyles {
   fillWidth: number;
 }
 
-export interface ILabel3DStyles {
+export interface Label3DStyles {
   fontSize: number;
   scale: number;
   color: string;
@@ -34,7 +34,7 @@ export interface ILabel3DStyles {
   colorNoSelection: number;
 }
 
-export interface IPointStyles {
+export interface PointStyles {
   colorUnselected: number;
   colorNoSelection: number;
   colorSelected: number;
@@ -44,7 +44,7 @@ export interface IPointStyles {
   scaleHover: number;
 }
 
-export interface IPolylineStyles {
+export interface PolylineStyles {
   startHue: number;
   endHue: number;
   saturation: number;
@@ -56,7 +56,7 @@ export interface IPolylineStyles {
   deselectedOpacity: number;
 }
 
-export interface ISelectStyles {
+export interface SelectStyles {
   fill: string;
   fillOpacity: number;
   stroke: string;
@@ -64,7 +64,7 @@ export interface ISelectStyles {
   strokeDashArray: string;
 }
 
-export interface ISpritesStyles {
+export interface SpritesStyles {
   numPointsFogThreshold: number;
   minPointSize: number;
   imageSize: number;
@@ -72,30 +72,30 @@ export interface ISpritesStyles {
   colorNoSelection: number;
 }
 
-export interface IStyles {
+export interface Styles {
   backgroundColor: number;
-  label: ILabelStyles;
-  label3D: ILabel3DStyles;
-  point: IPointStyles;
-  polyline: IPolylineStyles;
-  select: ISelectStyles;
-  sprites: ISpritesStyles;
+  label: LabelStyles;
+  label3D: Label3DStyles;
+  point: PointStyles;
+  polyline: PolylineStyles;
+  select: SelectStyles;
+  sprites: SpritesStyles;
 }
 
-type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends (infer U)[]
-    ? RecursivePartial<U>[]
-    : T[P] extends object
-    ? RecursivePartial<T[P]>
-    : T[P]
-};
+export interface UserStyles {
+  backgroundColor?: number;
+  label: Partial<LabelStyles>;
+  label3D: Partial<Label3DStyles>;
+  point: Partial<PointStyles>;
+  polyline: Partial<PolylineStyles>;
+  select: Partial<SelectStyles>;
+  sprites: Partial<SpritesStyles>;
+}
 
-export type PartialStyles = RecursivePartial<Styles>;
+const defaultStyles: Styles = {
+  backgroundColor: 0xffffff,
 
-export class Styles implements IStyles {
-  backgroundColor = 0xffffff;
-
-  label = {
+  label: {
     fontSize: 10,
     scaleDefault: 1,
     scaleLarge: 2,
@@ -105,18 +105,18 @@ export class Styles implements IStyles {
     strokeColorHover: 0xffffff,
     strokeWidth: 3,
     fillWidth: 6,
-  };
+  },
 
-  label3D = {
+  label3D: {
     fontSize: 80,
     scale: 2.2, // at 1:1 texel/pixel ratio
     color: 'black',
     backgroundColor: 'white',
     colorUnselected: 0xffffff,
     colorNoSelection: 0xffffff,
-  };
+  },
 
-  point = {
+  point: {
     colorUnselected: 0xe3e3e3,
     colorNoSelection: 0x7575d9,
     colorSelected: 0xfa6666,
@@ -124,9 +124,9 @@ export class Styles implements IStyles {
     scaleDefault: 1.0,
     scaleSelected: 1.2,
     scaleHover: 1.2,
-  };
+  },
 
-  polyline = {
+  polyline: {
     startHue: 60,
     endHue: 360,
     saturation: 1,
@@ -136,38 +136,44 @@ export class Styles implements IStyles {
     selectedOpacity: 0.9,
     selectedLineWidth: 3,
     deselectedOpacity: 0.05,
-  };
+  },
 
-  select = {
+  select: {
     fill: '#dddddd',
     fillOpacity: 0.2,
     stroke: '#aaaaaa',
     strokeWidth: 2,
     strokeDashArray: '10 5',
-  };
+  },
 
-  sprites = {
+  sprites: {
     numPointsFogThreshold: 5000,
     minPointSize: 5.0,
     imageSize: 30,
     colorUnselected: 0xffffff,
     colorNoSelection: 0xffffff,
-  };
-}
+  },
+};
 
 /**
  * Merge default styles with user-supplied styles object.
  */
-export function makeStyles(styles: PartialStyles) {
-  const defaultStyles = new Styles();
+export function makeStyles(userStyles: UserStyles | undefined) {
+  if (userStyles === undefined) {
+    return defaultStyles;
+  }
   for (let key in defaultStyles) {
+    const _key = key as keyof Styles;
     if (
-      typeof styles[key] === 'object' &&
-      typeof defaultStyles[key] === 'object'
+      typeof defaultStyles[_key] === 'object' &&
+      typeof userStyles[_key] === 'object'
     ) {
-      defaultStyles[key] = { ...defaultStyles[key], ...styles[key] };
-    } else if (styles[key] !== undefined) {
-      defaultStyles[key] = styles[key];
+      (defaultStyles[_key] as any) = Object.assign(
+        defaultStyles[_key],
+        userStyles[_key]
+      );
+    } else if (userStyles[_key] !== undefined) {
+      (defaultStyles[_key] as any) = userStyles[_key];
     }
   }
   return defaultStyles;

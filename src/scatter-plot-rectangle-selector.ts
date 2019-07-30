@@ -48,7 +48,7 @@ export class ScatterPlotRectangleSelector {
   constructor(
     container: HTMLElement,
     selectionCallback: (boundingBox: ScatterBoundingBox) => void,
-    public styles: Styles
+    private styles: Styles
   ) {
     this.svgElement = document.createElementNS(
       'http://www.w3.org/2000/svg',

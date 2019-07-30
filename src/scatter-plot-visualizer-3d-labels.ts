@@ -110,7 +110,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private labelVertexMap: number[][];
   private glyphTexture: GlyphTexture;
 
-  constructor(public styles: Styles) {}
+  constructor(private styles: Styles) {}
 
   private createGlyphTexture(): GlyphTexture {
     const { fontSize, backgroundColor, color } = this.styles.label3D;

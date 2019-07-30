@@ -17,17 +17,6 @@ export const RGB_NUM_ELEMENTS = 3;
 export const XYZ_NUM_ELEMENTS = 3;
 export const UV_NUM_ELEMENTS = 2;
 export const INDEX_NUM_ELEMENTS = 1;
-
-export const LABEL_FONT_SIZE = 10;
-export const LABEL_SCALE_DEFAULT = 1.0;
-export const LABEL_SCALE_LARGE = 2;
-export const LABEL_FILL_COLOR_SELECTED = 0x000000;
-export const LABEL_FILL_COLOR_HOVER = 0x000000;
-export const LABEL_STROKE_COLOR_SELECTED = 0xffffff;
-export const LABEL_STROKE_COLOR_HOVER = 0xffffff;
-export const LABEL_STROKE_WIDTH = 3;
-export const LABEL_FILL_WIDTH = 6;
-
 export const SCATTER_PLOT_CUBE_LENGTH = 2;
 
 export const POLYLINE_START_HUE = 60;

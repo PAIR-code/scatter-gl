@@ -177,7 +177,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private pickingColors: Float32Array;
   private renderColors: Float32Array;
 
-  constructor(public styles: Styles) {
+  constructor(private styles: Styles) {
     this.standinTextureForPoints = util.createTextureFromCanvas(
       document.createElement('canvas')
     );

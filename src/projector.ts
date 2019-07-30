@@ -21,13 +21,6 @@ import { Styles } from './styles';
 import { InteractionMode } from './types';
 import * as util from './util';
 import {
-  LABEL_FILL_COLOR_HOVER,
-  LABEL_FILL_COLOR_SELECTED,
-  LABEL_FONT_SIZE,
-  LABEL_SCALE_DEFAULT,
-  LABEL_SCALE_LARGE,
-  LABEL_STROKE_COLOR_HOVER,
-  LABEL_STROKE_COLOR_SELECTED,
   POLYLINE_DEFAULT_LINEWIDTH,
   POLYLINE_SELECTED_LINEWIDTH,
   POLYLINE_DEFAULT_OPACITY,
@@ -246,6 +239,7 @@ export class Projector {
     selectedPointIndices: number[],
     hoverPointIndex: number
   ): LabelRenderParams {
+    const { styles } = this;
     const selectedPointCount =
       selectedPointIndices == null ? 0 : selectedPointIndices.length;
     const n = selectedPointCount + (hoverPointIndex != null ? 1 : 0);
@@ -257,7 +251,7 @@ export class Projector {
     const strokeColors = new Uint8Array(n * 3);
     const labelStrings: string[] = [];
 
-    scale.fill(LABEL_SCALE_DEFAULT);
+    scale.fill(styles.label.scaleDefault);
     opacityFlags.fill(1);
 
     let dst = 0;
@@ -265,9 +259,9 @@ export class Projector {
     if (hoverPointIndex != null) {
       labelStrings.push(this.getLabelText(hoverPointIndex));
       visibleLabels[dst] = hoverPointIndex;
-      scale[dst] = LABEL_SCALE_LARGE;
+      scale[dst] = styles.label.scaleLarge;
       opacityFlags[dst] = 0;
-      const fillRgb = util.styleRgbFromHexColor(LABEL_FILL_COLOR_HOVER);
+      const fillRgb = util.styleRgbFromHexColor(styles.label.fillColorHover);
       util.packRgbIntoUint8Array(
         fillColors,
         dst,
@@ -275,7 +269,9 @@ export class Projector {
         fillRgb[1],
         fillRgb[2]
       );
-      const strokeRgb = util.styleRgbFromHexColor(LABEL_STROKE_COLOR_HOVER);
+      const strokeRgb = util.styleRgbFromHexColor(
+        styles.label.strokeColorHover
+      );
       util.packRgbIntoUint8Array(
         strokeColors,
         dst,
@@ -289,13 +285,15 @@ export class Projector {
     // Selected points
     {
       const n = selectedPointCount;
-      const fillRgb = util.styleRgbFromHexColor(LABEL_FILL_COLOR_SELECTED);
-      const strokeRgb = util.styleRgbFromHexColor(LABEL_STROKE_COLOR_SELECTED);
+      const fillRgb = util.styleRgbFromHexColor(styles.label.fillColorSelected);
+      const strokeRgb = util.styleRgbFromHexColor(
+        styles.label.strokeColorSelected
+      );
       for (let i = 0; i < n; ++i) {
         const labelIndex = selectedPointIndices[i];
         labelStrings.push(this.getLabelText(labelIndex));
         visibleLabels[dst] = labelIndex;
-        scale[dst] = LABEL_SCALE_LARGE;
+        scale[dst] = styles.label.scaleLarge;
         opacityFlags[dst] = n === 1 ? 0 : 1;
         util.packRgbIntoUint8Array(
           fillColors,
@@ -320,7 +318,7 @@ export class Projector {
       labelStrings,
       scale,
       opacityFlags,
-      LABEL_FONT_SIZE,
+      styles.label.fontSize,
       fillColors,
       strokeColors
     );
@@ -569,7 +567,8 @@ export class Projector {
       this.spriteVisualizer = new ScatterPlotVisualizerSprites(styles);
       scatterPlot.addVisualizer(this.spriteVisualizer);
       this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-        this.containerElement
+        this.containerElement,
+        this.styles
       );
     }
   }

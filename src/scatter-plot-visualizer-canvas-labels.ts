@@ -17,9 +17,8 @@ import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { CameraType, RenderContext } from './render';
 import { BoundingBox, CollisionGrid } from './label';
+import { Styles } from './styles';
 import * as util from './util';
-
-import { LABEL_STROKE_WIDTH, LABEL_FILL_WIDTH } from './constants';
 
 const MAX_LABELS_ON_SCREEN = 10000;
 
@@ -34,7 +33,7 @@ export class ScatterPlotVisualizerCanvasLabels
   private canvas: HTMLCanvasElement;
   private labelsActive: boolean = true;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, private styles: Styles) {
     this.canvas = document.createElement('canvas');
     container.appendChild(this.canvas);
 
@@ -146,9 +145,9 @@ export class ScatterPlotVisualizerCanvasLabels
             i,
             opacity
           );
-          this.gc.lineWidth = LABEL_STROKE_WIDTH;
+          this.gc.lineWidth = this.styles.label.strokeWidth;
           this.gc.strokeText(text, x, y);
-          this.gc.lineWidth = LABEL_FILL_WIDTH;
+          this.gc.lineWidth = this.styles.label.fillWidth;
           this.gc.fillText(text, x, y);
         }
       }

@@ -13,7 +13,76 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-export class Styles {
+export interface ILabelStyles {
+  fontSize: number;
+  scaleDefault: number;
+  scaleLarge: number;
+  fillColorSelected: number;
+  fillColorHover: number;
+  strokeColorSelected: number;
+  strokeColorHover: number;
+  strokeWidth: number;
+  fillWidth: number;
+}
+
+export interface ILabel3DStyles {
+  fontSize: number;
+  scale: number;
+  color: string;
+  backgroundColor: string;
+  colorUnselected: number;
+  colorNoSelection: number;
+}
+
+export interface IPointStyles {
+  colorUnselected: number;
+  colorNoSelection: number;
+  colorSelected: number;
+  colorHover: number;
+  scaleDefault: number;
+  scaleSelected: number;
+  scaleHover: number;
+}
+
+export interface IPolylineStyles {
+  startHue: number;
+  endHue: number;
+  saturation: number;
+  lightness: number;
+  defaultOpacity: number;
+  defaultLineWidth: number;
+  selectedOpacity: number;
+  selectedLineWidth: number;
+  deselectedOpacity: number;
+}
+
+export interface ISelectStyles {
+  fill: string;
+  fillOpacity: number;
+  stroke: string;
+  strokeWidth: number;
+  strokeDashArray: string;
+}
+
+export interface ISpritesStyles {
+  numPointsFogThreshold: number;
+  minPointSize: number;
+  imageSize: number;
+  colorUnselected: number;
+  colorNoSelection: number;
+}
+
+export interface IStyles {
+  backgroundColor: number;
+  label: ILabelStyles;
+  label3D: ILabel3DStyles;
+  point: IPointStyles;
+  polyline: IPolylineStyles;
+  select: ISelectStyles;
+  sprites: ISpritesStyles;
+}
+
+export class Styles implements IStyles {
   backgroundColor = 0xffffff;
 
   label = {

@@ -28,8 +28,6 @@ import {
   LABEL_SCALE_LARGE,
   LABEL_STROKE_COLOR_HOVER,
   LABEL_STROKE_COLOR_SELECTED,
-  LABEL_3D_COLOR_UNSELECTED,
-  LABEL_3D_COLOR_NO_SELECTION,
   POLYLINE_DEFAULT_LINEWIDTH,
   POLYLINE_SELECTED_LINEWIDTH,
   POLYLINE_DEFAULT_OPACITY,
@@ -390,8 +388,8 @@ export class Projector {
     let noSelectionColor = POINT_COLOR_NO_SELECTION;
 
     if (label3dMode) {
-      unselectedColor = LABEL_3D_COLOR_UNSELECTED;
-      noSelectionColor = LABEL_3D_COLOR_NO_SELECTION;
+      unselectedColor = this.styles.label3D.colorUnselected;
+      noSelectionColor = this.styles.label3D.colorNoSelection;
     }
 
     if (spriteImageMode) {
@@ -565,7 +563,7 @@ export class Projector {
     scatterPlot.removeAllVisualizers();
 
     if (this.labels3DMode) {
-      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels();
+      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(this.styles);
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
 
       scatterPlot.addVisualizer(this.labels3DVisualizer);

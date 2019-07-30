@@ -28,13 +28,6 @@ export const LABEL_STROKE_COLOR_HOVER = 0xffffff;
 export const LABEL_STROKE_WIDTH = 3;
 export const LABEL_FILL_WIDTH = 6;
 
-export const LABEL_3D_FONT_SIZE = 80;
-export const LABEL_3D_SCALE = 2.2; // at 1:1 texel/pixel ratio
-export const LABEL_3D_COLOR = 'black';
-export const LABEL_3D_BACKGROUND = 'white';
-export const LABEL_3D_COLOR_UNSELECTED = 0xffffff;
-export const LABEL_3D_COLOR_NO_SELECTION = 0xffffff;
-
 export const POINT_COLOR_UNSELECTED = 0xe3e3e3;
 export const POINT_COLOR_NO_SELECTION = 0x7575d9;
 export const POINT_COLOR_SELECTED = 0xfa6666;

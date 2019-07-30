@@ -16,12 +16,9 @@ limitations under the License.
 import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { RenderContext } from './render';
+import { Styles } from './styles';
 import * as util from './util';
 import {
-  LABEL_3D_FONT_SIZE,
-  LABEL_3D_SCALE,
-  LABEL_3D_COLOR,
-  LABEL_3D_BACKGROUND,
   RGB_NUM_ELEMENTS,
   UV_NUM_ELEMENTS,
   XYZ_NUM_ELEMENTS,
@@ -44,7 +41,7 @@ const VERTICES_PER_GLYPH = 2 * 3; // 2 triangles, 3 verts per triangle
  *    wordShown: Boolean. Whether or not the label is visible.
  */
 
-const VERTEX_SHADER = `
+const makeVertexShader = (fontSize: number, scale: number) => `
       attribute vec2 posObj;
       attribute vec3 color;
       varying vec2 vUv;
@@ -67,7 +64,7 @@ const VERTEX_SHADER = `
   
         mat4 pointToCamera = mat4(vRight, vUp, vAt, vec4(0, 0, 0, 1));
   
-        vec2 scaledPos = posObj * ${1 / LABEL_3D_FONT_SIZE} * ${LABEL_3D_SCALE};
+        vec2 scaledPos = posObj * ${1 / fontSize} * ${scale};
   
         vec4 posRotated = pointToCamera * vec4(scaledPos, 0, 1);
         vec4 mvPosition = modelViewMatrix * (vec4(position, 0) + posRotated);
@@ -113,17 +110,21 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private labelVertexMap: number[][];
   private glyphTexture: GlyphTexture;
 
+  constructor(public styles: Styles) {}
+
   private createGlyphTexture(): GlyphTexture {
+    const { fontSize, backgroundColor, color } = this.styles.label3D;
+
     const canvas = document.createElement('canvas');
     canvas.width = MAX_CANVAS_DIMENSION;
-    canvas.height = LABEL_3D_FONT_SIZE;
+    canvas.height = fontSize;
     const ctx = canvas.getContext('2d')!;
-    ctx.font = 'bold ' + LABEL_3D_FONT_SIZE + 'px roboto';
+    ctx.font = 'bold ' + fontSize + 'px roboto';
     ctx.textBaseline = 'top';
-    ctx.fillStyle = LABEL_3D_BACKGROUND;
+    ctx.fillStyle = backgroundColor;
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
-    ctx.fillStyle = LABEL_3D_COLOR;
+    ctx.fillStyle = color;
     const spaceOffset = ctx.measureText(' ').width;
     // For each letter, store length, position at the encoded index.
     const glyphLengths = new Float32Array(NUM_GLYPHS);
@@ -179,6 +180,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   }
 
   private createLabels() {
+    const { fontSize, scale } = this.styles.label3D;
     if (this.labelStrings == null || this.worldSpacePointPositions == null) {
       return;
     }
@@ -196,7 +198,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     this.material = new THREE.ShaderMaterial({
       uniforms: this.uniforms,
       transparent: true,
-      vertexShader: VERTEX_SHADER,
+      vertexShader: makeVertexShader(fontSize, scale),
       fragmentShader: FRAGMENT_SHADER,
     });
 
@@ -236,10 +238,10 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       for (let j = 0; j < label.length; j++) {
         let letterCode = label.charCodeAt(j);
         let letterWidth = this.glyphTexture.lengths[letterCode];
-        let scale = LABEL_3D_FONT_SIZE;
+        let scale = fontSize;
         let right = (leftOffset + letterWidth) / scale;
         let left = leftOffset / scale;
-        let top = LABEL_3D_FONT_SIZE / scale;
+        let top = fontSize / scale;
 
         // First triangle
         positionObject.setXY(lettersSoFar * VERTICES_PER_GLYPH + 0, left, 0);

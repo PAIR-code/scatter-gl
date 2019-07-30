@@ -576,15 +576,6 @@ export class ScatterPlot {
     return def;
   }
 
-  /** Sets parameters for the next camera recreation. */
-  setCameraParametersForNextCameraCreation(
-    def: CameraDef | null,
-    orbitAnimation: boolean
-  ) {
-    (this.cameraDef as any) = def;
-    this.orbitAnimationOnNextCameraCreation = orbitAnimation;
-  }
-
   /** Gets the current camera position. */
   getCameraPosition(): Point3D {
     const currPos = this.camera.position;

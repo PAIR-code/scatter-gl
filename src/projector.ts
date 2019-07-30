@@ -35,7 +35,7 @@ export interface ProjectorParams {
   styles?: UserStyles;
 }
 
-type LegendPointColorer = (index: number) => string;
+type PointColorer = (index: number) => string;
 
 /**
  * Interprets projector events and assembles the arrays and commands necessary
@@ -51,15 +51,15 @@ export class Projector {
   private labels3DMode = false;
   private spriteImageMode = false;
 
-  private legendPointColorer: LegendPointColorer;
+  private pointColorer: PointColorer;
 
   private spriteVisualizer: ScatterPlotVisualizerSprites;
   private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
   private polylineVisualizer: ScatterPlotVisualizerPolylines;
 
-  private hoverPointIndex: number | null;
-  private selectedPointIndices: number[];
+  private hoverPointIndex: number | null = null;
+  private selectedPointIndices: number[] = [];
 
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
@@ -99,8 +99,8 @@ export class Projector {
     this.scatterPlot.setInteractionMode(InteractionMode.SELECT);
   }
 
-  setLegendPointColorer(legendPointColorer: LegendPointColorer) {
-    this.legendPointColorer = legendPointColorer;
+  setPointColorer(pointColorer: PointColorer) {
+    this.pointColorer = pointColorer;
   }
 
   resize() {
@@ -131,46 +131,41 @@ export class Projector {
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
     this.scatterPlot.render();
-    this.scatterPlot.setCameraParametersForNextCameraCreation(null, false);
   }
 
   private setDataSet(dataSet: DataSet) {
     this.dataSet = dataSet;
-    if (this.polylineVisualizer != null) {
+    if (this.polylineVisualizer) {
       this.polylineVisualizer.setDataSet(dataSet);
     }
-    if (this.labels3DVisualizer != null) {
+    if (this.labels3DVisualizer) {
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
     }
-    if (this.spriteVisualizer == null) {
-      return;
-    }
-    this.spriteVisualizer.clearSpriteSheet();
+    if (this.spriteVisualizer) {
+      this.spriteVisualizer.clearSpriteSheet();
+      if (!dataSet.spriteMetadata) {
+        return;
+      }
+      const { spriteMetadata } = dataSet;
+      if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
+        return;
+      }
 
-    if (dataSet == null || dataSet.spriteMetadata == null) {
-      return;
-    }
-    const { spriteMetadata } = dataSet;
-    if (
-      spriteMetadata.spriteImage == null ||
-      spriteMetadata.singleSpriteSize == null
-    ) {
-      return;
-    }
-    this.spriteImageMode = true;
-    const n = dataSet.points.length;
-    const spriteIndices = new Float32Array(n);
-    for (let i = 0; i < n; ++i) {
-      spriteIndices[i] = dataSet.points[i].index;
-    }
+      this.spriteImageMode = true;
+      const n = dataSet.points.length;
+      const spriteIndices = new Float32Array(n);
+      for (let i = 0; i < n; ++i) {
+        spriteIndices[i] = dataSet.points[i].index;
+      }
 
-    const onImageLoad = () => this.render();
-    this.spriteVisualizer.setSpriteSheet(
-      spriteMetadata.spriteImage as HTMLImageElement,
-      spriteMetadata.singleSpriteSize,
-      spriteIndices,
-      onImageLoad
-    );
+      const onImageLoad = () => this.render();
+      this.spriteVisualizer.setSpriteSheet(
+        spriteMetadata.spriteImage as HTMLImageElement,
+        spriteMetadata.singleSpriteSize,
+        spriteIndices,
+        onImageLoad
+      );
+    }
   }
 
   private updateScatterPlotPositions() {
@@ -179,32 +174,12 @@ export class Projector {
   }
 
   private updateScatterPlotAttributes() {
-    if (this.dataSet == null) {
-      return;
-    }
-    const selectedSet = this.selectedPointIndices;
-    const hoverIndex = this.hoverPointIndex;
-
-    const pointColorer = this.legendPointColorer;
-
-    const pointColors = this.generatePointColorArray(
-      pointColorer,
-      selectedSet,
-      hoverIndex,
-      this.labels3DMode,
-      this.spriteImageMode
-    );
-    const pointScaleFactors = this.generatePointScaleFactorArray(
-      selectedSet,
-      hoverIndex
-    );
-    const labels = this.generateVisibleLabelRenderParams(
-      selectedSet,
-      hoverIndex
-    );
-    const polylineColors = this.generateLineSegmentColorMap(pointColorer);
-    const polylineOpacities = this.generateLineSegmentOpacityArray(selectedSet);
-    const polylineWidths = this.generateLineSegmentWidthArray(selectedSet);
+    const pointColors = this.generatePointColorArray();
+    const pointScaleFactors = this.generatePointScaleFactorArray();
+    const labels = this.generateVisibleLabelRenderParams();
+    const polylineColors = this.generateLineSegmentColorMap();
+    const polylineOpacities = this.generateLineSegmentOpacityArray();
+    const polylineWidths = this.generateLineSegmentWidthArray();
 
     this.scatterPlot.setPointColors(pointColors);
     this.scatterPlot.setPointScaleFactors(pointScaleFactors);
@@ -216,7 +191,6 @@ export class Projector {
 
   private generatePointPositionArray(): Float32Array {
     const { dataSet } = this;
-    if (dataSet == null) return new Float32Array([]);
 
     let xExtent = [0, 0];
     let yExtent = [0, 0];
@@ -250,14 +224,10 @@ export class Projector {
     return positions;
   }
 
-  private generateVisibleLabelRenderParams(
-    selectedPointIndices: number[],
-    hoverPointIndex: number | null
-  ): LabelRenderParams {
-    const { styles } = this;
-    const selectedPointCount =
-      selectedPointIndices == null ? 0 : selectedPointIndices.length;
-    const n = selectedPointCount + (hoverPointIndex != null ? 1 : 0);
+  private generateVisibleLabelRenderParams(): LabelRenderParams {
+    const { hoverPointIndex, selectedPointIndices, styles } = this;
+    const selectedPointCount = selectedPointIndices.length;
+    const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
 
     const visibleLabels = new Uint32Array(n);
     const scale = new Float32Array(n);
@@ -271,7 +241,7 @@ export class Projector {
 
     let dst = 0;
 
-    if (hoverPointIndex != null) {
+    if (hoverPointIndex !== null) {
       labelStrings.push(this.getLabelText(hoverPointIndex));
       visibleLabels[dst] = hoverPointIndex;
       scale[dst] = styles.label.scaleLarge;
@@ -339,21 +309,14 @@ export class Projector {
     );
   }
 
-  private generatePointScaleFactorArray(
-    selectedPointIndices: number[],
-    hoverPointIndex: number | null
-  ): Float32Array {
-    const { scaleDefault, scaleSelected, scaleHover } = this.styles.point;
-    const dataSet = this.dataSet;
-    if (dataSet == null) {
-      return new Float32Array(0);
-    }
+  private generatePointScaleFactorArray(): Float32Array {
+    const { dataSet, hoverPointIndex, selectedPointIndices, styles } = this;
+    const { scaleDefault, scaleSelected, scaleHover } = styles.point;
 
     const scale = new Float32Array(dataSet.points.length);
     scale.fill(scaleDefault);
 
-    const selectedPointCount =
-      selectedPointIndices == null ? 0 : selectedPointIndices.length;
+    const selectedPointCount = selectedPointIndices.length;
 
     // Scale up all selected points.
     {
@@ -372,38 +335,35 @@ export class Projector {
     return scale;
   }
 
-  private generatePointColorArray(
-    legendPointColorer: LegendPointColorer,
-    selectedPointIndices: number[],
-    hoverPointIndex: number | null,
-    label3dMode = false,
-    spriteImageMode = false
-  ): Float32Array {
-    const dataSet = this.dataSet;
-    if (dataSet == null) {
-      return new Float32Array(0);
-    }
+  private generatePointColorArray(): Float32Array {
+    const {
+      dataSet,
+      hoverPointIndex,
+      pointColorer,
+      selectedPointIndices,
+      styles,
+    } = this;
 
     const {
       colorHover,
       colorNoSelection,
       colorSelected,
       colorUnselected,
-    } = this.styles.point;
-    const selectedPointCount =
-      selectedPointIndices == null ? 0 : selectedPointIndices.length;
+    } = styles.point;
+
+    const selectedPointCount = selectedPointIndices.length;
 
     const colors = new Float32Array(dataSet.points.length * 3);
 
     let unselectedColor = colorUnselected;
     let noSelectionColor = colorNoSelection;
 
-    if (label3dMode) {
+    if (this.labels3DMode) {
       unselectedColor = this.styles.label3D.colorUnselected;
       noSelectionColor = this.styles.label3D.colorNoSelection;
     }
 
-    if (spriteImageMode) {
+    if (this.spriteImageMode) {
       unselectedColor = this.styles.sprites.colorUnselected;
       noSelectionColor = this.styles.sprites.colorNoSelection;
     }
@@ -420,9 +380,9 @@ export class Projector {
           colors[dst++] = c.b;
         }
       } else {
-        if (legendPointColorer != null) {
+        if (pointColorer != null) {
           for (let i = 0; i < n; ++i) {
-            const c = new THREE.Color(legendPointColorer(i) || undefined);
+            const c = new THREE.Color(pointColorer(i) || undefined);
             colors[dst++] = c.r;
             colors[dst++] = c.g;
             colors[dst++] = c.b;
@@ -464,9 +424,6 @@ export class Projector {
 
   private generate3DLabelsArray() {
     const { dataSet } = this;
-    if (dataSet == null) {
-      return [];
-    }
     let labels: string[] = [];
     const n = dataSet.points.length;
     for (let i = 0; i < n; ++i) {
@@ -475,28 +432,22 @@ export class Projector {
     return labels;
   }
 
-  generateLineSegmentColorMap(
-    legendPointColorer: LegendPointColorer
-  ): { [polylineIndex: number]: Float32Array } {
-    const { styles } = this;
-    const { dataSet } = this;
+  private generateLineSegmentColorMap(): {
+    [polylineIndex: number]: Float32Array;
+  } {
+    const { dataSet, pointColorer, styles } = this;
     const polylineColorArrayMap: { [polylineIndex: number]: Float32Array } = {};
-    if (dataSet == null) {
-      return polylineColorArrayMap;
-    }
 
     for (let i = 0; i < dataSet.sequences.length; i++) {
       let sequence = dataSet.sequences[i];
       let colors = new Float32Array(2 * (sequence.pointIndices.length - 1) * 3);
       let colorIndex = 0;
 
-      if (legendPointColorer) {
+      if (pointColorer) {
         for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
-          const c1 = new THREE.Color(
-            legendPointColorer(sequence.pointIndices[j])
-          );
+          const c1 = new THREE.Color(pointColorer(sequence.pointIndices[j]));
           const c2 = new THREE.Color(
-            legendPointColorer(sequence.pointIndices[j + 1])
+            pointColorer(sequence.pointIndices[j + 1])
           );
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
@@ -538,17 +489,14 @@ export class Projector {
     return polylineColorArrayMap;
   }
 
-  generateLineSegmentOpacityArray(selectedPoints: number[]): Float32Array {
-    const { dataSet, styles } = this;
-    if (dataSet == null) {
-      return new Float32Array(0);
-    }
+  private generateLineSegmentOpacityArray(): Float32Array {
+    const { dataSet, selectedPointIndices, styles } = this;
+
     const opacities = new Float32Array(dataSet.sequences.length);
-    const selectedPointCount =
-      selectedPoints == null ? 0 : selectedPoints.length;
+    const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
       opacities.fill(styles.polyline.deselectedOpacity);
-      const i = dataSet.points[selectedPoints[0]].sequenceIndex;
+      const i = dataSet.points[selectedPointIndices[0]].sequenceIndex;
       if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
       opacities.fill(styles.polyline.defaultOpacity);
@@ -556,17 +504,14 @@ export class Projector {
     return opacities;
   }
 
-  generateLineSegmentWidthArray(selectedPoints: number[]): Float32Array {
-    const { dataSet, styles } = this;
-    if (dataSet == null) {
-      return new Float32Array(0);
-    }
+  private generateLineSegmentWidthArray(): Float32Array {
+    const { dataSet, selectedPointIndices, styles } = this;
+
     const widths = new Float32Array(dataSet.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
-    const selectedPointCount =
-      selectedPoints == null ? 0 : selectedPoints.length;
+    const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
-      const i = dataSet.points[selectedPoints[0]].sequenceIndex;
+      const i = dataSet.points[selectedPointIndices[0]].sequenceIndex;
       if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }
     return widths;

@@ -17,7 +17,7 @@ import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
 import { DataSet } from './data';
 import { LabelRenderParams } from './render';
-import { Styles, makeStyles } from './styles';
+import { PartialStyles, Styles, makeStyles } from './styles';
 import { InteractionMode } from './types';
 import * as util from './util';
 import { SCATTER_PLOT_CUBE_LENGTH } from './constants';
@@ -32,7 +32,7 @@ export interface ProjectorParams {
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   dataSet: DataSet;
-  styles?: Partial<Styles>;
+  styles?: PartialStyles;
 }
 
 type LegendPointColorer = (index: number) => string;

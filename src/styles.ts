@@ -82,6 +82,16 @@ export interface IStyles {
   sprites: ISpritesStyles;
 }
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
+    : T[P] extends object
+    ? RecursivePartial<T[P]>
+    : T[P]
+};
+
+export type PartialStyles = RecursivePartial<Styles>;
+
 export class Styles implements IStyles {
   backgroundColor = 0xffffff;
 
@@ -148,7 +158,7 @@ export class Styles implements IStyles {
 /**
  * Merge default styles with user-supplied styles object.
  */
-export function makeStyles(styles: Partial<Styles>) {
+export function makeStyles(styles: PartialStyles) {
   const defaultStyles = new Styles();
   for (let key in defaultStyles) {
     if (

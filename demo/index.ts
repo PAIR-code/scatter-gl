@@ -7,11 +7,8 @@ const messagesElement = document.getElementById('messages')!;
 
 const { dataSet } = state;
 
-const spriteImageElement = new Image();
-spriteImageElement.src = 'spritesheet.png';
-
 dataSet.setSpriteMetadata({
-  spriteImage: spriteImageElement,
+  spriteImage: 'spritesheet.png',
   singleSpriteSize: [28, 28],
 });
 

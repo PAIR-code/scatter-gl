@@ -144,3 +144,21 @@ export class Styles implements IStyles {
     colorNoSelection: 0xffffff,
   };
 }
+
+/**
+ * Merge default styles with user-supplied styles object.
+ */
+export function makeStyles(styles: Partial<Styles>) {
+  const defaultStyles = new Styles();
+  for (let key in defaultStyles) {
+    if (
+      typeof styles[key] === 'object' &&
+      typeof defaultStyles[key] === 'object'
+    ) {
+      defaultStyles[key] = { ...defaultStyles[key], ...styles[key] };
+    } else if (styles[key] !== undefined) {
+      defaultStyles[key] = styles[key];
+    }
+  }
+  return defaultStyles;
+}

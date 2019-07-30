@@ -15,12 +15,6 @@ limitations under the License.
 
 import * as THREE from 'three';
 import { Point2D } from './types';
-import {
-  POLYLINE_START_HUE,
-  POLYLINE_END_HUE,
-  POLYLINE_SATURATION,
-  POLYLINE_LIGHTNESS,
-} from './constants';
 
 /** Projects a 3d point into screen space */
 export function vector3DToScreenCoords(
@@ -182,17 +176,18 @@ export function styleRgbFromHexColor(hex: number): [number, number, number] {
   return [(c.r * 255) | 0, (c.g * 255) | 0, (c.b * 255) | 0];
 }
 
-const polylineSaturation = `${100 * POLYLINE_SATURATION}%`;
-const polylineLightness = `${100 * POLYLINE_LIGHTNESS}%`;
+const toPercent = (percent: number) => `${100 * percent}%`;
 
 export function getDefaultPointInPolylineColor(
   index: number,
-  totalPoints: number
+  totalPoints: number,
+  startHue: number,
+  endHue: number,
+  saturation: number,
+  lightness: number
 ): THREE.Color {
-  let hue =
-    POLYLINE_START_HUE +
-    ((POLYLINE_END_HUE - POLYLINE_START_HUE) * index) / totalPoints;
+  let hue = startHue + ((endHue - startHue) * index) / totalPoints;
 
-  const hsl = `hsl(${hue}, ${polylineSaturation}, ${polylineLightness})`;
+  const hsl = `hsl(${hue}, ${toPercent(saturation)}, ${toPercent(lightness)})`;
   return new THREE.Color(hsl);
 }

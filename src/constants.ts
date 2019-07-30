@@ -18,14 +18,3 @@ export const XYZ_NUM_ELEMENTS = 3;
 export const UV_NUM_ELEMENTS = 2;
 export const INDEX_NUM_ELEMENTS = 1;
 export const SCATTER_PLOT_CUBE_LENGTH = 2;
-
-export const POLYLINE_START_HUE = 60;
-export const POLYLINE_END_HUE = 360;
-export const POLYLINE_SATURATION = 1;
-export const POLYLINE_LIGHTNESS = 0.3;
-
-export const POLYLINE_DEFAULT_OPACITY = 0.2;
-export const POLYLINE_DEFAULT_LINEWIDTH = 2;
-export const POLYLINE_SELECTED_OPACITY = 0.9;
-export const POLYLINE_SELECTED_LINEWIDTH = 3;
-export const POLYLINE_DESELECTED_OPACITY = 0.05;

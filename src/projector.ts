@@ -20,14 +20,7 @@ import { LabelRenderParams } from './render';
 import { Styles } from './styles';
 import { InteractionMode } from './types';
 import * as util from './util';
-import {
-  POLYLINE_DEFAULT_LINEWIDTH,
-  POLYLINE_SELECTED_LINEWIDTH,
-  POLYLINE_DEFAULT_OPACITY,
-  POLYLINE_DESELECTED_OPACITY,
-  POLYLINE_SELECTED_OPACITY,
-  SCATTER_PLOT_CUBE_LENGTH,
-} from './constants';
+import { SCATTER_PLOT_CUBE_LENGTH } from './constants';
 
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
 import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
@@ -463,6 +456,7 @@ export class Projector {
   generateLineSegmentColorMap(
     legendPointColorer: LegendPointColorer
   ): { [polylineIndex: number]: Float32Array } {
+    const { styles } = this;
     const { dataSet } = this;
     const polylineColorArrayMap: { [polylineIndex: number]: Float32Array } = {};
     if (dataSet == null) {
@@ -493,11 +487,19 @@ export class Projector {
         for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
           const c1 = util.getDefaultPointInPolylineColor(
             j,
-            sequence.pointIndices.length
+            sequence.pointIndices.length,
+            styles.polyline.startHue,
+            styles.polyline.endHue,
+            styles.polyline.saturation,
+            styles.polyline.lightness
           );
           const c2 = util.getDefaultPointInPolylineColor(
             j + 1,
-            sequence.pointIndices.length
+            sequence.pointIndices.length,
+            styles.polyline.startHue,
+            styles.polyline.endHue,
+            styles.polyline.saturation,
+            styles.polyline.lightness
           );
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
@@ -515,7 +517,7 @@ export class Projector {
   }
 
   generateLineSegmentOpacityArray(selectedPoints: number[]): Float32Array {
-    const { dataSet } = this;
+    const { dataSet, styles } = this;
     if (dataSet == null) {
       return new Float32Array(0);
     }
@@ -523,27 +525,27 @@ export class Projector {
     const selectedPointCount =
       selectedPoints == null ? 0 : selectedPoints.length;
     if (selectedPointCount > 0) {
-      opacities.fill(POLYLINE_DESELECTED_OPACITY);
+      opacities.fill(styles.polyline.deselectedOpacity);
       const i = dataSet.points[selectedPoints[0]].sequenceIndex;
-      if (i !== undefined) opacities[i] = POLYLINE_SELECTED_OPACITY;
+      if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
-      opacities.fill(POLYLINE_DEFAULT_OPACITY);
+      opacities.fill(styles.polyline.defaultOpacity);
     }
     return opacities;
   }
 
   generateLineSegmentWidthArray(selectedPoints: number[]): Float32Array {
-    const { dataSet } = this;
+    const { dataSet, styles } = this;
     if (dataSet == null) {
       return new Float32Array(0);
     }
     const widths = new Float32Array(dataSet.sequences.length);
-    widths.fill(POLYLINE_DEFAULT_LINEWIDTH);
+    widths.fill(styles.polyline.defaultLineWidth);
     const selectedPointCount =
       selectedPoints == null ? 0 : selectedPoints.length;
     if (selectedPointCount > 0) {
       const i = dataSet.points[selectedPoints[0]].sequenceIndex;
-      if (i !== undefined) widths[i] = POLYLINE_SELECTED_LINEWIDTH;
+      if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }
     return widths;
   }

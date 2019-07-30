@@ -58,16 +58,30 @@ export class Projector {
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
   private polylineVisualizer: ScatterPlotVisualizerPolylines;
 
-  private hoverPointIndex: number;
+  private hoverPointIndex: number | null;
   private selectedPointIndices: number[];
 
+  private hoverCallback: (point: number | null) => void = () => {};
+  private selectCallback: (points: number[]) => void = () => {};
+
   constructor(params: ProjectorParams) {
-    const { containerElement, dataSet, styles } = params;
-    this.containerElement = containerElement;
-    this.styles = makeStyles(styles);
-    this.scatterPlot = new ScatterPlot(params, this.styles);
+    this.containerElement = params.containerElement;
+    this.styles = makeStyles(params.styles);
+
+    this.hoverCallback = params.onHover ? params.onHover : this.hoverCallback;
+    this.selectCallback = params.onSelect
+      ? params.onSelect
+      : this.selectCallback;
+
+    this.scatterPlot = new ScatterPlot({
+      containerElement: this.containerElement,
+      onHover: this.onHover,
+      onSelect: this.onSelect,
+      styles: this.styles,
+    });
+
     this.createVisualizers();
-    this.updateDataSet(dataSet);
+    this.updateDataSet(params.dataSet);
   }
 
   set3DLabelMode(labels3DMode: boolean) {
@@ -97,19 +111,26 @@ export class Projector {
     this.scatterPlot.render();
   }
 
-  updateDataSet(dataSet: DataSet, canBeRendered = true) {
-    if (dataSet == null) {
-      this.createVisualizers();
-      this.scatterPlot.render();
-      return;
-    }
+  onHover = (pointIndex: number | null) => {
+    this.hoverCallback(pointIndex);
+    this.hoverPointIndex = pointIndex;
+    this.updateScatterPlotAttributes();
+    this.scatterPlot.render();
+  };
+
+  onSelect = (pointIndices: number[]) => {
+    this.selectCallback(pointIndices);
+    this.selectedPointIndices = pointIndices;
+    this.updateScatterPlotAttributes();
+    this.scatterPlot.render();
+  };
+
+  updateDataSet(dataSet: DataSet) {
     this.setDataSet(dataSet);
     this.scatterPlot.setDimensions(dataSet.components);
-    if (canBeRendered) {
-      this.updateScatterPlotAttributes();
-      this.updateScatterPlotPositions();
-      this.scatterPlot.render();
-    }
+    this.updateScatterPlotAttributes();
+    this.updateScatterPlotPositions();
+    this.scatterPlot.render();
     this.scatterPlot.setCameraParametersForNextCameraCreation(null, false);
   }
 
@@ -231,7 +252,7 @@ export class Projector {
 
   private generateVisibleLabelRenderParams(
     selectedPointIndices: number[],
-    hoverPointIndex: number
+    hoverPointIndex: number | null
   ): LabelRenderParams {
     const { styles } = this;
     const selectedPointCount =
@@ -320,7 +341,7 @@ export class Projector {
 
   private generatePointScaleFactorArray(
     selectedPointIndices: number[],
-    hoverPointIndex: number
+    hoverPointIndex: number | null
   ): Float32Array {
     const { scaleDefault, scaleSelected, scaleHover } = this.styles.point;
     const dataSet = this.dataSet;
@@ -354,7 +375,7 @@ export class Projector {
   private generatePointColorArray(
     legendPointColorer: LegendPointColorer,
     selectedPointIndices: number[],
-    hoverPointIndex: number,
+    hoverPointIndex: number | null,
     label3dMode = false,
     spriteImageMode = false
   ): Float32Array {

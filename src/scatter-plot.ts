@@ -71,6 +71,7 @@ export interface ScatterPlotParams {
   containerElement: HTMLElement;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
+  styles: Styles;
 }
 
 /**
@@ -121,11 +122,11 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  constructor(params: ScatterPlotParams, styles: Styles) {
+  constructor(params: ScatterPlotParams) {
     this.container = params.containerElement;
     this.onHover = params.onHover || this.onHover;
     this.onSelect = params.onSelect || this.onSelect;
-    this.styles = styles;
+    this.styles = params.styles;
 
     this.computeLayoutValues();
 

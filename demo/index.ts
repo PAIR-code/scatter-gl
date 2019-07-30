@@ -7,10 +7,10 @@ const messagesElement = document.getElementById('messages')!;
 
 const { dataSet } = state;
 
-dataSet.setSpriteMetadata({
-  spriteImage: 'spritesheet.png',
-  singleSpriteSize: [28, 28],
-});
+// dataSet.setSpriteMetadata({
+//   spriteImage: 'spritesheet.png',
+//   singleSpriteSize: [28, 28],
+// });
 
 const projector = new Projector({
   containerElement,

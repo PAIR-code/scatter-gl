@@ -16,17 +16,15 @@ limitations under the License.
 import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { CameraType, RenderContext } from './render';
+import { Styles } from './styles';
 import * as util from './util';
 import {
-  SPRITES_NUM_POINTS_FOG_THRESHOLD,
-  SPRITES_MIN_POINT_SIZE,
-  SPRITES_IMAGE_SIZE,
   RGB_NUM_ELEMENTS,
   INDEX_NUM_ELEMENTS,
   XYZ_NUM_ELEMENTS,
 } from './constants';
 
-const VERTEX_SHADER = `
+const makeVertexShader = (minPointSize: number) => `
     // Index of the specific vertex (passed in as bufferAttribute), and the
     // variable that will be used to pass it to the fragment shader.
     attribute float spriteIndex;
@@ -78,9 +76,7 @@ const VERTEX_SHADER = `
       }
   
       gl_PointSize =
-        max(outputPointSize * scaleFactor, ${SPRITES_MIN_POINT_SIZE.toFixed(
-          1
-        )});
+        max(outputPointSize * scaleFactor, ${minPointSize.toFixed(1)});
     }`;
 
 const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
@@ -181,7 +177,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private pickingColors: Float32Array;
   private renderColors: Float32Array;
 
-  constructor() {
+  constructor(public styles: Styles) {
     this.standinTextureForPoints = util.createTextureFromCanvas(
       document.createElement('canvas')
     );
@@ -207,7 +203,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     const uniforms = this.createUniforms();
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
-      vertexShader: VERTEX_SHADER,
+      vertexShader: makeVertexShader(this.styles.sprites.minPointSize),
       fragmentShader: FRAGMENT_SHADER,
       transparent: !haveImage,
       depthTest: haveImage,
@@ -221,7 +217,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     const uniforms = this.createUniforms();
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
-      vertexShader: VERTEX_SHADER,
+      vertexShader: makeVertexShader(this.styles.sprites.minPointSize),
       fragmentShader: FRAGMENT_SHADER_PICKING,
       transparent: true,
       depthTest: true,
@@ -254,8 +250,9 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private calculatePointSize(sceneIs3D: boolean): number {
+    const { imageSize } = this.styles.sprites;
     if (this.texture != null) {
-      return sceneIs3D ? SPRITES_IMAGE_SIZE : this.spriteDimensions[0];
+      return sceneIs3D ? imageSize : this.spriteDimensions[0];
     }
     const n =
       this.worldSpacePointPositions != null
@@ -309,6 +306,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     nearestPointZ: number,
     farthestPointZ: number
   ) {
+    const { numPointsFogThreshold } = this.styles.sprites;
     if (sceneIs3D) {
       const n = this.worldSpacePointPositions.length / XYZ_NUM_ELEMENTS;
       this.fog.near = nearestPointZ;
@@ -316,9 +314,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       // by making the "far" value (that is, the distance from the camera to the
       // far edge of the fog) proportional to the number of points.
       let multiplier =
-        2 -
-        Math.min(n, SPRITES_NUM_POINTS_FOG_THRESHOLD) /
-          SPRITES_NUM_POINTS_FOG_THRESHOLD;
+        2 - Math.min(n, numPointsFogThreshold) / numPointsFogThreshold;
       this.fog.far = farthestPointZ * multiplier;
     } else {
       this.fog.near = Infinity;

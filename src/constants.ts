@@ -46,9 +46,3 @@ export const SELECT_FILL_OPACITY = 0.2;
 export const SELECT_STROKE = '#aaaaaa';
 export const SELECT_STROKE_WIDTH = 2;
 export const SELECT_STROKE_DASHARRAY = '10 5';
-
-export const SPRITES_NUM_POINTS_FOG_THRESHOLD = 5000;
-export const SPRITES_MIN_POINT_SIZE = 5.0;
-export const SPRITES_IMAGE_SIZE = 30;
-export const SPRITE_IMAGE_COLOR_UNSELECTED = 0xffffff;
-export const SPRITE_IMAGE_COLOR_NO_SELECTION = 0xffffff;

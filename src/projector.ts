@@ -34,8 +34,6 @@ import {
   POLYLINE_DESELECTED_OPACITY,
   POLYLINE_SELECTED_OPACITY,
   SCATTER_PLOT_CUBE_LENGTH,
-  SPRITE_IMAGE_COLOR_NO_SELECTION,
-  SPRITE_IMAGE_COLOR_UNSELECTED,
 } from './constants';
 
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
@@ -393,8 +391,8 @@ export class Projector {
     }
 
     if (spriteImageMode) {
-      unselectedColor = SPRITE_IMAGE_COLOR_UNSELECTED;
-      noSelectionColor = SPRITE_IMAGE_COLOR_NO_SELECTION;
+      unselectedColor = this.styles.sprites.colorUnselected;
+      noSelectionColor = this.styles.sprites.colorNoSelection;
     }
 
     // Give all points the unselected color.
@@ -559,16 +557,16 @@ export class Projector {
   }
 
   private createVisualizers() {
-    const scatterPlot = this.scatterPlot;
+    const { scatterPlot, styles } = this;
     scatterPlot.removeAllVisualizers();
 
     if (this.labels3DMode) {
-      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(this.styles);
+      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(styles);
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
 
       scatterPlot.addVisualizer(this.labels3DVisualizer);
     } else {
-      this.spriteVisualizer = new ScatterPlotVisualizerSprites();
+      this.spriteVisualizer = new ScatterPlotVisualizerSprites(styles);
       scatterPlot.addVisualizer(this.spriteVisualizer);
       this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
         this.containerElement

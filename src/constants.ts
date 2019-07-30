@@ -28,15 +28,6 @@ export const LABEL_STROKE_COLOR_HOVER = 0xffffff;
 export const LABEL_STROKE_WIDTH = 3;
 export const LABEL_FILL_WIDTH = 6;
 
-export const POINT_COLOR_UNSELECTED = 0xe3e3e3;
-export const POINT_COLOR_NO_SELECTION = 0x7575d9;
-export const POINT_COLOR_SELECTED = 0xfa6666;
-export const POINT_COLOR_HOVER = 0x760b4f;
-
-export const POINT_SCALE_DEFAULT = 1.0;
-export const POINT_SCALE_SELECTED = 1.2;
-export const POINT_SCALE_HOVER = 1.2;
-
 export const SCATTER_PLOT_CUBE_LENGTH = 2;
 
 export const POLYLINE_START_HUE = 60;

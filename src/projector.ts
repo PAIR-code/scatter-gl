@@ -33,13 +33,6 @@ import {
   POLYLINE_DEFAULT_OPACITY,
   POLYLINE_DESELECTED_OPACITY,
   POLYLINE_SELECTED_OPACITY,
-  POINT_COLOR_HOVER,
-  POINT_COLOR_SELECTED,
-  POINT_COLOR_UNSELECTED,
-  POINT_COLOR_NO_SELECTION,
-  POINT_SCALE_DEFAULT,
-  POINT_SCALE_HOVER,
-  POINT_SCALE_SELECTED,
   SCATTER_PLOT_CUBE_LENGTH,
   SPRITE_IMAGE_COLOR_NO_SELECTION,
   SPRITE_IMAGE_COLOR_UNSELECTED,
@@ -339,13 +332,14 @@ export class Projector {
     selectedPointIndices: number[],
     hoverPointIndex: number
   ): Float32Array {
+    const { scaleDefault, scaleSelected, scaleHover } = this.styles.point;
     const dataSet = this.dataSet;
     if (dataSet == null) {
       return new Float32Array(0);
     }
 
     const scale = new Float32Array(dataSet.points.length);
-    scale.fill(POINT_SCALE_DEFAULT);
+    scale.fill(scaleDefault);
 
     const selectedPointCount =
       selectedPointIndices == null ? 0 : selectedPointIndices.length;
@@ -355,13 +349,13 @@ export class Projector {
       const n = selectedPointCount;
       for (let i = 0; i < n; ++i) {
         const p = selectedPointIndices[i];
-        scale[p] = POINT_SCALE_SELECTED;
+        scale[p] = scaleSelected;
       }
     }
 
     // Scale up the hover point.
     if (hoverPointIndex != null) {
-      scale[hoverPointIndex] = POINT_SCALE_HOVER;
+      scale[hoverPointIndex] = scaleHover;
     }
 
     return scale;
@@ -379,13 +373,19 @@ export class Projector {
       return new Float32Array(0);
     }
 
+    const {
+      colorHover,
+      colorNoSelection,
+      colorSelected,
+      colorUnselected,
+    } = this.styles.point;
     const selectedPointCount =
       selectedPointIndices == null ? 0 : selectedPointIndices.length;
 
     const colors = new Float32Array(dataSet.points.length * 3);
 
-    let unselectedColor = POINT_COLOR_UNSELECTED;
-    let noSelectionColor = POINT_COLOR_NO_SELECTION;
+    let unselectedColor = colorUnselected;
+    let noSelectionColor = colorNoSelection;
 
     if (label3dMode) {
       unselectedColor = this.styles.label3D.colorUnselected;
@@ -430,7 +430,7 @@ export class Projector {
     // Color the selected points.
     {
       const n = selectedPointCount;
-      const c = new THREE.Color(POINT_COLOR_SELECTED);
+      const c = new THREE.Color(colorSelected);
       for (let i = 0; i < n; ++i) {
         let dst = selectedPointIndices[i] * 3;
         colors[dst++] = c.r;
@@ -441,7 +441,7 @@ export class Projector {
 
     // Color the hover point.
     if (hoverPointIndex != null) {
-      const c = new THREE.Color(POINT_COLOR_HOVER);
+      const c = new THREE.Color(colorHover);
       let dst = hoverPointIndex * 3;
       colors[dst++] = c.r;
       colors[dst++] = c.g;

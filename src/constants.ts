@@ -18,8 +18,6 @@ export const XYZ_NUM_ELEMENTS = 3;
 export const UV_NUM_ELEMENTS = 2;
 export const INDEX_NUM_ELEMENTS = 1;
 
-export const BACKGROUND_COLOR = 0xffffff;
-
 export const LABEL_FONT_SIZE = 10;
 export const LABEL_SCALE_DEFAULT = 1.0;
 export const LABEL_SCALE_LARGE = 2;

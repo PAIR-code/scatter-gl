@@ -16,15 +16,16 @@ limitations under the License.
 import * as THREE from 'three';
 import { OrbitControls } from './orbit-controls';
 
+import { CameraType, LabelRenderParams, RenderContext } from './render';
+import { Styles } from './styles';
 import { Point2D, Point3D, InteractionMode } from './types';
 import * as util from './util';
+
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import {
   ScatterBoundingBox,
   ScatterPlotRectangleSelector,
 } from './scatter-plot-rectangle-selector';
-import { CameraType, LabelRenderParams, RenderContext } from './render';
-import { BACKGROUND_COLOR } from './constants';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the
@@ -80,6 +81,7 @@ export interface ScatterPlotParams {
  */
 export class ScatterPlot {
   private container: HTMLElement;
+  private styles: Styles;
   private onHover: (point: number | null) => void = () => {};
   private onSelect: (point: number[]) => void = () => {};
 
@@ -91,7 +93,6 @@ export class ScatterPlot {
   private width: number;
 
   private interactionMode = InteractionMode.PAN;
-  private backgroundColor: number = BACKGROUND_COLOR;
 
   private dimensionality: number = 3;
   private renderer: THREE.WebGLRenderer;
@@ -120,10 +121,11 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  constructor(params: ScatterPlotParams) {
+  constructor(params: ScatterPlotParams, styles: Styles) {
     this.container = params.containerElement;
     this.onHover = params.onHover || this.onHover;
     this.onSelect = params.onSelect || this.onSelect;
+    this.styles = styles;
 
     this.computeLayoutValues();
 
@@ -133,7 +135,7 @@ export class ScatterPlot {
       premultipliedAlpha: false,
       antialias: false,
     });
-    this.renderer.setClearColor(BACKGROUND_COLOR, 1);
+    this.renderer.setClearColor(this.styles.backgroundColor, 1);
     this.container.appendChild(this.renderer.domElement);
     this.light = new THREE.PointLight(0xffecbf, 1, 0);
     this.scene.add(this.light);
@@ -686,7 +688,7 @@ export class ScatterPlot {
       this.height,
       cameraSpacePointExtents[0],
       cameraSpacePointExtents[1],
-      this.backgroundColor,
+      this.styles.backgroundColor,
       this.pointColors,
       this.pointScaleFactors,
       this.labels,

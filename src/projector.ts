@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
 import { DataSet } from './data';
 import { LabelRenderParams } from './render';
+import { Styles } from './styles';
 import { InteractionMode } from './types';
 import * as util from './util';
 import {
@@ -67,6 +68,7 @@ type LegendPointColorer = (index: number) => string;
 export class Projector {
   private containerElement: HTMLElement;
   private dataSet: DataSet;
+  private styles: Styles;
 
   private scatterPlot: ScatterPlot;
 
@@ -86,7 +88,8 @@ export class Projector {
   constructor(params: ProjectorParams) {
     const { containerElement, dataSet } = params;
     this.containerElement = containerElement;
-    this.scatterPlot = new ScatterPlot(params);
+    this.styles = new Styles();
+    this.scatterPlot = new ScatterPlot(params, this.styles);
     this.createVisualizers();
     this.updateDataSet(dataSet);
   }

@@ -13,13 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import {
-  SELECT_FILL,
-  SELECT_FILL_OPACITY,
-  SELECT_STROKE,
-  SELECT_STROKE_WIDTH,
-  SELECT_STROKE_DASHARRAY,
-} from './constants';
+import { Styles } from './styles';
 
 export interface ScatterBoundingBox {
   // The bounding box (x, y) position refers to the bottom left corner of the
@@ -49,10 +43,12 @@ export class ScatterPlotRectangleSelector {
    * @param selectionCallback The callback that accepts a bounding box to be
    *     called when selection changes. Currently, we only call the callback on
    *     mouseUp.
+   * @param styles The styles object.
    */
   constructor(
     container: HTMLElement,
-    selectionCallback: (boundingBox: ScatterBoundingBox) => void
+    selectionCallback: (boundingBox: ScatterBoundingBox) => void,
+    public styles: Styles
   ) {
     this.svgElement = document.createElementNS(
       'http://www.w3.org/2000/svg',
@@ -69,11 +65,12 @@ export class ScatterPlotRectangleSelector {
       'http://www.w3.org/2000/svg',
       'rect'
     );
-    this.rectElement.style.stroke = SELECT_STROKE;
-    this.rectElement.style.strokeDasharray = SELECT_STROKE_DASHARRAY;
-    this.rectElement.style.strokeWidth = '' + SELECT_STROKE_WIDTH;
-    this.rectElement.style.fill = SELECT_FILL;
-    this.rectElement.style.fillOpacity = '' + SELECT_FILL_OPACITY;
+
+    this.rectElement.style.stroke = styles.select.stroke;
+    this.rectElement.style.strokeDasharray = styles.select.strokeDashArray;
+    this.rectElement.style.strokeWidth = `${styles.select.strokeWidth}`;
+    this.rectElement.style.fill = styles.select.fill;
+    this.rectElement.style.fillOpacity = `${styles.select.fillOpacity}`;
     this.svgElement.appendChild(this.rectElement);
     this.selectionCallback = selectionCallback;
     this.isMouseDown = false;

@@ -62,9 +62,9 @@ export class Styles {
   select = {
     fill: '#dddddd',
     fillOpacity: 0.2,
-    selectStroke: '#aaaaaa',
-    selectStrokeWidth: 2,
-    selectStrokeDashArray: '10 5',
+    stroke: '#aaaaaa',
+    strokeWidth: 2,
+    strokeDashArray: '10 5',
   };
 
   sprites = {

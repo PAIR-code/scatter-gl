@@ -146,7 +146,8 @@ export class ScatterPlot {
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
       this.container,
-      (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox)
+      (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox),
+      this.styles
     );
     this.addInteractionListeners();
     this.resize();

@@ -40,9 +40,3 @@ export const POLYLINE_DEFAULT_LINEWIDTH = 2;
 export const POLYLINE_SELECTED_OPACITY = 0.9;
 export const POLYLINE_SELECTED_LINEWIDTH = 3;
 export const POLYLINE_DESELECTED_OPACITY = 0.05;
-
-export const SELECT_FILL = '#dddddd';
-export const SELECT_FILL_OPACITY = 0.2;
-export const SELECT_STROKE = '#aaaaaa';
-export const SELECT_STROKE_WIDTH = 2;
-export const SELECT_STROKE_DASHARRAY = '10 5';

@@ -13,6 +13,8 @@ dataSet.setSpriteMetadata({
   singleSpriteSize: [28, 28],
 });
 
+let lastSelectedPoints: number[] = [];
+
 const projector = new Projector({
   containerElement,
   onHover: (point: number | null) => {
@@ -21,7 +23,16 @@ const projector = new Projector({
     messagesElement.innerHTML = message;
   },
   onSelect: (points: number[]) => {
-    const message = `🔥select ${points}`;
+    let message = '';
+    if (points.length === 0 && lastSelectedPoints.length === 0) {
+      message = '🔥 no selection';
+    } else if (points.length === 0 && lastSelectedPoints.length > 0) {
+      message = '🔥 deselected';
+    } else if (points.length === 1) {
+      message = `🔥 selected ${points}`;
+    } else {
+      message = `🔥selected ${points.length} points`;
+    }
     console.log(message);
     messagesElement.innerHTML = message;
   },

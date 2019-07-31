@@ -9,11 +9,12 @@ class State {
   constructor() {
     const dataPoints: DataPoint[] = fmnist.projection.map(
       (vector: number[], index) => {
-        const label = fmnist.labels[index];
+        const labelIndex = fmnist.labels[index];
         return {
           vector,
           metadata: {
-            label: fmnist.label_names[label],
+            labelIndex,
+            label: fmnist.label_names[labelIndex],
           },
           index,
         };

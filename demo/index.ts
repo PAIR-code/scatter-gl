@@ -66,9 +66,23 @@ document
     });
   });
 
-// document.getElementById('pan-button')!.onclick = setInteractionMode(
-//   InteractionMode.PAN
-// );
-// document.getElementById('select-button')!.onclick = setInteractionMode(
-//   InteractionMode.SELECT
-// );
+const colorsByLabel = [...new Array(10)].map((_, i) => {
+  const hue = Math.floor((255 / 10) * i);
+  console.log(hue);
+  return `hsl(${hue}, 100%, 50%)`;
+});
+
+document
+  .querySelectorAll<HTMLInputElement>('input[name="color"]')
+  .forEach(inputElement => {
+    inputElement.addEventListener('change', () => {
+      if (inputElement.value === 'default') {
+        projector.setPointColorer(null);
+      } else if (inputElement.value === 'label') {
+        projector.setPointColorer(i => {
+          const labelIndex = dataSet.points[i].metadata!.labelIndex as number;
+          return colorsByLabel[labelIndex];
+        });
+      }
+    });
+  });

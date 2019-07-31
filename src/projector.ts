@@ -60,7 +60,7 @@ export class Projector {
 
   private scatterPlot: ScatterPlot;
 
-  private pointColorer: PointColorer;
+  private pointColorer: PointColorer | null;
 
   private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
@@ -135,8 +135,10 @@ export class Projector {
     this.scatterPlot.setInteractionMode(InteractionMode.SELECT);
   }
 
-  setPointColorer(pointColorer: PointColorer) {
+  setPointColorer(pointColorer: PointColorer | null) {
     this.pointColorer = pointColorer;
+    this.updateScatterPlotAttributes();
+    this.scatterPlot.render();
   }
 
   resize() {

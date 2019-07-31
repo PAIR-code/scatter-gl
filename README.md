@@ -34,9 +34,29 @@ The Projector constructor can accept a number of parameters via a `ProjectorPara
 | `showLabelsOnHover` | Whether or not to render label text on hover                                                            | true               |
 | `styles`            | An object containing style parameters to override the default options                                   |                    |
 
+#### Projector methods
+
+| Method                      | Description                       |
+| --------------------------- | --------------------------------- |
+| `setRenderMode(renderMode)` | Sets a specific render mode       |
+| `setPointRenderMode`        | Sets point render mode            |
+| `setSpriteRenderMode`       | Sets sprite render mode           |
+| `setTextRenderMode`         | Sets text render mode             |
+| `setPanMode`                | Sets interaction mode to          |
+| 'pan'                       |
+| `setSelectMode`             | Sets interaction mode to 'select' |
+
+| `setPointColorer` | Sets a function to determin colors |
+| `resize` | Updates the render size based on the container element |
+| `updateDataset(dataset)` | Updates the dataset |
+
 ## Advanced usage
 
 See the [demo app](./demo/index.ts) for examples of interaction handling, spritesheet rendering, and point coloring.
+
+## Styling
+
+You can provide an object in the form of [`Styles`](./src/styles.ts) to the
 
 ## Development
 

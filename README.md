@@ -36,19 +36,17 @@ The Projector constructor can accept a number of parameters via a `ProjectorPara
 
 #### Projector methods
 
-| Method                      | Description                       |
-| --------------------------- | --------------------------------- |
-| `setRenderMode(renderMode)` | Sets a specific render mode       |
-| `setPointRenderMode`        | Sets point render mode            |
-| `setSpriteRenderMode`       | Sets sprite render mode           |
-| `setTextRenderMode`         | Sets text render mode             |
-| `setPanMode`                | Sets interaction mode to          |
-| 'pan'                       |
-| `setSelectMode`             | Sets interaction mode to 'select' |
-
-| `setPointColorer` | Sets a function to determin colors |
-| `resize` | Updates the render size based on the container element |
-| `updateDataset(dataset)` | Updates the dataset |
+| Method                      | Description                                            |
+| --------------------------- | ------------------------------------------------------ |
+| `setRenderMode(renderMode)` | Sets a specific render mode                            |
+| `setPointRenderMode`        | Sets point render mode                                 |
+| `setSpriteRenderMode`       | Sets sprite render mode                                |
+| `setTextRenderMode`         | Sets text render mode                                  |
+| `setPanMode`                | Sets interaction mode to 'pan'                         |
+| `setSelectMode`             | Sets interaction mode to 'select'                      |
+| `setPointColorer`           | Sets a function to determin colors                     |
+| `resize`                    | Updates the render size based on the container element |
+| `updateDataset(dataset)`    | Updates the dataset                                    |
 
 ## Advanced usage
 

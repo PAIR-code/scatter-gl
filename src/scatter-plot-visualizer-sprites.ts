@@ -405,10 +405,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
-    if (newPositions == null || newPositions.length === 0) {
-      this.dispose();
-      return;
-    }
     if (this.points != null) {
       if (this.worldSpacePointPositions.length !== newPositions.length) {
         this.disposeGeometry();
@@ -438,10 +434,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onPickingRender(rc: RenderContext) {
-    if (!this.points) {
-      return;
-    }
-
     const sceneIs3D: boolean = rc.cameraType === CameraType.Perspective;
 
     this.pickingMaterial.uniforms.spritesPerRow.value = this.spritesPerRow;
@@ -470,9 +462,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onRender(rc: RenderContext) {
-    if (!this.points) {
-      return;
-    }
     const sceneIs3D: boolean = rc.camera instanceof THREE.PerspectiveCamera;
     this.setFogDistances(
       sceneIs3D,

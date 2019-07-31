@@ -15,7 +15,7 @@ limitations under the License.
 
 import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
-import { DataSet, SpriteMetadata } from './data';
+import { Dataset, SpriteMetadata } from './data';
 import { LabelRenderParams } from './render';
 import { Styles, UserStyles, makeStyles } from './styles';
 import { InteractionMode } from './types';
@@ -38,7 +38,7 @@ export const enum RenderMode {
 
 export interface ProjectorParams {
   containerElement: HTMLElement;
-  dataSet: DataSet;
+  dataset: Dataset;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   pointColorer?: PointColorer;
@@ -53,7 +53,7 @@ export interface ProjectorParams {
  */
 export class Projector {
   private containerElement: HTMLElement;
-  private dataSet: DataSet;
+  private dataset: Dataset;
   private styles: Styles;
   private renderMode = RenderMode.SPRITE;
   private showLabelsOnHover = true;
@@ -100,7 +100,7 @@ export class Projector {
     });
 
     this.setVisualizers();
-    this.updateDataSet(params.dataSet);
+    this.updateDataset(params.dataset);
   }
 
   setRenderMode(renderMode: RenderMode) {
@@ -121,7 +121,7 @@ export class Projector {
   }
 
   setSpriteRenderMode() {
-    if (this.dataSet.spriteMetadata) {
+    if (this.dataset.spriteMetadata) {
       this.setRenderMode(RenderMode.SPRITE);
       this.scatterPlot.render();
     }
@@ -163,19 +163,19 @@ export class Projector {
     this.scatterPlot.render();
   };
 
-  updateDataSet(dataSet: DataSet) {
-    this.setDataSet(dataSet);
-    this.scatterPlot.setDimensions(dataSet.components);
+  updateDataset(dataset: Dataset) {
+    this.setDataset(dataset);
+    this.scatterPlot.setDimensions(dataset.components);
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
     this.scatterPlot.render();
   }
 
-  private setDataSet(dataSet: DataSet) {
-    this.dataSet = dataSet;
+  private setDataset(dataset: Dataset) {
+    this.dataset = dataset;
 
     if (this.polylineVisualizer) {
-      this.polylineVisualizer.setDataSet(dataSet);
+      this.polylineVisualizer.setDataset(dataset);
     }
 
     if (this.labels3DVisualizer) {
@@ -184,8 +184,8 @@ export class Projector {
 
     if (this.pointVisualizer) {
       // this.pointVisualizer.clearSpriteSheet();
-      // if (dataSet.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
-      //   this.initializeSpriteSheet(dataSet.spriteMetadata);
+      // if (dataset.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
+      //   this.initializeSpriteSheet(dataset.spriteMetadata);
       // }
     }
   }
@@ -212,32 +212,32 @@ export class Projector {
   }
 
   private generatePointPositionArray(): Float32Array {
-    const { dataSet } = this;
+    const { dataset } = this;
 
     let xExtent = [0, 0];
     let yExtent = [0, 0];
     let zExtent = [0, 0];
 
     // Determine max and min of each axis of our data.
-    xExtent = util.extent(dataSet.points.map(p => p.vector[0]));
-    yExtent = util.extent(dataSet.points.map(p => p.vector[1]));
+    xExtent = util.extent(dataset.points.map(p => p.vector[0]));
+    yExtent = util.extent(dataset.points.map(p => p.vector[1]));
 
     const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
 
-    if (dataSet.components === 3) {
-      zExtent = util.extent(dataSet.points.map(p => p.vector[0]));
+    if (dataset.components === 3) {
+      zExtent = util.extent(dataset.points.map(p => p.vector[0]));
     }
 
-    const positions = new Float32Array(dataSet.points.length * 3);
+    const positions = new Float32Array(dataset.points.length * 3);
     let dst = 0;
 
-    dataSet.points.forEach((d, i) => {
-      const vector = dataSet.points[i].vector;
+    dataset.points.forEach((d, i) => {
+      const vector = dataset.points[i].vector;
 
       positions[dst++] = util.scaleLinear(vector[0], xExtent, range);
       positions[dst++] = util.scaleLinear(vector[1], yExtent, range);
 
-      if (dataSet.components === 3) {
+      if (dataset.components === 3) {
         positions[dst++] = util.scaleLinear(vector[2], zExtent, range);
       } else {
         positions[dst++] = 0.0;
@@ -332,10 +332,10 @@ export class Projector {
   }
 
   private generatePointScaleFactorArray(): Float32Array {
-    const { dataSet, hoverPointIndex, selectedPointIndices, styles } = this;
+    const { dataset, hoverPointIndex, selectedPointIndices, styles } = this;
     const { scaleDefault, scaleSelected, scaleHover } = styles.point;
 
-    const scale = new Float32Array(dataSet.points.length);
+    const scale = new Float32Array(dataset.points.length);
     scale.fill(scaleDefault);
 
     const selectedPointCount = selectedPointIndices.length;
@@ -359,7 +359,7 @@ export class Projector {
 
   private generatePointColorArray(): Float32Array {
     const {
-      dataSet,
+      dataset,
       hoverPointIndex,
       pointColorer,
       selectedPointIndices,
@@ -375,7 +375,7 @@ export class Projector {
 
     const selectedPointCount = selectedPointIndices.length;
 
-    const colors = new Float32Array(dataSet.points.length * 3);
+    const colors = new Float32Array(dataset.points.length * 3);
 
     let unselectedColor = colorUnselected;
     let noSelectionColor = colorNoSelection;
@@ -392,7 +392,7 @@ export class Projector {
 
     // Give all points the unselected color.
     {
-      const n = dataSet.points.length;
+      const n = dataset.points.length;
       let dst = 0;
       if (selectedPointCount > 0) {
         const c = new THREE.Color(unselectedColor);
@@ -445,9 +445,9 @@ export class Projector {
   }
 
   private generate3DLabelsArray() {
-    const { dataSet } = this;
+    const { dataset } = this;
     let labels: string[] = [];
-    const n = dataSet.points.length;
+    const n = dataset.points.length;
     for (let i = 0; i < n; ++i) {
       labels.push(this.getLabelText(i));
     }
@@ -457,11 +457,11 @@ export class Projector {
   private generateLineSegmentColorMap(): {
     [polylineIndex: number]: Float32Array;
   } {
-    const { dataSet, pointColorer, styles } = this;
+    const { dataset, pointColorer, styles } = this;
     const polylineColorArrayMap: { [polylineIndex: number]: Float32Array } = {};
 
-    for (let i = 0; i < dataSet.sequences.length; i++) {
-      let sequence = dataSet.sequences[i];
+    for (let i = 0; i < dataset.sequences.length; i++) {
+      let sequence = dataset.sequences[i];
       let colors = new Float32Array(2 * (sequence.pointIndices.length - 1) * 3);
       let colorIndex = 0;
 
@@ -512,13 +512,13 @@ export class Projector {
   }
 
   private generateLineSegmentOpacityArray(): Float32Array {
-    const { dataSet, selectedPointIndices, styles } = this;
+    const { dataset, selectedPointIndices, styles } = this;
 
-    const opacities = new Float32Array(dataSet.sequences.length);
+    const opacities = new Float32Array(dataset.sequences.length);
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
       opacities.fill(styles.polyline.deselectedOpacity);
-      const i = dataSet.points[selectedPointIndices[0]].sequenceIndex;
+      const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
       if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
       opacities.fill(styles.polyline.defaultOpacity);
@@ -527,34 +527,34 @@ export class Projector {
   }
 
   private generateLineSegmentWidthArray(): Float32Array {
-    const { dataSet, selectedPointIndices, styles } = this;
+    const { dataset, selectedPointIndices, styles } = this;
 
-    const widths = new Float32Array(dataSet.sequences.length);
+    const widths = new Float32Array(dataset.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
-      const i = dataSet.points[selectedPointIndices[0]].sequenceIndex;
+      const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
       if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }
     return widths;
   }
 
   private getLabelText(i: number) {
-    const { dataSet } = this;
-    const metadata = dataSet.points[i].metadata;
+    const { dataset } = this;
+    const metadata = dataset.points[i].metadata;
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
   private initializeSpritesheetVisualizer(spriteMetadata: SpriteMetadata) {
-    const { dataSet, styles } = this;
+    const { dataset, styles } = this;
     if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
       return;
     }
 
-    const n = dataSet.points.length;
+    const n = dataset.points.length;
     const spriteIndices = new Float32Array(n);
     for (let i = 0; i < n; ++i) {
-      spriteIndices[i] = dataSet.points[i].index;
+      spriteIndices[i] = dataset.points[i].index;
     }
 
     const onImageLoad = () => this.render();
@@ -569,7 +569,7 @@ export class Projector {
   }
 
   private setVisualizers() {
-    const { dataSet, renderMode, scatterPlot, styles } = this;
+    const { dataset, renderMode, scatterPlot, styles } = this;
     scatterPlot.disposeAllVisualizers();
 
     const activeVisualizers: ScatterPlotVisualizer[] = [];
@@ -584,9 +584,9 @@ export class Projector {
         this.pointVisualizer = new ScatterPlotVisualizerSprites(styles);
       }
       activeVisualizers.push(this.pointVisualizer);
-    } else if (renderMode === RenderMode.SPRITE && dataSet.spriteMetadata) {
+    } else if (renderMode === RenderMode.SPRITE && dataset.spriteMetadata) {
       if (!this.spritesheetVisualizer) {
-        this.initializeSpritesheetVisualizer(dataSet.spriteMetadata);
+        this.initializeSpritesheetVisualizer(dataset.spriteMetadata);
       }
       if (this.spritesheetVisualizer) {
         activeVisualizers.push(this.spritesheetVisualizer);

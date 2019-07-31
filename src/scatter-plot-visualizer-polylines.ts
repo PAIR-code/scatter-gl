@@ -16,7 +16,7 @@ limitations under the License.
 import * as THREE from 'three';
 import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { RenderContext } from './render';
-import { DataSet } from './data';
+import { Dataset } from './data';
 import * as util from './util';
 import { RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS } from './constants';
 
@@ -24,7 +24,7 @@ import { RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS } from './constants';
  * Renders polylines that connect multiple points in the dataset.
  */
 export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
-  private dataSet: DataSet;
+  private dataset: Dataset;
   private scene: THREE.Scene;
   private polylines: THREE.Line[];
   private polylinePositionBuffer: {
@@ -34,25 +34,25 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
     [polylineIndex: number]: THREE.BufferAttribute;
   } = {};
 
-  private updateSequenceIndicesInDataSet(dataSet: DataSet) {
-    for (let i = 0; i < dataSet.sequences.length; i++) {
-      const sequence = dataSet.sequences[i];
+  private updateSequenceIndicesInDataset(dataset: Dataset) {
+    for (let i = 0; i < dataset.sequences.length; i++) {
+      const sequence = dataset.sequences[i];
       for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
-        dataSet.points[sequence.pointIndices[j]].sequenceIndex = i;
-        dataSet.points[sequence.pointIndices[j + 1]].sequenceIndex = i;
+        dataset.points[sequence.pointIndices[j]].sequenceIndex = i;
+        dataset.points[sequence.pointIndices[j + 1]].sequenceIndex = i;
       }
     }
   }
 
   private createPolylines(scene: THREE.Scene) {
-    if (!this.dataSet || !this.dataSet.sequences) {
+    if (!this.dataset || !this.dataset.sequences) {
       return;
     }
 
-    this.updateSequenceIndicesInDataSet(this.dataSet);
+    this.updateSequenceIndicesInDataset(this.dataset);
     this.polylines = [];
 
-    for (let i = 0; i < this.dataSet.sequences.length; i++) {
+    for (let i = 0; i < this.dataset.sequences.length; i++) {
       const geometry = new THREE.BufferGeometry();
       geometry.addAttribute('position', this.polylinePositionBuffer[i]);
       geometry.addAttribute('color', this.polylineColorBuffer[i]);
@@ -88,20 +88,20 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
     this.scene = scene;
   }
 
-  setDataSet(dataSet: DataSet) {
-    this.dataSet = dataSet;
+  setDataset(dataset: Dataset) {
+    this.dataset = dataset;
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
     if (newPositions == null || this.polylines != null) {
       this.dispose();
     }
-    if (newPositions == null || this.dataSet == null) {
+    if (newPositions == null || this.dataset == null) {
       return;
     }
     // Set up the position buffer arrays for each polyline.
-    for (let i = 0; i < this.dataSet.sequences.length; i++) {
-      let sequence = this.dataSet.sequences[i];
+    for (let i = 0; i < this.dataset.sequences.length; i++) {
+      let sequence = this.dataset.sequences[i];
       const vertexCount = 2 * (sequence.pointIndices.length - 1);
 
       let polylines = new Float32Array(vertexCount * XYZ_NUM_ELEMENTS);
@@ -116,8 +116,8 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
         RGB_NUM_ELEMENTS
       );
     }
-    for (let i = 0; i < this.dataSet.sequences.length; i++) {
-      const sequence = this.dataSet.sequences[i];
+    for (let i = 0; i < this.dataset.sequences.length; i++) {
+      const sequence = this.dataset.sequences[i];
       let src = 0;
       for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
         const p1Index = sequence.pointIndices[j];

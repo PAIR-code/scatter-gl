@@ -1,10 +1,10 @@
 import * as fmnist from '../../data/projection.json';
 
-import { DataPoint, DataSet } from '../../src/data';
+import { DataPoint, Dataset } from '../../src/data';
 
 class State {
   // Projector-compatible data points wrapper for visualization
-  dataSet: DataSet;
+  dataset: Dataset;
 
   constructor() {
     const dataPoints: DataPoint[] = fmnist.projection.map(
@@ -21,7 +21,7 @@ class State {
       }
     );
 
-    this.dataSet = new DataSet(dataPoints, 3);
+    this.dataset = new Dataset(dataPoints, 3);
   }
 }
 

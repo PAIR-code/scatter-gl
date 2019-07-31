@@ -6,9 +6,9 @@ import { RenderMode } from '../src/projector';
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
-const { dataSet } = state;
+const { dataset } = state;
 
-dataSet.setSpriteMetadata({
+dataset.setSpriteMetadata({
   spriteImage: 'spritesheet.png',
   singleSpriteSize: [28, 28],
 });
@@ -36,7 +36,7 @@ const projector = new Projector({
     console.log(message);
     messagesElement.innerHTML = message;
   },
-  dataSet,
+  dataset,
   renderMode: RenderMode.POINT,
 });
 
@@ -80,7 +80,7 @@ document
         projector.setPointColorer(null);
       } else if (inputElement.value === 'label') {
         projector.setPointColorer(i => {
-          const labelIndex = dataSet.points[i].metadata!.labelIndex as number;
+          const labelIndex = dataset.points[i].metadata!.labelIndex as number;
           return colorsByLabel[labelIndex];
         });
       }

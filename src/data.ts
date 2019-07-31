@@ -46,7 +46,7 @@ export interface DataPoint {
   sequenceIndex?: number;
 }
 
-export class DataSet {
+export class Dataset {
   public spriteMetadata?: SpriteMetadata;
 
   constructor(

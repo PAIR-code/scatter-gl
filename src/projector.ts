@@ -15,27 +15,37 @@ limitations under the License.
 
 import * as THREE from 'three';
 import { ScatterPlot } from './scatter-plot';
-import { DataSet } from './data';
+import { DataSet, SpriteMetadata } from './data';
 import { LabelRenderParams } from './render';
 import { Styles, UserStyles, makeStyles } from './styles';
 import { InteractionMode } from './types';
 import * as util from './util';
 import { SCATTER_PLOT_CUBE_LENGTH } from './constants';
 
+import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
 import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
 import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
 import { ScatterPlotVisualizerCanvasLabels } from './scatter-plot-visualizer-canvas-labels';
 import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polylines';
 
-export interface ProjectorParams {
-  containerElement: HTMLElement;
-  onHover?: (point: number | null) => void;
-  onSelect?: (points: number[]) => void;
-  dataSet: DataSet;
-  styles?: UserStyles;
+export type PointColorer = (index: number) => string;
+
+export const enum RenderMode {
+  POINT = 'POINT',
+  TEXT = 'TEXT',
+  SPRITE = 'SPRITE',
 }
 
-type PointColorer = (index: number) => string;
+export interface ProjectorParams {
+  containerElement: HTMLElement;
+  dataSet: DataSet;
+  onHover?: (point: number | null) => void;
+  onSelect?: (points: number[]) => void;
+  pointColorer?: PointColorer;
+  renderMode?: RenderMode;
+  showLabelsOnHover?: boolean;
+  styles?: UserStyles;
+}
 
 /**
  * Interprets projector events and assembles the arrays and commands necessary
@@ -45,18 +55,17 @@ export class Projector {
   private containerElement: HTMLElement;
   private dataSet: DataSet;
   private styles: Styles;
+  private renderMode = RenderMode.SPRITE;
+  private showLabelsOnHover = true;
 
   private scatterPlot: ScatterPlot;
 
-  private labels3DMode = false;
-  private spriteImageMode = false;
-
   private pointColorer: PointColorer;
 
-  private spriteVisualizer: ScatterPlotVisualizerSprites;
   private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
   private polylineVisualizer: ScatterPlotVisualizerPolylines;
+  private spriteVisualizer: ScatterPlotVisualizerSprites;
 
   private hoverPointIndex: number | null = null;
   private selectedPointIndices: number[] = [];
@@ -68,10 +77,19 @@ export class Projector {
     this.containerElement = params.containerElement;
     this.styles = makeStyles(params.styles);
 
+    // Instantiate params if they exist
+    this.renderMode = params.renderMode ? params.renderMode : this.renderMode;
+    this.showLabelsOnHover =
+      params.showLabelsOnHover !== undefined
+        ? params.showLabelsOnHover
+        : this.showLabelsOnHover;
     this.hoverCallback = params.onHover ? params.onHover : this.hoverCallback;
     this.selectCallback = params.onSelect
       ? params.onSelect
       : this.selectCallback;
+    this.pointColorer = params.pointColorer
+      ? params.pointColorer
+      : this.pointColorer;
 
     this.scatterPlot = new ScatterPlot({
       containerElement: this.containerElement,
@@ -80,15 +98,33 @@ export class Projector {
       styles: this.styles,
     });
 
-    this.createVisualizers();
+    this.setVisualizers();
     this.updateDataSet(params.dataSet);
   }
 
-  set3DLabelMode(labels3DMode: boolean) {
-    this.labels3DMode = labels3DMode;
-    this.createVisualizers();
+  setRenderMode(renderMode: RenderMode) {
+    this.renderMode = renderMode;
+    this.setVisualizers();
     this.updateScatterPlotAttributes();
+  }
+
+  setTextRenderMode() {
+    this.setRenderMode(RenderMode.TEXT);
     this.scatterPlot.render();
+  }
+
+  setPointRenderMode() {
+    this.setRenderMode(RenderMode.POINT);
+    this.spriteVisualizer.clearSpriteSheet();
+    this.scatterPlot.render();
+  }
+
+  setSpriteRenderMode() {
+    if (this.dataSet.spriteMetadata) {
+      this.setRenderMode(RenderMode.SPRITE);
+      this.initializeSpriteSheet(this.dataSet.spriteMetadata);
+      this.scatterPlot.render();
+    }
   }
 
   setPanMode() {
@@ -135,37 +171,43 @@ export class Projector {
 
   private setDataSet(dataSet: DataSet) {
     this.dataSet = dataSet;
+
     if (this.polylineVisualizer) {
       this.polylineVisualizer.setDataSet(dataSet);
     }
+
     if (this.labels3DVisualizer) {
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
     }
+
     if (this.spriteVisualizer) {
       this.spriteVisualizer.clearSpriteSheet();
-      if (!dataSet.spriteMetadata) {
-        return;
+      if (dataSet.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
+        this.initializeSpriteSheet(dataSet.spriteMetadata);
       }
-      const { spriteMetadata } = dataSet;
-      if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
-        return;
-      }
-
-      this.spriteImageMode = true;
-      const n = dataSet.points.length;
-      const spriteIndices = new Float32Array(n);
-      for (let i = 0; i < n; ++i) {
-        spriteIndices[i] = dataSet.points[i].index;
-      }
-
-      const onImageLoad = () => this.render();
-      this.spriteVisualizer.setSpriteSheet(
-        spriteMetadata.spriteImage as HTMLImageElement,
-        spriteMetadata.singleSpriteSize,
-        spriteIndices,
-        onImageLoad
-      );
     }
+  }
+
+  private initializeSpriteSheet(spriteMetadata: SpriteMetadata) {
+    const { dataSet } = this;
+
+    if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
+      return;
+    }
+
+    const n = dataSet.points.length;
+    const spriteIndices = new Float32Array(n);
+    for (let i = 0; i < n; ++i) {
+      spriteIndices[i] = dataSet.points[i].index;
+    }
+
+    const onImageLoad = () => this.render();
+    this.spriteVisualizer.setSpriteSheet(
+      spriteMetadata.spriteImage,
+      spriteMetadata.singleSpriteSize,
+      spriteIndices,
+      onImageLoad
+    );
   }
 
   private updateScatterPlotPositions() {
@@ -358,12 +400,12 @@ export class Projector {
     let unselectedColor = colorUnselected;
     let noSelectionColor = colorNoSelection;
 
-    if (this.labels3DMode) {
+    if (this.renderMode === RenderMode.TEXT) {
       unselectedColor = this.styles.label3D.colorUnselected;
       noSelectionColor = this.styles.label3D.colorNoSelection;
     }
 
-    if (this.spriteImageMode) {
+    if (this.renderMode === RenderMode.SPRITE) {
       unselectedColor = this.styles.sprites.colorUnselected;
       noSelectionColor = this.styles.sprites.colorNoSelection;
     }
@@ -380,9 +422,9 @@ export class Projector {
           colors[dst++] = c.b;
         }
       } else {
-        if (pointColorer != null) {
+        if (pointColorer) {
           for (let i = 0; i < n; ++i) {
-            const c = new THREE.Color(pointColorer(i) || undefined);
+            const c = new THREE.Color(pointColorer(i) || noSelectionColor);
             colors[dst++] = c.r;
             colors[dst++] = c.g;
             colors[dst++] = c.b;
@@ -523,22 +565,36 @@ export class Projector {
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
-  private createVisualizers() {
-    const { scatterPlot, styles } = this;
-    scatterPlot.removeAllVisualizers();
+  private setVisualizers() {
+    const { renderMode, scatterPlot, styles } = this;
+    scatterPlot.disposeAllVisualizers();
 
-    if (this.labels3DMode) {
-      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(styles);
+    const activeVisualizers: ScatterPlotVisualizer[] = [];
+    if (renderMode === RenderMode.TEXT) {
+      if (!this.labels3DVisualizer) {
+        this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(styles);
+      }
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
+      activeVisualizers.push(this.labels3DVisualizer);
+    } else if (
+      renderMode === RenderMode.POINT ||
+      renderMode === RenderMode.SPRITE
+    ) {
+      if (!this.spriteVisualizer) {
+        this.spriteVisualizer = new ScatterPlotVisualizerSprites(styles);
+      }
+      activeVisualizers.push(this.spriteVisualizer);
 
-      scatterPlot.addVisualizer(this.labels3DVisualizer);
-    } else {
-      this.spriteVisualizer = new ScatterPlotVisualizerSprites(styles);
-      scatterPlot.addVisualizer(this.spriteVisualizer);
-      this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-        this.containerElement,
-        this.styles
-      );
+      if (this.showLabelsOnHover) {
+        if (!this.canvasLabelsVisualizer) {
+          this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
+            this.containerElement,
+            this.styles
+          );
+        }
+        activeVisualizers.push(this.canvasLabelsVisualizer);
+      }
     }
+    this.scatterPlot.setActiveVisualizers(activeVisualizers);
   }
 }

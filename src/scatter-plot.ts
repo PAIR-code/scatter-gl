@@ -627,18 +627,17 @@ export class ScatterPlot {
     }
   }
 
-  /** Adds a visualizer to the set, will start dispatching events to it */
-  addVisualizer(visualizer: ScatterPlotVisualizer) {
-    if (this.scene) {
+  setActiveVisualizers(visualizers: ScatterPlotVisualizer[]) {
+    this.visualizers = [...visualizers];
+    this.visualizers.forEach(visualizer => {
       visualizer.setScene(this.scene);
-    }
-    visualizer.onResize(this.width, this.height);
-    visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
-    this.visualizers.push(visualizer);
+      visualizer.onResize(this.width, this.height);
+      visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+    });
   }
 
-  /** Removes all visualizers attached to this scatter plot. */
-  removeAllVisualizers() {
+  /** Disposes all visualizers attached to this scatter plot. */
+  disposeAllVisualizers() {
     this.visualizers.forEach(v => v.dispose());
     this.visualizers = [];
   }

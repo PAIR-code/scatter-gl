@@ -37,18 +37,54 @@
   <body>
     <div id="container"></div>
     <div id="controls">
-      <button
-        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-        id="pan-button"
-      >
-        PAN
-      </button>
-      <button
-        class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
-        id="select-button"
-      >
-        SELECT
-      </button>
+      <div id="interactions control">
+        <label class="mdl-radio" for="pan-interaction">
+          <input
+            type="radio"
+            id="pan-interaction"
+            name="interactions"
+            value="pan"
+            checked
+          />
+          <span class="mdl-radio__label">Pan</span>
+        </label>
+        <label class="mdl-radio" for="select-interaction">
+          <input
+            type="radio"
+            id="select-interaction"
+            name="interactions"
+            value="select"
+          />
+          <span class="mdl-radio__label">Select</span>
+        </label>
+      </div>
+      <hr />
+      <div id="render-modes control">
+        <label class="mdl-radio" for="point-render">
+          <input
+            type="radio"
+            id="point-render"
+            name="render"
+            value="points"
+            checked
+          />
+          <span class="mdl-radio__label">Points</span>
+        </label>
+        <label class="mdl-radio" for="sprite-render">
+          <input
+            type="radio"
+            id="sprite-render"
+            name="render"
+            value="sprites"
+          />
+          <span class="mdl-radio__label">Sprites</span>
+        </label>
+        <label class="mdl-radio" for="sprite-render">
+          <input type="radio" id="sprite-render" name="render" value="text" />
+          <span class="mdl-radio__label">Text</span>
+        </label>
+      </div>
+      <hr />
       <span id="messages"></span>
     </div>
   </body>

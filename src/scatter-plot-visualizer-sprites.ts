@@ -182,7 +182,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       document.createElement('canvas')
     );
     this.renderMaterial = this.createRenderMaterial(false);
-    this.pickingMaterial = this.createPickingMaterial(false);
+    this.pickingMaterial = this.createPickingMaterial();
   }
 
   private createUniforms(): any {
@@ -213,7 +213,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     });
   }
 
-  private createPickingMaterial(haveImage: boolean): THREE.ShaderMaterial {
+  private createPickingMaterial(): THREE.ShaderMaterial {
     const uniforms = this.createUniforms();
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
@@ -388,13 +388,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     }
 
     this.renderMaterial = this.createRenderMaterial(true);
-    this.pickingMaterial = this.createPickingMaterial(true);
+    this.pickingMaterial = this.createPickingMaterial();
   }
 
   clearSpriteSheet() {
     this.disposeSpriteSheet();
     this.renderMaterial = this.createRenderMaterial(false);
-    this.pickingMaterial = this.createPickingMaterial(false);
+    this.pickingMaterial = this.createPickingMaterial();
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
@@ -424,7 +424,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onPickingRender(rc: RenderContext) {
-    if (this.points == null) {
+    if (!this.points) {
       return;
     }
 

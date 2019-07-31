@@ -64,8 +64,9 @@ export class Projector {
 
   private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
+  private pointVisualizer: ScatterPlotVisualizerSprites;
   private polylineVisualizer: ScatterPlotVisualizerPolylines;
-  private spriteVisualizer: ScatterPlotVisualizerSprites;
+  private spritesheetVisualizer: ScatterPlotVisualizerSprites;
 
   private hoverPointIndex: number | null = null;
   private selectedPointIndices: number[] = [];
@@ -106,6 +107,7 @@ export class Projector {
     this.renderMode = renderMode;
     this.setVisualizers();
     this.updateScatterPlotAttributes();
+    this.updateScatterPlotPositions();
   }
 
   setTextRenderMode() {
@@ -115,14 +117,12 @@ export class Projector {
 
   setPointRenderMode() {
     this.setRenderMode(RenderMode.POINT);
-    this.spriteVisualizer.clearSpriteSheet();
     this.scatterPlot.render();
   }
 
   setSpriteRenderMode() {
     if (this.dataSet.spriteMetadata) {
       this.setRenderMode(RenderMode.SPRITE);
-      this.initializeSpriteSheet(this.dataSet.spriteMetadata);
       this.scatterPlot.render();
     }
   }
@@ -180,34 +180,12 @@ export class Projector {
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
     }
 
-    if (this.spriteVisualizer) {
-      this.spriteVisualizer.clearSpriteSheet();
-      if (dataSet.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
-        this.initializeSpriteSheet(dataSet.spriteMetadata);
-      }
+    if (this.pointVisualizer) {
+      // this.pointVisualizer.clearSpriteSheet();
+      // if (dataSet.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
+      //   this.initializeSpriteSheet(dataSet.spriteMetadata);
+      // }
     }
-  }
-
-  private initializeSpriteSheet(spriteMetadata: SpriteMetadata) {
-    const { dataSet } = this;
-
-    if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
-      return;
-    }
-
-    const n = dataSet.points.length;
-    const spriteIndices = new Float32Array(n);
-    for (let i = 0; i < n; ++i) {
-      spriteIndices[i] = dataSet.points[i].index;
-    }
-
-    const onImageLoad = () => this.render();
-    this.spriteVisualizer.setSpriteSheet(
-      spriteMetadata.spriteImage,
-      spriteMetadata.singleSpriteSize,
-      spriteIndices,
-      onImageLoad
-    );
   }
 
   private updateScatterPlotPositions() {
@@ -565,8 +543,31 @@ export class Projector {
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
+  private initializeSpritesheetVisualizer(spriteMetadata: SpriteMetadata) {
+    const { dataSet, styles } = this;
+    if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
+      return;
+    }
+
+    const n = dataSet.points.length;
+    const spriteIndices = new Float32Array(n);
+    for (let i = 0; i < n; ++i) {
+      spriteIndices[i] = dataSet.points[i].index;
+    }
+
+    const onImageLoad = () => this.render();
+
+    const spritesheetVisualizer = new ScatterPlotVisualizerSprites(styles, {
+      spritesheetImage: spriteMetadata.spriteImage,
+      spriteDimensions: spriteMetadata.singleSpriteSize,
+      spriteIndices,
+      onImageLoad,
+    });
+    this.spritesheetVisualizer = spritesheetVisualizer;
+  }
+
   private setVisualizers() {
-    const { renderMode, scatterPlot, styles } = this;
+    const { dataSet, renderMode, scatterPlot, styles } = this;
     scatterPlot.disposeAllVisualizers();
 
     const activeVisualizers: ScatterPlotVisualizer[] = [];
@@ -576,25 +577,32 @@ export class Projector {
       }
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
       activeVisualizers.push(this.labels3DVisualizer);
-    } else if (
-      renderMode === RenderMode.POINT ||
-      renderMode === RenderMode.SPRITE
-    ) {
-      if (!this.spriteVisualizer) {
-        this.spriteVisualizer = new ScatterPlotVisualizerSprites(styles);
+    } else if (renderMode === RenderMode.POINT) {
+      if (!this.pointVisualizer) {
+        this.pointVisualizer = new ScatterPlotVisualizerSprites(styles);
       }
-      activeVisualizers.push(this.spriteVisualizer);
-
-      if (this.showLabelsOnHover) {
-        if (!this.canvasLabelsVisualizer) {
-          this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-            this.containerElement,
-            this.styles
-          );
-        }
-        activeVisualizers.push(this.canvasLabelsVisualizer);
+      activeVisualizers.push(this.pointVisualizer);
+    } else if (renderMode === RenderMode.SPRITE && dataSet.spriteMetadata) {
+      if (!this.spritesheetVisualizer) {
+        this.initializeSpritesheetVisualizer(dataSet.spriteMetadata);
+      }
+      if (this.spritesheetVisualizer) {
+        activeVisualizers.push(this.spritesheetVisualizer);
       }
     }
+
+    const textLabelsRenderMode =
+      renderMode === RenderMode.POINT || renderMode === RenderMode.SPRITE;
+    if (textLabelsRenderMode && this.showLabelsOnHover) {
+      if (!this.canvasLabelsVisualizer) {
+        this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
+          this.containerElement,
+          this.styles
+        );
+      }
+      activeVisualizers.push(this.canvasLabelsVisualizer);
+    }
+
     this.scatterPlot.setActiveVisualizers(activeVisualizers);
   }
 }

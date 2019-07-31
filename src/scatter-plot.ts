@@ -632,7 +632,9 @@ export class ScatterPlot {
     this.visualizers.forEach(visualizer => {
       visualizer.setScene(this.scene);
       visualizer.onResize(this.width, this.height);
-      visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+      if (this.worldSpacePointPositions) {
+        visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+      }
     });
   }
 

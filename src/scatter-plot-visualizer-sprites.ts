@@ -24,6 +24,13 @@ import {
   XYZ_NUM_ELEMENTS,
 } from './constants';
 
+export interface SpriteSheetParams {
+  spritesheetImage: HTMLImageElement | string;
+  spriteDimensions: [number, number];
+  spriteIndices: Float32Array;
+  onImageLoad: () => void;
+}
+
 const makeVertexShader = (minPointSize: number) => `
     // Index of the specific vertex (passed in as bufferAttribute), and the
     // variable that will be used to pass it to the fragment shader.
@@ -157,31 +164,43 @@ const FRAGMENT_SHADER_PICKING = `
     }`;
 
 /**
- * Uses GL point sprites to render the dataset.
+ * Uses GL point sprites, either generated or from a spritesheet image to
+ * render the dataset.
  */
 export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private scene: THREE.Scene;
   private fog: THREE.Fog;
   private texture: THREE.Texture;
-  private spriteSheetImage: HTMLImageElement;
+
   private standinTextureForPoints: THREE.Texture;
-  private spritesPerRow: number;
-  private spritesPerColumn: number;
-  private spriteDimensions: [number, number];
   private spriteIndexBufferAttribute: THREE.BufferAttribute;
   private renderMaterial: THREE.ShaderMaterial;
   private pickingMaterial: THREE.ShaderMaterial;
+
+  private isSpriteSheetMode = false;
+  private spriteSheetParams: SpriteSheetParams;
+  private spriteSheetImage: HTMLImageElement;
+  private spritesPerRow: number;
+  private spritesPerColumn: number;
+  private spriteDimensions: [number, number];
 
   private points: THREE.Points;
   private worldSpacePointPositions: Float32Array;
   private pickingColors: Float32Array;
   private renderColors: Float32Array;
 
-  constructor(private styles: Styles) {
+  constructor(private styles: Styles, spriteSheetParams?: SpriteSheetParams) {
     this.standinTextureForPoints = util.createTextureFromCanvas(
       document.createElement('canvas')
     );
-    this.renderMaterial = this.createRenderMaterial(false);
+
+    if (spriteSheetParams) {
+      this.spriteSheetParams = spriteSheetParams;
+      this.setSpriteSheet(spriteSheetParams);
+      this.isSpriteSheetMode = true;
+    }
+
+    this.renderMaterial = this.createRenderMaterial();
     this.pickingMaterial = this.createPickingMaterial();
   }
 
@@ -199,15 +218,16 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     };
   }
 
-  private createRenderMaterial(haveImage: boolean): THREE.ShaderMaterial {
+  private createRenderMaterial(): THREE.ShaderMaterial {
+    const { isSpriteSheetMode } = this;
     const uniforms = this.createUniforms();
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
       vertexShader: makeVertexShader(this.styles.sprites.minPointSize),
       fragmentShader: FRAGMENT_SHADER,
-      transparent: !haveImage,
-      depthTest: haveImage,
-      depthWrite: haveImage,
+      transparent: !isSpriteSheetMode,
+      depthTest: isSpriteSheetMode,
+      depthWrite: isSpriteSheetMode,
       fog: true,
       blending: THREE.MultiplyBlending,
     });
@@ -251,7 +271,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
 
   private calculatePointSize(sceneIs3D: boolean): number {
     const { imageSize } = this.styles.sprites;
-    if (this.texture != null) {
+    if (this.texture) {
       return sceneIs3D ? imageSize : this.spriteDimensions[0];
     }
     const n =
@@ -337,7 +357,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private disposeSpriteSheet() {
-    if (this.texture != null) {
+    if (this.texture) {
       this.texture.dispose();
     }
     (this.texture as any) = null;
@@ -350,13 +370,9 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     this.scene = scene;
   }
 
-  setSpriteSheet(
-    spriteSheet: HTMLImageElement | string,
-    spriteDimensions: [number, number],
-    spriteIndices: Float32Array,
-    onImageLoad: () => void
-  ) {
-    this.disposeSpriteSheet();
+  private setSpriteSheet(spriteSheetParams: SpriteSheetParams) {
+    const { spriteDimensions, spriteIndices, onImageLoad } = spriteSheetParams;
+    let spriteSheet = spriteSheetParams.spritesheetImage;
 
     // Load the sprite sheet as an image if a URL is supplied
     if (typeof spriteSheet === 'string') {
@@ -386,15 +402,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
         this.spriteIndexBufferAttribute
       );
     }
-
-    this.renderMaterial = this.createRenderMaterial(true);
-    this.pickingMaterial = this.createPickingMaterial();
-  }
-
-  clearSpriteSheet() {
-    this.disposeSpriteSheet();
-    this.renderMaterial = this.createRenderMaterial(false);
-    this.pickingMaterial = this.createPickingMaterial();
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
@@ -413,6 +420,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     if (this.points == null) {
       this.createPointSprites(this.scene, newPositions);
     }
+
+    if (this.spriteSheetParams) {
+      this.setSpriteSheet(this.spriteSheetParams);
+    }
+
+    this.renderMaterial = this.createRenderMaterial();
+    this.pickingMaterial = this.createPickingMaterial();
 
     const positions = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(

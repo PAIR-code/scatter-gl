@@ -45,6 +45,7 @@ export interface ProjectorParams {
   renderMode?: RenderMode;
   showLabelsOnHover?: boolean;
   styles?: UserStyles;
+  rotateOnStart?: boolean;
 }
 
 /**
@@ -57,6 +58,7 @@ export class Projector {
   private styles: Styles;
   private renderMode = RenderMode.SPRITE;
   private showLabelsOnHover = true;
+  private rotateOnStart = true;
 
   private scatterPlot: ScatterPlot;
 
@@ -74,23 +76,27 @@ export class Projector {
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
 
+  private setParameter(
+    params: ProjectorParams,
+    key: keyof ProjectorParams,
+    targetKey: string = key
+  ) {
+    if (params[key] !== undefined) {
+      (this as any)[targetKey] = params[key];
+    }
+  }
+
   constructor(params: ProjectorParams) {
     this.containerElement = params.containerElement;
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist
-    this.renderMode = params.renderMode ? params.renderMode : this.renderMode;
-    this.showLabelsOnHover =
-      params.showLabelsOnHover !== undefined
-        ? params.showLabelsOnHover
-        : this.showLabelsOnHover;
-    this.hoverCallback = params.onHover ? params.onHover : this.hoverCallback;
-    this.selectCallback = params.onSelect
-      ? params.onSelect
-      : this.selectCallback;
-    this.pointColorer = params.pointColorer
-      ? params.pointColorer
-      : this.pointColorer;
+    this.setParameter(params, 'renderMode');
+    this.setParameter(params, 'showLabelsOnHover');
+    this.setParameter(params, 'onHover', 'hoverCallback');
+    this.setParameter(params, 'onSelect', 'selectCallback');
+    this.setParameter(params, 'pointColorer');
+    this.setParameter(params, 'rotateOnStart');
 
     this.scatterPlot = new ScatterPlot({
       containerElement: this.containerElement,
@@ -101,6 +107,10 @@ export class Projector {
 
     this.setVisualizers();
     this.updateDataset(params.dataset);
+
+    if (this.rotateOnStart) {
+      this.scatterPlot.startOrbitAnimation();
+    }
   }
 
   setRenderMode(renderMode: RenderMode) {
@@ -169,6 +179,10 @@ export class Projector {
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
     this.scatterPlot.render();
+  }
+
+  startOrbitAnimation() {
+    this.scatterPlot.startOrbitAnimation();
   }
 
   private setDataset(dataset: Dataset) {

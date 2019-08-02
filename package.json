@@ -1,13 +1,13 @@
 {
-  "name": "three-projector",
+  "name": "scatter-gl",
   "version": "0.0.1",
-  "description": "Standalone threejs scatterplot projector",
+  "description": "webgl accelereated 3D/2D scatterplot renderer",
   "author": {
     "name": "Andy Coenen",
     "email": "andycoenen@google.com"
   },
   "license": "MIT",
-  "repository": "PAIR-code/projector",
+  "repository": "PAIR-code/scatter-gl",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -35,8 +35,7 @@
   },
   "dependencies": {
     "three": "^0.106.2",
-    "three-orbitcontrols": "^2.102.2",
-    "three-orbitcontrols-ts": "^0.1.2"
+    "three-orbitcontrols": "^2.102.2"
   },
   "prettier": {
     "printWidth": 80,

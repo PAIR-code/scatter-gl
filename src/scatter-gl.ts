@@ -18,7 +18,7 @@ import { ScatterPlot } from './scatter-plot';
 import { Dataset, SpriteMetadata } from './data';
 import { LabelRenderParams } from './render';
 import { Styles, UserStyles, makeStyles } from './styles';
-import { InteractionMode } from './types';
+import { InteractionMode, RenderMode } from './types';
 import * as util from './util';
 import { SCATTER_PLOT_CUBE_LENGTH } from './constants';
 
@@ -30,13 +30,7 @@ import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polyli
 
 export type PointColorer = (index: number) => string;
 
-export const enum RenderMode {
-  POINT = 'POINT',
-  TEXT = 'TEXT',
-  SPRITE = 'SPRITE',
-}
-
-export interface ProjectorParams {
+export interface ScatterGLParams {
   containerElement: HTMLElement;
   dataset: Dataset;
   onHover?: (point: number | null) => void;
@@ -49,10 +43,9 @@ export interface ProjectorParams {
 }
 
 /**
- * Interprets projector events and assembles the arrays and commands necessary
- * to use the ScatterPlot to render the current projected data set.
+ * ScatterGL - An interactive, webGL-accelerate 2D/3D scatter plot renderer.
  */
-export class Projector {
+export class ScatterGL {
   private containerElement: HTMLElement;
   private dataset: Dataset;
   private styles: Styles;
@@ -77,8 +70,8 @@ export class Projector {
   private selectCallback: (points: number[]) => void = () => {};
 
   private setParameter(
-    params: ProjectorParams,
-    key: keyof ProjectorParams,
+    params: ScatterGLParams,
+    key: keyof ScatterGLParams,
     targetKey: string = key
   ) {
     if (params[key] !== undefined) {
@@ -86,7 +79,7 @@ export class Projector {
     }
   }
 
-  constructor(params: ProjectorParams) {
+  constructor(params: ScatterGLParams) {
     this.containerElement = params.containerElement;
     this.styles = makeStyles(params.styles);
 

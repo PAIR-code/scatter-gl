@@ -21,3 +21,9 @@ export const enum InteractionMode {
   PAN = 'PAN',
   SELECT = 'SELECT',
 }
+
+export const enum RenderMode {
+  POINT = 'POINT',
+  TEXT = 'TEXT',
+  SPRITE = 'SPRITE',
+}

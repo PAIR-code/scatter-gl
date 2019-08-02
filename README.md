@@ -1,4 +1,4 @@
-# Scatter Projector
+# ScatterGL
 
 Standalone 3D / 2D webgl-accelerated scatter plot point projector. Core functionality from the [embedding projector](http://projector.tensorflow.org), capable of rendering and interacting with tens of thousands of points.
 
@@ -13,7 +13,7 @@ const points = vectors.map((vector, index) => {
 });
 const dataset = new Dataset(points, nDimensions);
 
-const projector = new Projector({
+const scatterGL = new ScatterGL({
   containerElement,
   dataset,
 });
@@ -21,7 +21,7 @@ const projector = new Projector({
 
 #### Parameters
 
-The Projector constructor can accept a number of parameters via a `ProjectorParams` object:
+The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLParams` object:
 
 | Parameter           | Description                                                                                             | default            |
 | ------------------- | ------------------------------------------------------------------------------------------------------- | ------------------ |
@@ -33,8 +33,9 @@ The Projector constructor can accept a number of parameters via a `ProjectorPara
 | `renderMode`        | The render mode to display points, one of `RenderMode.POINT`, `RenderMode.SPRITE`, or `RenderMode.TEXT` | `RenderMode.POINT` |
 | `showLabelsOnHover` | Whether or not to render label text on hover                                                            | true               |
 | `styles`            | An object containing style parameters to override the default options                                   |                    |
+| `rotateOnStart`     | Whether or not the renderer automatically rotates until interaction                                     | true               |
 
-#### Projector methods
+#### ScatterGL methods
 
 | Method                      | Description                                            |
 | --------------------------- | ------------------------------------------------------ |
@@ -47,6 +48,7 @@ The Projector constructor can accept a number of parameters via a `ProjectorPara
 | `setPointColorer`           | Sets a function to determin colors                     |
 | `resize`                    | Updates the render size based on the container element |
 | `updateDataset(dataset)`    | Updates the dataset                                    |
+| `startOrbitAnimation`       | Begin rotating until an interaction                    |
 
 ## Advanced usage
 

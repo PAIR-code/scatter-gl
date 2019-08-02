@@ -1,7 +1,6 @@
 import { state } from './core';
 
-import { Projector, InteractionMode } from '../src';
-import { RenderMode } from '../src/projector';
+import { ScatterGL, RenderMode, InteractionMode } from '../src';
 
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
@@ -15,7 +14,7 @@ dataset.setSpriteMetadata({
 
 let lastSelectedPoints: number[] = [];
 
-const projector = new Projector({
+const projector = new ScatterGL({
   containerElement,
   onHover: (point: number | null) => {
     const message = `🔥hover ${point}`;

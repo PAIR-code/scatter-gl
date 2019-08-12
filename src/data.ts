@@ -13,6 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+/*
+ * Metadata for each point. Each metadata is a set of key/value pairs
+ * where the value can be a string or a number.
+ */
 export interface PointMetadata {
   [key: string]: number | string;
 }
@@ -29,29 +33,22 @@ export interface Sequence {
   pointIndices: number[];
 }
 
-export interface DataPoint {
-  /** The point in the projected space. */
-  vector: Float32Array | number[];
-
-  /** index in the original data source */
-  index: number;
-
-  /*
-   * Metadata for each point. Each metadata is a set of key/value pairs
-   * where the value can be a string or a number.
-   */
-  metadata?: PointMetadata;
-
-  /** index of the sequence, used for highlighting on click */
-  sequenceIndex?: number;
-}
+export type Points = number[][];
 
 export class Dataset {
   public spriteMetadata?: SpriteMetadata;
 
+  /**
+   *
+   * @param points the data as an array of number or Float32 arrays
+   * @param dimensions the number of dimensions
+   * @param metadata an array of point metadata, corresponding to each point
+   * @param sequences a collection of points that make up a sequence
+   */
   constructor(
-    public points: DataPoint[],
-    public components: number,
+    public points: Points,
+    public dimensions: number,
+    public metadata: PointMetadata[] = [],
     public sequences: Sequence[] = []
   ) {}
 

@@ -168,7 +168,7 @@ export class ScatterGL {
 
   updateDataset(dataset: Dataset) {
     this.setDataset(dataset);
-    this.scatterPlot.setDimensions(dataset.components);
+    this.scatterPlot.setDimensions(dataset.dimensions);
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
     this.scatterPlot.render();
@@ -226,25 +226,25 @@ export class ScatterGL {
     let zExtent = [0, 0];
 
     // Determine max and min of each axis of our data.
-    xExtent = util.extent(dataset.points.map(p => p.vector[0]));
-    yExtent = util.extent(dataset.points.map(p => p.vector[1]));
+    xExtent = util.extent(dataset.points.map(p => p[0]));
+    yExtent = util.extent(dataset.points.map(p => p[1]));
 
     const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
 
-    if (dataset.components === 3) {
-      zExtent = util.extent(dataset.points.map(p => p.vector[0]));
+    if (dataset.dimensions === 3) {
+      zExtent = util.extent(dataset.points.map(p => p[2]));
     }
 
     const positions = new Float32Array(dataset.points.length * 3);
     let dst = 0;
 
     dataset.points.forEach((d, i) => {
-      const vector = dataset.points[i].vector;
+      const vector = dataset.points[i];
 
       positions[dst++] = util.scaleLinear(vector[0], xExtent, range);
       positions[dst++] = util.scaleLinear(vector[1], yExtent, range);
 
-      if (dataset.components === 3) {
+      if (dataset.dimensions === 3) {
         positions[dst++] = util.scaleLinear(vector[2], zExtent, range);
       } else {
         positions[dst++] = 0.0;
@@ -525,8 +525,9 @@ export class ScatterGL {
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
       opacities.fill(styles.polyline.deselectedOpacity);
-      const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
-      if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
+      // TODO (andycoenen): Refactor the polylines sequenceIndex system
+      // const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
+      // if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
       opacities.fill(styles.polyline.defaultOpacity);
     }
@@ -540,15 +541,16 @@ export class ScatterGL {
     widths.fill(styles.polyline.defaultLineWidth);
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
-      const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
-      if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
+      // TODO (andycoenen): Refactor the polylines sequenceIndex system
+      // const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
+      // if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }
     return widths;
   }
 
   private getLabelText(i: number) {
     const { dataset } = this;
-    const metadata = dataset.points[i].metadata;
+    const metadata = dataset.metadata[i];
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
@@ -561,7 +563,7 @@ export class ScatterGL {
     const n = dataset.points.length;
     const spriteIndices = new Float32Array(n);
     for (let i = 0; i < n; ++i) {
-      spriteIndices[i] = dataset.points[i].index;
+      spriteIndices[i] = i;
     }
 
     const onImageLoad = () => this.render();

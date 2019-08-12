@@ -67,7 +67,6 @@ document
 
 const colorsByLabel = [...new Array(10)].map((_, i) => {
   const hue = Math.floor((255 / 10) * i);
-  console.log(hue);
   return `hsl(${hue}, 100%, 50%)`;
 });
 
@@ -79,7 +78,7 @@ document
         projector.setPointColorer(null);
       } else if (inputElement.value === 'label') {
         projector.setPointColorer(i => {
-          const labelIndex = dataset.points[i].metadata!.labelIndex as number;
+          const labelIndex = dataset.metadata![i].labelIndex as number;
           return colorsByLabel[labelIndex];
         });
       }

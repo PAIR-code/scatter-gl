@@ -1,25 +1,22 @@
 import * as fmnist from '../../data/projection.json';
 
-import { DataPoint, Dataset } from '../../src/data';
+import { Points, Dataset, PointMetadata } from '../../src/data';
 
 class State {
   // Projector-compatible data points wrapper for visualization
   dataset: Dataset;
 
   constructor() {
-    const dataPoints: DataPoint[] = fmnist.projection.map(
-      (vector: number[], index) => {
-        const labelIndex = fmnist.labels[index];
-        return {
-          vector,
-          metadata: {
-            labelIndex,
-            label: fmnist.label_names[labelIndex],
-          },
-          index,
-        };
-      }
-    );
+    const dataPoints: Points = [];
+    const metadata: PointMetadata[] = [];
+    fmnist.projection.forEach((vector: number[], index) => {
+      const labelIndex = fmnist.labels[index];
+      dataPoints.push(vector);
+      metadata.push({
+        labelIndex,
+        label: fmnist.label_names[labelIndex],
+      });
+    });
 
     this.dataset = new Dataset(dataPoints, 3);
   }

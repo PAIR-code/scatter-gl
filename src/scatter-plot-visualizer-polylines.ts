@@ -38,8 +38,9 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
     for (let i = 0; i < dataset.sequences.length; i++) {
       const sequence = dataset.sequences[i];
       for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
-        dataset.points[sequence.pointIndices[j]].sequenceIndex = i;
-        dataset.points[sequence.pointIndices[j + 1]].sequenceIndex = i;
+        // TODO (andycoenen): Refactor the polylines sequenceIndex system
+        // dataset.points[sequence.pointIndices[j]].sequenceIndex = i;
+        // dataset.points[sequence.pointIndices[j + 1]].sequenceIndex = i;
       }
     }
   }

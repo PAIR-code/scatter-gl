@@ -79,7 +79,7 @@ document
         projector.setPointColorer(null);
       } else if (inputElement.value === 'label') {
         projector.setPointColorer(i => {
-          const labelIndex = dataset.points[i].metadata!.labelIndex as number;
+          const labelIndex = dataset.metadata![i].labelIndex as number;
           return colorsByLabel[labelIndex];
         });
       }

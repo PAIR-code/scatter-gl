@@ -67,7 +67,6 @@ document
 
 const colorsByLabel = [...new Array(10)].map((_, i) => {
   const hue = Math.floor((255 / 10) * i);
-  console.log(hue);
   return `hsl(${hue}, 100%, 50%)`;
 });
 

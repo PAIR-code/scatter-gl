@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"
+    />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <title>standalone three projector</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+      }
+
+      #container {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 10px;
+      }
+
+      #switch-3D {
+        margin-top: 10px;
+      }
+
+      .mdl-js-radio {
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <div id="controls">
+      <div id="interactions control">
+        <h5>Controls</h5>
+        <label class="mdl-radio mdl-js-radio" for="pan-interaction">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="pan-interaction"
+            name="interactions"
+            value="pan"
+            checked
+          />
+          <span class="mdl-radio__label">Pan</span>
+        </label>
+        <label class="mdl-radio mdl-js-radio" for="select-interaction">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="select-interaction"
+            name="interactions"
+            value="select"
+          />
+          <span class="mdl-radio__label">Select</span>
+        </label>
+      </div>
+      <hr />
+      <div id="render-modes control">
+        <h5>Render</h5>
+        <label class="mdl-radio mdl-js-radio" for="point-render">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="point-render"
+            name="render"
+            value="points"
+            checked
+          />
+          <span class="mdl-radio__label">Points</span>
+        </label>
+        <label class="mdl-radio mdl-js-radio" for="sprite-render">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="sprite-render"
+            name="render"
+            value="sprites"
+          />
+          <span class="mdl-radio__label">Sprites</span>
+        </label>
+        <label class="mdl-radio mdl-js-radio" for="text-render">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="text-render"
+            name="render"
+            value="text"
+          />
+          <span class="mdl-radio__label">Text</span>
+        </label>
+        <div id="switch-3D">
+          <label class="mdl-switch mdl-js-switch" for="dimensions-render">
+            <input
+              type="checkbox"
+              id="dimensions-render"
+              class="mdl-switch__input"
+              name="3D"
+              checked
+            />
+            <span class="mdl-switch__label">3D</span>
+          </label>
+        </div>
+      </div>
+      <div id="color control">
+        <h5>Color by</h5>
+        <label class="mdl-radio mdl-js-radio" for="color-default">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="color-default"
+            name="color"
+            value="default"
+            checked
+          />
+          <span class="mdl-radio__label">Default</span>
+        </label>
+        <label class="mdl-radio mdl-js-radio" for="color-label">
+          <input
+            type="radio"
+            class="mdl-radio__button"
+            id="color-label"
+            name="color"
+            value="label"
+          />
+          <span class="mdl-radio__label">Label</span>
+        </label>
+      </div>
+      <hr />
+      <h5 id="messages"></h5>
+    </div>
+  </body>
+</html>

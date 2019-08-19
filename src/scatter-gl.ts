@@ -96,6 +96,7 @@ export class ScatterGL {
       onHover: this.onHover,
       onSelect: this.onSelect,
       styles: this.styles,
+      dimensions: params.dataset.dimensions,
     });
 
     this.setVisualizers();
@@ -229,12 +230,11 @@ export class ScatterGL {
     xExtent = util.extent(dataset.points.map(p => p[0]));
     yExtent = util.extent(dataset.points.map(p => p[1]));
 
-    const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
-
     if (dataset.dimensions === 3) {
       zExtent = util.extent(dataset.points.map(p => p[2]));
     }
 
+    const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
     const positions = new Float32Array(dataset.points.length * 3);
     let dst = 0;
 

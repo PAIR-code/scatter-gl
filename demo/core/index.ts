@@ -18,7 +18,7 @@ class State {
       });
     });
 
-    this.dataset = new Dataset(dataPoints, 3);
+    this.dataset = new Dataset(dataPoints, 2);
   }
 }
 

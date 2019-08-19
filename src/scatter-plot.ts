@@ -72,6 +72,7 @@ export interface ScatterPlotParams {
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   styles: Styles;
+  dimensions: number;
 }
 
 /**
@@ -92,10 +93,10 @@ export class ScatterPlot {
 
   private height: number;
   private width: number;
+  private dimensions: number;
 
   private interactionMode = InteractionMode.PAN;
 
-  private dimensionality: number = 3;
   private renderer: THREE.WebGLRenderer;
 
   private scene: THREE.Scene;
@@ -141,8 +142,7 @@ export class ScatterPlot {
     this.light = new THREE.PointLight(0xffecbf, 1, 0);
     this.scene.add(this.light);
 
-    this.setDimensions(3);
-    this.recreateCamera(this.makeDefaultCameraDef(this.dimensionality));
+    this.setDimensions(params.dimensions);
     this.renderer.render(this.scene, this.camera);
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
@@ -174,7 +174,7 @@ export class ScatterPlot {
     });
 
     // Change is called everytime the user interacts with the controls.
-    cameraControls.addEventListener('change', () => {
+    cameraControls.addEventListener('change', (e: any) => {
       this.render();
     });
 
@@ -204,16 +204,17 @@ export class ScatterPlot {
     occ.autoRotate = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
     if (cameraIs3D) {
-      occ.mouseButtons.ORBIT = THREE.MOUSE.LEFT;
-      occ.mouseButtons.PAN = THREE.MOUSE.RIGHT;
+      occ.mouseButtons.LEFT = THREE.MOUSE.LEFT;
+      occ.mouseButtons.RIGHT = THREE.MOUSE.RIGHT;
     } else {
-      occ.mouseButtons.ORBIT = null;
-      occ.mouseButtons.PAN = THREE.MOUSE.LEFT;
+      occ.mouseButtons.RIGHT = THREE.MOUSE.LEFT;
+      occ.mouseButtons.LEFT = null;
     }
     occ.reset();
 
     this.camera = camera;
     this.orbitCameraControls = occ;
+
     this.addCameraControlsEventListeners(this.orbitCameraControls);
   }
 
@@ -279,7 +280,7 @@ export class ScatterPlot {
         cameraDef.position[1],
         cameraDef.position[2]
       );
-      camera.up = new THREE.Vector3(0, 1, 0);
+      camera.up = new THREE.Vector3(0, 0, 1);
       camera.lookAt(target);
       camera.zoom = cameraDef.zoom;
       camera.updateProjectionMatrix();
@@ -288,9 +289,9 @@ export class ScatterPlot {
     this.makeOrbitControls(camera, cameraDef, false);
   }
 
-  private makeDefaultCameraDef(dimensionality: number): CameraDef {
+  private makeDefaultCameraDef(dimensions: number): CameraDef {
     const def = new CameraDef();
-    def.orthographic = dimensionality === 2;
+    def.orthographic = dimensions === 2;
     def.zoom = 1.0;
     if (def.orthographic) {
       def.position = [
@@ -463,8 +464,8 @@ export class ScatterPlot {
     const dpr = window.devicePixelRatio || 1;
     const x = Math.floor(boundingBox.x * dpr);
     const y = Math.floor(boundingBox.y * dpr);
-    const width = Math.floor(boundingBox.width * dpr);
-    const height = Math.floor(boundingBox.height * dpr);
+    const width = Math.max(Math.floor(boundingBox.width * dpr), 1);
+    const height = Math.max(Math.floor(boundingBox.height * dpr), 1);
 
     // Create buffer for reading all of the pixels from the texture.
     let pixelBuffer = new Uint8Array(width * height * 4);
@@ -513,6 +514,7 @@ export class ScatterPlot {
       this.nearestPoint = null;
       return;
     }
+
     const boundingBox: ScatterBoundingBox = {
       x: e.offsetX,
       y: e.offsetY,
@@ -531,7 +533,7 @@ export class ScatterPlot {
   }
 
   private sceneIs3D(): boolean {
-    return this.dimensionality === 3;
+    return this.dimensions === 3;
   }
 
   private remove3dAxisFromScene(): THREE.Object3D | undefined {
@@ -549,17 +551,20 @@ export class ScatterPlot {
   }
 
   /** Set 2d vs 3d mode. */
-  setDimensions(dimensionality: number) {
-    if (dimensionality !== 2 && dimensionality !== 3) {
-      throw new RangeError('dimensionality must be 2 or 3');
+  setDimensions(dimensions: number) {
+    if (dimensions === this.dimensions) {
+      return;
     }
-    this.dimensionality = dimensionality;
+    if (dimensions !== 2 && dimensions !== 3) {
+      throw new RangeError('dimensions must be 2 or 3');
+    }
+    this.dimensions = dimensions;
 
-    const def = this.cameraDef || this.makeDefaultCameraDef(dimensionality);
+    const def = this.cameraDef || this.makeDefaultCameraDef(dimensions);
     this.recreateCamera(def);
 
     this.remove3dAxisFromScene();
-    if (dimensionality === 3) {
+    if (dimensions === 3) {
       this.add3dAxis();
     }
   }
@@ -742,7 +747,7 @@ export class ScatterPlot {
   }
 
   resetZoom() {
-    this.recreateCamera(this.makeDefaultCameraDef(this.dimensionality));
+    this.recreateCamera(this.makeDefaultCameraDef(this.dimensions));
     this.render();
   }
 
@@ -758,7 +763,7 @@ export class ScatterPlot {
     const [oldW, oldH] = [this.width, this.height];
     const [newW, newH] = this.computeLayoutValues();
 
-    if (this.dimensionality === 3) {
+    if (this.dimensions === 3) {
       const camera = this.camera as THREE.PerspectiveCamera;
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();

@@ -26,8 +26,8 @@ export interface ThreeOrbitControls {
   enableRotate: boolean;
   rotateSpeed: number;
   mouseButtons: {
-    ORBIT: THREE.MOUSE | null;
-    PAN: THREE.MOUSE | null;
+    LEFT: THREE.MOUSE | null; // Default for orbit
+    RIGHT: THREE.MOUSE | null; // Default for pan
   };
   reset: () => void;
 }

@@ -17,15 +17,15 @@ const scatterGL = new ScatterGL(containerElement, dataset, params);
 
 The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLParams` object:
 
-| Parameter           | Description                                                                                             | default            |
-| ------------------- | ------------------------------------------------------------------------------------------------------- | ------------------ |
-| `onHover`           | A callback invoked when hovering over a point                                                           |                    |
-| `onSelect`          | A callback invoked when a point or points are selected                                                  |                    |
-| `pointColorer`      | A function to determine the color of points                                                             |                    |
-| `renderMode`        | The render mode to display points, one of `RenderMode.POINT`, `RenderMode.SPRITE`, or `RenderMode.TEXT` | `RenderMode.POINT` |
-| `showLabelsOnHover` | Whether or not to render label text on hover                                                            | true               |
-| `styles`            | An object containing style parameters to override the default options                                   |                    |
-| `rotateOnStart`     | Whether or not the renderer automatically rotates until interaction                                     | true               |
+| Parameter           | Type                            | Description                                                                                             | default            |
+| ------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------ |
+| `onHover`           | `(point: Point | null) => void` | A callback invoked when hovering over a point                                                           |                    |
+| `onSelect`          | `(points: Point[]) => void`     | A callback invoked when a point or points are selected                                                  |                    |
+| `pointColorer`      | `(point: Point) => string`      | A function to determine the color of points                                                             |                    |
+| `renderMode`        | `RenderMode`                    | The render mode to display points, one of `RenderMode.POINT`, `RenderMode.SPRITE`, or `RenderMode.TEXT` | `RenderMode.POINT` |
+| `showLabelsOnHover` | `boolean`                       | Whether or not to render label text on hover                                                            | true               |
+| `styles`            | `Styles`                        | An object containing style parameters to override the default options                                   |                    |
+| `rotateOnStart`     | `boolean`                       | Whether or not the renderer automatically rotates until interaction                                     | true               |
 
 #### ScatterGL methods
 

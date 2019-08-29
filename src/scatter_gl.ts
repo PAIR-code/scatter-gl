@@ -198,13 +198,6 @@ export class ScatterGL {
     if (this.labels3DVisualizer) {
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
     }
-
-    if (this.pointVisualizer) {
-      // this.pointVisualizer.clearSpriteSheet();
-      // if (dataset.spriteMetadata && this.renderMode === RenderMode.SPRITE) {
-      //   this.initializeSpriteSheet(dataset.spriteMetadata);
-      // }
-    }
   }
 
   private updateScatterPlotPositions() {

@@ -7,10 +7,7 @@ Standalone 3D / 2D webgl-accelerated scatter plot point projector. Core function
 #### Basic use
 
 ```javascript
-// An array of n-dimensional vectors
-const points = vectors.map((vector, index) => {
-  return { vector, index };
-});
+// where `points` is an array of 2 or 3-dimensional points as number arrays.
 const dataset = new Dataset(points, nDimensions);
 
 const scatterGL = new ScatterGL({

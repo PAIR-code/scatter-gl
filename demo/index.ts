@@ -14,8 +14,7 @@ dataset.setSpriteMetadata({
 
 let lastSelectedPoints: number[] = [];
 
-const scatterGL = new ScatterGL({
-  containerElement,
+const scatterGL = new ScatterGL(containerElement, dataset, {
   onHover: (point: number | null) => {
     const message = `🔥hover ${point}`;
     console.log(message);
@@ -35,7 +34,6 @@ const scatterGL = new ScatterGL({
     console.log(message);
     messagesElement.innerHTML = message;
   },
-  dataset,
   renderMode: RenderMode.POINT,
 });
 

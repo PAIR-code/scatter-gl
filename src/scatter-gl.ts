@@ -31,8 +31,6 @@ import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polyli
 export type PointColorer = (index: number) => string;
 
 export interface ScatterGLParams {
-  containerElement: HTMLElement;
-  dataset: Dataset;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   pointColorer?: PointColorer;
@@ -79,8 +77,13 @@ export class ScatterGL {
     }
   }
 
-  constructor(params: ScatterGLParams) {
-    this.containerElement = params.containerElement;
+  constructor(
+    containerElement: HTMLElement,
+    dataset: Dataset,
+    params: ScatterGLParams
+  ) {
+    this.containerElement = containerElement;
+    this.dataset = dataset;
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist
@@ -96,11 +99,11 @@ export class ScatterGL {
       onHover: this.onHover,
       onSelect: this.onSelect,
       styles: this.styles,
-      dimensions: params.dataset.dimensions,
+      dimensions: dataset.dimensions,
     });
 
     this.setVisualizers();
-    this.updateDataset(params.dataset);
+    this.updateDataset(dataset);
 
     if (this.rotateOnStart) {
       this.scatterPlot.startOrbitAnimation();

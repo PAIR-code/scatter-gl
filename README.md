@@ -10,10 +10,7 @@ Standalone 3D / 2D webgl-accelerated scatter plot point projector. Core function
 // where `points` is an array of 2 or 3-dimensional points as number arrays.
 const dataset = new Dataset(points, nDimensions);
 
-const scatterGL = new ScatterGL({
-  containerElement,
-  dataset,
-});
+const scatterGL = new ScatterGL(containerElement, dataset, params);
 ```
 
 #### Parameters
@@ -22,8 +19,6 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 
 | Parameter           | Description                                                                                             | default            |
 | ------------------- | ------------------------------------------------------------------------------------------------------- | ------------------ |
-| `containerElement`  | The HTML Element that the projection will be rendered in                                                | **required**       |
-| `dataset`           | The `Dataset` object, containing all of the data to be projected and associated metadata                | **required**       |
 | `onHover`           | A callback invoked when hovering over a point                                                           |                    |
 | `onSelect`          | A callback invoked when a point or points are selected                                                  |                    |
 | `pointColorer`      | A function to determine the color of points                                                             |                    |

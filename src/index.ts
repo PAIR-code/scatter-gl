@@ -13,5 +13,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-export { ScatterGL, ScatterGLParams } from './scatter-gl';
-export { InteractionMode, RenderMode, Vector, Point2D, Point3D } from './types';
+export {ScatterGL, ScatterGLParams} from './scatter-gl';
+export {InteractionMode, RenderMode, Vector, Point2D, Point3D} from './types';

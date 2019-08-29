@@ -14,9 +14,9 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
-import { CameraType, RenderContext } from './render';
-import { Styles } from './styles';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {CameraType, RenderContext} from './render';
+import {Styles} from './styles';
 import * as util from './util';
 import {
   RGB_NUM_ELEMENTS,
@@ -37,31 +37,31 @@ const makeVertexShader = (minPointSize: number) => `
     attribute float spriteIndex;
     attribute vec3 color;
     attribute float scaleFactor;
-  
+
     varying vec2 xyIndex;
     varying vec3 vColor;
-  
+
     uniform bool sizeAttenuation;
     uniform float pointSize;
     uniform float spritesPerRow;
     uniform float spritesPerColumn;
 
     varying float fogDepth;
-  
+
     void main() {
       // Pass index and color values to fragment shader.
       vColor = color;
       xyIndex = vec2(mod(spriteIndex, spritesPerRow),
                 floor(spriteIndex / spritesPerColumn));
-  
+
       // Transform current vertex by modelViewMatrix (model world position and
       // camera world position matrix).
       vec4 cameraSpacePos = modelViewMatrix * vec4(position, 1.0);
-  
+
       // Project vertex in camera-space to screen coordinates using the camera's
       // projection matrix.
       gl_Position = projectionMatrix * cameraSpacePos;
-  
+
       // Create size attenuation (if we're in 3D mode) by making the size of
       // each point inversly proportional to its distance to the camera.
       float outputPointSize = pointSize;
@@ -81,7 +81,7 @@ const makeVertexShader = (minPointSize: number) => `
                       1. + 2. / PI * (maxScale - 1.) * atan(inSpeed * (zoom - 1.));
         outputPointSize = pointSize * scale;
       }
-  
+
       gl_PointSize =
         max(outputPointSize * scaleFactor, ${minPointSize.toFixed(1)});
     }`;
@@ -91,7 +91,7 @@ const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
       vec2 centerToP = spriteCoord - vec2(0.5, 0.5);
       return dot(centerToP, centerToP) < (0.5 * 0.5);
     }
-  
+
     bool point_in_unit_equilateral_triangle(vec2 spriteCoord) {
       vec3 v0 = vec3(0, 1, 0);
       vec3 v1 = vec3(0.5, 0, 0);
@@ -101,7 +101,7 @@ const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
       float p_in_v1_v2 = cross(v2 - v1, p - v1).z;
       return (p_in_v0_v1 > 0.0) && (p_in_v1_v2 > 0.0);
     }
-  
+
     bool point_in_unit_square(vec2 spriteCoord) {
       return true;
     }
@@ -110,19 +110,19 @@ const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
 const FRAGMENT_SHADER = `
     varying vec2 xyIndex;
     varying vec3 vColor;
-  
+
     uniform sampler2D texture;
     uniform float spritesPerRow;
     uniform float spritesPerColumn;
     uniform bool isImage;
-  
+
     ${THREE.ShaderChunk['common']}
     ${FRAGMENT_SHADER_POINT_TEST_CHUNK}
     uniform vec3 fogColor;
     varying float fogDepth;
 		uniform float fogNear;
     uniform float fogFar;
-      
+
     void main() {
       if (isImage) {
         // Coordinates of the vertex within the entire sprite image.
@@ -144,11 +144,11 @@ const FRAGMENT_SHADER_PICKING = `
     varying vec2 xyIndex;
     varying vec3 vColor;
     uniform bool isImage;
-  
+
     ${FRAGMENT_SHADER_POINT_TEST_CHUNK}
 
     varying float fogDepth;
-  
+
     void main() {
       xyIndex; // Silence 'unused variable' warning.
       fogDepth; // Silence 'unused variable' warning.
@@ -206,20 +206,20 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
 
   private createUniforms(): any {
     return {
-      texture: { type: 't' },
-      spritesPerRow: { type: 'f' },
-      spritesPerColumn: { type: 'f' },
-      fogColor: { type: 'c' },
-      fogNear: { type: 'f' },
-      fogFar: { type: 'f' },
-      isImage: { type: 'bool' },
-      sizeAttenuation: { type: 'bool' },
-      pointSize: { type: 'f' },
+      texture: {type: 't'},
+      spritesPerRow: {type: 'f'},
+      spritesPerColumn: {type: 'f'},
+      fogColor: {type: 'c'},
+      fogNear: {type: 'f'},
+      fogFar: {type: 'f'},
+      isImage: {type: 'bool'},
+      sizeAttenuation: {type: 'bool'},
+      pointSize: {type: 'f'},
     };
   }
 
   private createRenderMaterial(): THREE.ShaderMaterial {
-    const { isSpriteSheetMode } = this;
+    const {isSpriteSheetMode} = this;
     const uniforms = this.createUniforms();
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
@@ -270,7 +270,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private calculatePointSize(sceneIs3D: boolean): number {
-    const { imageSize } = this.styles.sprites;
+    const {imageSize} = this.styles.sprites;
     if (this.texture) {
       return sceneIs3D ? imageSize : this.spriteDimensions[0];
     }
@@ -326,7 +326,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     nearestPointZ: number,
     farthestPointZ: number
   ) {
-    const { numPointsFogThreshold } = this.styles.sprites;
+    const {numPointsFogThreshold} = this.styles.sprites;
     if (sceneIs3D) {
       const n = this.worldSpacePointPositions.length / XYZ_NUM_ELEMENTS;
       this.fog.near = nearestPointZ;
@@ -371,7 +371,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private setSpriteSheet(spriteSheetParams: SpriteSheetParams) {
-    const { spriteDimensions, spriteIndices, onImageLoad } = spriteSheetParams;
+    const {spriteDimensions, spriteIndices, onImageLoad} = spriteSheetParams;
     let spriteSheet = spriteSheetParams.spritesheetImage;
 
     // Load the sprite sheet as an image if a URL is supplied

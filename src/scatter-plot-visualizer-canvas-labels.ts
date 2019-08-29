@@ -14,10 +14,10 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
-import { CameraType, RenderContext } from './render';
-import { BoundingBox, CollisionGrid } from './label';
-import { Styles } from './styles';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {CameraType, RenderContext} from './render';
+import {BoundingBox, CollisionGrid} from './label';
+import {Styles} from './styles';
 import * as util from './util';
 
 const MAX_LABELS_ON_SCREEN = 10000;
@@ -68,7 +68,7 @@ export class ScatterPlotVisualizerCanvasLabels
     {
       const pixw = this.canvas.width * dpr;
       const pixh = this.canvas.height * dpr;
-      const bb: BoundingBox = { loX: 0, hiX: pixw, loY: 0, hiY: pixh };
+      const bb: BoundingBox = {loX: 0, hiX: pixw, loY: 0, hiY: pixh};
       grid = new CollisionGrid(bb, pixw / 25, pixh / 50);
     }
 

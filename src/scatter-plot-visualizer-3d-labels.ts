@@ -14,15 +14,11 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
-import { RenderContext } from './render';
-import { Styles } from './styles';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {RenderContext} from './render';
+import {Styles} from './styles';
 import * as util from './util';
-import {
-  RGB_NUM_ELEMENTS,
-  UV_NUM_ELEMENTS,
-  XYZ_NUM_ELEMENTS,
-} from './constants';
+import {RGB_NUM_ELEMENTS, UV_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 
 const MAX_CANVAS_DIMENSION = 8192;
 const NUM_GLYPHS = 256;
@@ -46,26 +42,26 @@ const makeVertexShader = (fontSize: number, scale: number) => `
       attribute vec3 color;
       varying vec2 vUv;
       varying vec3 vColor;
-  
+
       void main() {
         vUv = uv;
         vColor = color;
-  
+
         // Rotate label to face camera.
-  
+
         vec4 vRight = vec4(
           modelViewMatrix[0][0], modelViewMatrix[1][0], modelViewMatrix[2][0], 0);
-  
+
         vec4 vUp = vec4(
           modelViewMatrix[0][1], modelViewMatrix[1][1], modelViewMatrix[2][1], 0);
-  
+
         vec4 vAt = -vec4(
           modelViewMatrix[0][2], modelViewMatrix[1][2], modelViewMatrix[2][2], 0);
-  
+
         mat4 pointToCamera = mat4(vRight, vUp, vAt, vec4(0, 0, 0, 1));
-  
+
         vec2 scaledPos = posObj * ${1 / fontSize} * ${scale};
-  
+
         vec4 posRotated = pointToCamera * vec4(scaledPos, 0, 1);
         vec4 mvPosition = modelViewMatrix * (vec4(position, 0) + posRotated);
         gl_Position = projectionMatrix * mvPosition;
@@ -76,7 +72,7 @@ const FRAGMENT_SHADER = `
       uniform bool picking;
       varying vec2 vUv;
       varying vec3 vColor;
-  
+
       void main() {
         if (picking) {
           gl_FragColor = vec4(vColor, 1.0);
@@ -113,7 +109,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   constructor(private styles: Styles) {}
 
   private createGlyphTexture(): GlyphTexture {
-    const { fontSize, backgroundColor, color } = this.styles.label3D;
+    const {fontSize, backgroundColor, color} = this.styles.label3D;
 
     const canvas = document.createElement('canvas');
     canvas.width = MAX_CANVAS_DIMENSION;
@@ -139,7 +135,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       leftCoord += textLength;
     }
     const tex = util.createTextureFromCanvas(canvas);
-    return { texture: tex, lengths: glyphLengths, offsets: glyphOffset };
+    return {texture: tex, lengths: glyphLengths, offsets: glyphOffset};
   }
 
   private processLabelVerts(pointCount: number) {
@@ -180,7 +176,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   }
 
   private createLabels() {
-    const { fontSize, scale } = this.styles.label3D;
+    const {fontSize, scale} = this.styles.label3D;
     if (this.labelStrings == null || this.worldSpacePointPositions == null) {
       return;
     }
@@ -191,8 +187,8 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     this.glyphTexture = this.createGlyphTexture();
 
     this.uniforms = {
-      texture: { type: 't' },
-      picking: { type: 'bool' },
+      texture: {type: 't'},
+      picking: {type: 'bool'},
     };
 
     this.material = new THREE.ShaderMaterial({

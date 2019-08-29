@@ -14,8 +14,8 @@ limitations under the License.
 ==============================================================================*/
 
 import * as fmnist from './data/projection.json';
-import { Points, Dataset, PointMetadata } from '../src/data';
-import { ScatterGL, RenderMode } from '../src';
+import {Points, Dataset, PointMetadata} from '../src/data';
+import {ScatterGL, RenderMode} from '../src';
 
 const dataPoints: Points = [];
 const metadata: PointMetadata[] = [];

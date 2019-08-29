@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { Point2D } from './types';
+import {Point2D} from './types';
 
 /** Projects a 3d point into screen space */
 export function vector3DToScreenCoords(

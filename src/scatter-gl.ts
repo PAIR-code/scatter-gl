@@ -14,19 +14,19 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlot } from './scatter-plot';
-import { Dataset, SpriteMetadata } from './data';
-import { LabelRenderParams } from './render';
-import { Styles, UserStyles, makeStyles } from './styles';
-import { InteractionMode, RenderMode } from './types';
+import {ScatterPlot} from './scatter-plot';
+import {Dataset, SpriteMetadata} from './data';
+import {LabelRenderParams} from './render';
+import {Styles, UserStyles, makeStyles} from './styles';
+import {InteractionMode, RenderMode} from './types';
 import * as util from './util';
-import { SCATTER_PLOT_CUBE_LENGTH } from './constants';
+import {SCATTER_PLOT_CUBE_LENGTH} from './constants';
 
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
-import { ScatterPlotVisualizer3DLabels } from './scatter-plot-visualizer-3d-labels';
-import { ScatterPlotVisualizerSprites } from './scatter-plot-visualizer-sprites';
-import { ScatterPlotVisualizerCanvasLabels } from './scatter-plot-visualizer-canvas-labels';
-import { ScatterPlotVisualizerPolylines } from './scatter-plot-visualizer-polylines';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {ScatterPlotVisualizer3DLabels} from './scatter-plot-visualizer-3d-labels';
+import {ScatterPlotVisualizerSprites} from './scatter-plot-visualizer-sprites';
+import {ScatterPlotVisualizerCanvasLabels} from './scatter-plot-visualizer-canvas-labels';
+import {ScatterPlotVisualizerPolylines} from './scatter-plot-visualizer-polylines';
 
 export type PointColorer = (index: number) => string;
 
@@ -234,7 +234,7 @@ export class ScatterGL {
   }
 
   private generatePointPositionArray(): Float32Array {
-    const { dataset } = this;
+    const {dataset} = this;
 
     let xExtent = [0, 0];
     let yExtent = [0, 0];
@@ -268,7 +268,7 @@ export class ScatterGL {
   }
 
   private generateVisibleLabelRenderParams(): LabelRenderParams {
-    const { hoverPointIndex, selectedPointIndices, styles } = this;
+    const {hoverPointIndex, selectedPointIndices, styles} = this;
     const selectedPointCount = selectedPointIndices.length;
     const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
 
@@ -353,8 +353,8 @@ export class ScatterGL {
   }
 
   private generatePointScaleFactorArray(): Float32Array {
-    const { dataset, hoverPointIndex, selectedPointIndices, styles } = this;
-    const { scaleDefault, scaleSelected, scaleHover } = styles.point;
+    const {dataset, hoverPointIndex, selectedPointIndices, styles} = this;
+    const {scaleDefault, scaleSelected, scaleHover} = styles.point;
 
     const scale = new Float32Array(dataset.points.length);
     scale.fill(scaleDefault);
@@ -466,7 +466,7 @@ export class ScatterGL {
   }
 
   private generate3DLabelsArray() {
-    const { dataset } = this;
+    const {dataset} = this;
     let labels: string[] = [];
     const n = dataset.points.length;
     for (let i = 0; i < n; ++i) {
@@ -478,8 +478,8 @@ export class ScatterGL {
   private generateLineSegmentColorMap(): {
     [polylineIndex: number]: Float32Array;
   } {
-    const { dataset, pointColorer, styles } = this;
-    const polylineColorArrayMap: { [polylineIndex: number]: Float32Array } = {};
+    const {dataset, pointColorer, styles} = this;
+    const polylineColorArrayMap: {[polylineIndex: number]: Float32Array} = {};
 
     for (let i = 0; i < dataset.sequences.length; i++) {
       let sequence = dataset.sequences[i];
@@ -533,7 +533,7 @@ export class ScatterGL {
   }
 
   private generateLineSegmentOpacityArray(): Float32Array {
-    const { dataset, selectedPointIndices, styles } = this;
+    const {dataset, selectedPointIndices, styles} = this;
 
     const opacities = new Float32Array(dataset.sequences.length);
     const selectedPointCount = selectedPointIndices.length;
@@ -549,7 +549,7 @@ export class ScatterGL {
   }
 
   private generateLineSegmentWidthArray(): Float32Array {
-    const { dataset, selectedPointIndices, styles } = this;
+    const {dataset, selectedPointIndices, styles} = this;
 
     const widths = new Float32Array(dataset.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
@@ -563,13 +563,13 @@ export class ScatterGL {
   }
 
   private getLabelText(i: number) {
-    const { dataset } = this;
+    const {dataset} = this;
     const metadata = dataset.metadata[i];
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
   private initializeSpritesheetVisualizer(spriteMetadata: SpriteMetadata) {
-    const { dataset, styles } = this;
+    const {dataset, styles} = this;
     if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
       return;
     }
@@ -592,7 +592,7 @@ export class ScatterGL {
   }
 
   private setVisualizers() {
-    const { dataset, renderMode, scatterPlot, styles } = this;
+    const {dataset, renderMode, scatterPlot, styles} = this;
     scatterPlot.disposeAllVisualizers();
 
     const activeVisualizers: ScatterPlotVisualizer[] = [];

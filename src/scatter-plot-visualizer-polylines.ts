@@ -14,11 +14,11 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
-import { RenderContext } from './render';
-import { Dataset } from './data';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {RenderContext} from './render';
+import {Dataset} from './data';
 import * as util from './util';
-import { RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS } from './constants';
+import {RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 
 /**
  * Renders polylines that connect multiple points in the dataset.

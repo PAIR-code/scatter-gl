@@ -29,6 +29,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, '../demo/index.html'),
     }),
-    new CopyWebpackPlugin([{ from: 'demo/static' }]),
+    new CopyWebpackPlugin([{from: 'demo/static'}]),
   ],
 };

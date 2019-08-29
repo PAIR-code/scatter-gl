@@ -36,6 +36,7 @@
     "three-orbitcontrols": "^2.102.2"
   },
   "prettier": {
+    "bracketSpacing": false,
     "printWidth": 80,
     "semi": true,
     "singleQuote": true,

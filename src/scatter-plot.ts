@@ -14,14 +14,14 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { OrbitControls } from './orbit-controls';
+import {OrbitControls} from './orbit-controls';
 
-import { CameraType, LabelRenderParams, RenderContext } from './render';
-import { Styles } from './styles';
-import { Point2D, Point3D, InteractionMode } from './types';
+import {CameraType, LabelRenderParams, RenderContext} from './render';
+import {Styles} from './styles';
+import {Point2D, Point3D, InteractionMode} from './types';
 import * as util from './util';
 
-import { ScatterPlotVisualizer } from './scatter-plot-visualizer';
+import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
 import {
   ScatterBoundingBox,
   ScatterPlotRectangleSelector,
@@ -113,7 +113,7 @@ export class ScatterPlot {
   private pointColors: Float32Array;
   private pointScaleFactors: Float32Array;
   private labels: LabelRenderParams;
-  private polylineColors: { [polylineIndex: number]: Float32Array };
+  private polylineColors: {[polylineIndex: number]: Float32Array};
   private polylineOpacities: Float32Array;
   private polylineWidths: Float32Array;
 
@@ -735,7 +735,7 @@ export class ScatterPlot {
   }
 
   /** Set the colors for every data polyline. (RGB triplets) */
-  setPolylineColors(colors: { [polylineIndex: number]: Float32Array }) {
+  setPolylineColors(colors: {[polylineIndex: number]: Float32Array}) {
     this.polylineColors = colors;
   }
 

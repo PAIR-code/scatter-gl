@@ -28,7 +28,8 @@ fmnist.projection.forEach((vector: number[], index) => {
   });
 });
 
-const dataset = new Dataset(dataPoints, 3, metadata);
+const nDimensions = 3;
+const dataset = new Dataset(dataPoints, nDimensions, metadata);
 
 dataset.setSpriteMetadata({
   spriteImage: 'spritesheet.png',

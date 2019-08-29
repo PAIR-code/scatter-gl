@@ -12,6 +12,23 @@ const dataset = new Dataset(points);
 const scatterGL = new ScatterGL(containerElement, dataset, params);
 ```
 
+## Installation
+
+##### with yarn / npm
+
+```bash
+yarn install scatter-gl
+```
+
+##### via cdn
+
+```html
+<!-- Load three.js -->
+<script src="https://unpkg.com/three@0.106.2/build/three.min.js"></script>
+<!-- Load scatter-gl.js -->
+<script src="https://unpkg.com/scatter-gl@0.1.0/dist/scatter-gl.min.js"></script>
+```
+
 #### Parameters
 
 The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLParams` object:

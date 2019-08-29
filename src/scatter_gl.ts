@@ -47,7 +47,7 @@ export class ScatterGL {
   private containerElement: HTMLElement;
   private dataset: Dataset;
   private styles: Styles;
-  private renderMode = RenderMode.SPRITE;
+  private renderMode = RenderMode.POINT;
   private showLabelsOnHover = true;
   private rotateOnStart = true;
 

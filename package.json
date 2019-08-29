@@ -6,7 +6,7 @@
     "name": "Andy Coenen",
     "email": "andycoenen@google.com"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": "PAIR-code/scatter-gl",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

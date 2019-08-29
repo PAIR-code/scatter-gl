@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {ScatterPlot} from './scatter-plot';
+import {ScatterPlot} from './scatter_plot';
 import {Dataset, SpriteMetadata} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
@@ -22,11 +22,11 @@ import {InteractionMode, RenderMode} from './types';
 import * as util from './util';
 import {SCATTER_PLOT_CUBE_LENGTH} from './constants';
 
-import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
-import {ScatterPlotVisualizer3DLabels} from './scatter-plot-visualizer-3d-labels';
-import {ScatterPlotVisualizerSprites} from './scatter-plot-visualizer-sprites';
-import {ScatterPlotVisualizerCanvasLabels} from './scatter-plot-visualizer-canvas-labels';
-import {ScatterPlotVisualizerPolylines} from './scatter-plot-visualizer-polylines';
+import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
+import {ScatterPlotVisualizer3DLabels} from './scatter_plot_visualizer_3d_labels';
+import {ScatterPlotVisualizerSprites} from './scatter_plot_visualizer_sprites';
+import {ScatterPlotVisualizerCanvasLabels} from './scatter_plot_visualizer_canvas_labels';
+import {ScatterPlotVisualizerPolylines} from './scatter_plot_visualizer_polylines';
 
 export type PointColorer = (index: number) => string;
 

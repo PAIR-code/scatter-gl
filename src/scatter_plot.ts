@@ -14,18 +14,18 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {OrbitControls} from './orbit-controls';
+import {OrbitControls} from './orbit_controls';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
 import {Point2D, Point3D, InteractionMode} from './types';
 import * as util from './util';
 
-import {ScatterPlotVisualizer} from './scatter-plot-visualizer';
+import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {
   ScatterBoundingBox,
   ScatterPlotRectangleSelector,
-} from './scatter-plot-rectangle-selector';
+} from './scatter_plot_rectangle_selector';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the

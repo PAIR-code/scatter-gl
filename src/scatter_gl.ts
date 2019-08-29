@@ -67,16 +67,6 @@ export class ScatterGL {
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
 
-  private setParameter(
-    params: ScatterGLParams,
-    key: keyof ScatterGLParams,
-    targetKey: string = key
-  ) {
-    if (params[key] !== undefined) {
-      (this as any)[targetKey] = params[key];
-    }
-  }
-
   constructor(
     containerElement: HTMLElement,
     dataset: Dataset,
@@ -87,12 +77,7 @@ export class ScatterGL {
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist
-    this.setParameter(params, 'renderMode');
-    this.setParameter(params, 'showLabelsOnHover');
-    this.setParameter(params, 'onHover', 'hoverCallback');
-    this.setParameter(params, 'onSelect', 'selectCallback');
-    this.setParameter(params, 'pointColorer');
-    this.setParameter(params, 'rotateOnStart');
+    this.setParameters(params);
 
     this.scatterPlot = new ScatterPlot({
       containerElement: this.containerElement,
@@ -108,6 +93,16 @@ export class ScatterGL {
     if (this.rotateOnStart) {
       this.scatterPlot.startOrbitAnimation();
     }
+  }
+
+  private setParameters(p: ScatterGLParams) {
+    if (p.renderMode !== undefined) this.renderMode = p.renderMode;
+    if (p.showLabelsOnHover !== undefined)
+      this.showLabelsOnHover = p.showLabelsOnHover;
+    if (p.onHover !== undefined) this.hoverCallback = p.onHover;
+    if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
+    if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
+    if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;
   }
 
   setRenderMode(renderMode: RenderMode) {

@@ -1,11 +1,19 @@
-import { state } from './core';
+import * as fmnist from './data/projection.json';
+import { Points, Dataset, PointMetadata } from '../src/data';
+import { ScatterGL, RenderMode } from '../src';
 
-import { ScatterGL, RenderMode, InteractionMode } from '../src';
+const dataPoints: Points = [];
+const metadata: PointMetadata[] = [];
+fmnist.projection.forEach((vector: number[], index) => {
+  const labelIndex = fmnist.labels[index];
+  dataPoints.push(vector);
+  metadata.push({
+    labelIndex,
+    label: fmnist.label_names[labelIndex],
+  });
+});
 
-const containerElement = document.getElementById('container')!;
-const messagesElement = document.getElementById('messages')!;
-
-const { dataset } = state;
+const dataset = new Dataset(dataPoints, 3, metadata);
 
 dataset.setSpriteMetadata({
   spriteImage: 'spritesheet.png',
@@ -13,6 +21,9 @@ dataset.setSpriteMetadata({
 });
 
 let lastSelectedPoints: number[] = [];
+
+const containerElement = document.getElementById('container')!;
+const messagesElement = document.getElementById('messages')!;
 
 const scatterGL = new ScatterGL(containerElement, dataset, {
   onHover: (point: number | null) => {

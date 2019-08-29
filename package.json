@@ -10,6 +10,8 @@
   "repository": "PAIR-code/scatter-gl",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "unpkg": "lib/scatter-gl.min.js",
+  "jsdelivr": "lib/scatter-gl.min.js",
   "scripts": {
     "build": "yarn build-dist && yarn build-lib && yarn build-lib-min",
     "build-dist": "rm -rf dist && tsc",

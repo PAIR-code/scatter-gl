@@ -70,7 +70,7 @@ export class ScatterGL {
   constructor(
     containerElement: HTMLElement,
     dataset: Dataset,
-    params: ScatterGLParams
+    params: ScatterGLParams = {}
   ) {
     this.containerElement = containerElement;
     this.dataset = dataset;

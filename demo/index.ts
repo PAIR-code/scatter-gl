@@ -14,10 +14,11 @@ limitations under the License.
 ==============================================================================*/
 
 import {data} from './data/projection';
-import {Points, Dataset, PointMetadata} from '../src/data';
+import {Point3D, Dataset, PointMetadata} from '../src/data';
+import {makeSequences} from './sequences';
 import {ScatterGL, RenderMode} from '../src';
 
-const dataPoints: Points = [];
+const dataPoints: Point3D[] = [];
 const metadata: PointMetadata[] = [];
 data.projection.forEach((vector, index) => {
   const labelIndex = data.labels[index];
@@ -28,6 +29,7 @@ data.projection.forEach((vector, index) => {
   });
 });
 
+const sequences = makeSequences(dataPoints, metadata);
 const dataset = new Dataset(dataPoints, metadata);
 
 dataset.setSpriteMetadata({
@@ -62,7 +64,8 @@ const scatterGL = new ScatterGL(containerElement, {
   },
   renderMode: RenderMode.POINT,
 });
-scatterGL.render(dataset);
+// scatterGL.setSequences(sequences);
+// scatterGL.render(dataset);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="interactions"]')
@@ -116,4 +119,12 @@ const dimensionsToggle = document.querySelector<HTMLInputElement>(
 dimensionsToggle.addEventListener('change', (e: any) => {
   const is3D = dimensionsToggle.checked;
   scatterGL.setDimensions(is3D ? 3 : 2);
+});
+
+const sequencesToggle = document.querySelector<HTMLInputElement>(
+  'input[name="sequences"]'
+)!;
+sequencesToggle.addEventListener('change', (e: any) => {
+  const showSequences = sequencesToggle.checked;
+  scatterGL.setSequences(showSequences ? sequences : []);
 });

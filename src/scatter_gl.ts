@@ -15,7 +15,7 @@ limitations under the License.
 
 import * as THREE from 'three';
 import {ScatterPlot} from './scatter_plot';
-import {Dataset, SpriteMetadata} from './data';
+import {Dataset, SpriteMetadata, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';
@@ -48,6 +48,7 @@ export class ScatterGL {
   private dataset?: Dataset;
   private pointColorer: PointColorer | null = null;
   private scatterPlot: ScatterPlot;
+  private sequences: Sequence[] = [];
   private styles: Styles;
 
   private renderMode = RenderMode.POINT;
@@ -92,12 +93,16 @@ export class ScatterGL {
   }
 
   render(dataset: Dataset) {
-    this.setVisualizers();
     this.updateDataset(dataset);
+    this.setVisualizers();
 
     if (this.rotateOnStart) {
       this.scatterPlot.startOrbitAnimation();
     }
+  }
+
+  private renderScatterPlot() {
+    if (this.dataset) this.scatterPlot.render();
   }
 
   setRenderMode(renderMode: RenderMode) {
@@ -109,19 +114,26 @@ export class ScatterGL {
 
   setTextRenderMode() {
     this.setRenderMode(RenderMode.TEXT);
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   }
 
   setPointRenderMode() {
     this.setRenderMode(RenderMode.POINT);
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   }
 
   setSpriteRenderMode() {
     if (this.dataset && this.dataset.spriteMetadata) {
       this.setRenderMode(RenderMode.SPRITE);
-      this.scatterPlot.render();
+      this.renderScatterPlot();
     }
+  }
+
+  setSequences(sequences: Sequence[]) {
+    this.sequences = sequences;
+    this.updatePolylineAttributes();
+    this.setVisualizers();
+    this.renderScatterPlot();
   }
 
   setPanMode() {
@@ -140,14 +152,14 @@ export class ScatterGL {
       throw new RangeError('Setting invalid dimensionality');
     } else {
       this.scatterPlot.setDimensions(nDimensions);
-      this.scatterPlot.render();
+      this.renderScatterPlot();
     }
   }
 
   setPointColorer(pointColorer: PointColorer | null) {
     this.pointColorer = pointColorer;
     this.updateScatterPlotAttributes();
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   }
 
   resize() {
@@ -158,14 +170,14 @@ export class ScatterGL {
     this.hoverCallback(pointIndex);
     this.hoverPointIndex = pointIndex;
     this.updateScatterPlotAttributes();
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   };
 
   onSelect = (pointIndices: number[]) => {
     this.selectCallback(pointIndices);
     this.selectedPointIndices = pointIndices;
     this.updateScatterPlotAttributes();
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   };
 
   updateDataset(dataset: Dataset) {
@@ -173,7 +185,7 @@ export class ScatterGL {
     this.scatterPlot.setDimensions(dataset.dimensions);
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
-    this.scatterPlot.render();
+    this.renderScatterPlot();
   }
 
   startOrbitAnimation() {
@@ -182,10 +194,6 @@ export class ScatterGL {
 
   private setDataset(dataset: Dataset) {
     this.dataset = dataset;
-
-    if (this.polylineVisualizer) {
-      this.polylineVisualizer.setDataset(dataset);
-    }
 
     if (this.labels3DVisualizer) {
       this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
@@ -207,13 +215,20 @@ export class ScatterGL {
     const pointColors = this.generatePointColorArray(dataset);
     const pointScaleFactors = this.generatePointScaleFactorArray(dataset);
     const labels = this.generateVisibleLabelRenderParams(dataset);
-    const polylineColors = this.generateLineSegmentColorMap(dataset);
-    const polylineOpacities = this.generateLineSegmentOpacityArray(dataset);
-    const polylineWidths = this.generateLineSegmentWidthArray(dataset);
 
     this.scatterPlot.setPointColors(pointColors);
     this.scatterPlot.setPointScaleFactors(pointScaleFactors);
     this.scatterPlot.setLabels(labels);
+  }
+
+  private updatePolylineAttributes() {
+    const {dataset} = this;
+    if (!dataset) return;
+
+    const polylineColors = this.generateLineSegmentColorMap(dataset);
+    const polylineOpacities = this.generateLineSegmentOpacityArray(dataset);
+    const polylineWidths = this.generateLineSegmentWidthArray(dataset);
+
     this.scatterPlot.setPolylineColors(polylineColors);
     this.scatterPlot.setPolylineOpacities(polylineOpacities);
     this.scatterPlot.setPolylineWidths(polylineWidths);
@@ -464,20 +479,17 @@ export class ScatterGL {
     [polylineIndex: number]: Float32Array;
   } {
     const {pointColorer, styles} = this;
-
     const polylineColorArrayMap: {[polylineIndex: number]: Float32Array} = {};
 
-    for (let i = 0; i < dataset.sequences.length; i++) {
-      let sequence = dataset.sequences[i];
-      let colors = new Float32Array(2 * (sequence.pointIndices.length - 1) * 3);
+    for (let i = 0; i < this.sequences.length; i++) {
+      let sequence = this.sequences[i];
+      let colors = new Float32Array(2 * (sequence.indices.length - 1) * 3);
       let colorIndex = 0;
 
       if (pointColorer) {
-        for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
-          const c1 = new THREE.Color(pointColorer(sequence.pointIndices[j]));
-          const c2 = new THREE.Color(
-            pointColorer(sequence.pointIndices[j + 1])
-          );
+        for (let j = 0; j < sequence.indices.length - 1; j++) {
+          const c1 = new THREE.Color(pointColorer(sequence.indices[j]));
+          const c2 = new THREE.Color(pointColorer(sequence.indices[j + 1]));
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
           colors[colorIndex++] = c1.b;
@@ -486,10 +498,10 @@ export class ScatterGL {
           colors[colorIndex++] = c2.b;
         }
       } else {
-        for (let j = 0; j < sequence.pointIndices.length - 1; j++) {
+        for (let j = 0; j < sequence.indices.length - 1; j++) {
           const c1 = util.getDefaultPointInPolylineColor(
             j,
-            sequence.pointIndices.length,
+            sequence.indices.length,
             styles.polyline.startHue,
             styles.polyline.endHue,
             styles.polyline.saturation,
@@ -497,7 +509,7 @@ export class ScatterGL {
           );
           const c2 = util.getDefaultPointInPolylineColor(
             j + 1,
-            sequence.pointIndices.length,
+            sequence.indices.length,
             styles.polyline.startHue,
             styles.polyline.endHue,
             styles.polyline.saturation,
@@ -521,13 +533,14 @@ export class ScatterGL {
   private generateLineSegmentOpacityArray(dataset: Dataset): Float32Array {
     const {selectedPointIndices, styles} = this;
 
-    const opacities = new Float32Array(dataset.sequences.length);
+    const opacities = new Float32Array(this.sequences.length);
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
       opacities.fill(styles.polyline.deselectedOpacity);
-      // TODO (andycoenen): Refactor the polylines sequenceIndex system
-      // const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
-      // if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
+      const i = this.polylineVisualizer!.getPointSequenceIndex(
+        selectedPointIndices[0]
+      );
+      if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
       opacities.fill(styles.polyline.defaultOpacity);
     }
@@ -537,13 +550,14 @@ export class ScatterGL {
   private generateLineSegmentWidthArray(dataset: Dataset): Float32Array {
     const {selectedPointIndices, styles} = this;
 
-    const widths = new Float32Array(dataset.sequences.length);
+    const widths = new Float32Array(this.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
     const selectedPointCount = selectedPointIndices.length;
     if (selectedPointCount > 0) {
-      // TODO (andycoenen): Refactor the polylines sequenceIndex system
-      // const i = dataset.points[selectedPointIndices[0]].sequenceIndex;
-      // if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
+      const i = this.polylineVisualizer!.getPointSequenceIndex(
+        selectedPointIndices[0]
+      );
+      if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }
     return widths;
   }
@@ -562,7 +576,7 @@ export class ScatterGL {
         this.styles
       );
     }
-    this.scatterPlot.setActiveVisualizer(this.canvasLabelsVisualizer);
+    return this.canvasLabelsVisualizer;
   }
 
   private initialize3DLabelsVisualizer() {
@@ -570,14 +584,14 @@ export class ScatterGL {
       this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(this.styles);
     }
     this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
-    this.scatterPlot.setActiveVisualizer(this.labels3DVisualizer);
+    return this.labels3DVisualizer;
   }
 
   private initializePointVisualizer() {
     if (!this.pointVisualizer) {
       this.pointVisualizer = new ScatterPlotVisualizerSprites(this.styles);
     }
-    this.scatterPlot.setActiveVisualizer(this.pointVisualizer);
+    return this.pointVisualizer;
   }
 
   private initializeSpritesheetVisualizer() {
@@ -595,7 +609,7 @@ export class ScatterGL {
         spriteIndices[i] = i;
       }
 
-      const onImageLoad = () => this.scatterPlot.render();
+      const onImageLoad = () => this.renderScatterPlot();
 
       const spritesheetVisualizer = new ScatterPlotVisualizerSprites(styles, {
         spritesheetImage: spriteMetadata.spriteImage,
@@ -603,29 +617,48 @@ export class ScatterGL {
         spriteIndices,
         onImageLoad,
       });
+      spritesheetVisualizer.id = 'SPRITE_SHEET_VISUALIZER';
       this.spritesheetVisualizer = spritesheetVisualizer;
     }
-    if (this.spritesheetVisualizer) {
-      this.scatterPlot.setActiveVisualizer(this.spritesheetVisualizer);
+    return this.spritesheetVisualizer;
+  }
+
+  private initializePolylineVisualizer() {
+    if (!this.polylineVisualizer) {
+      this.polylineVisualizer = new ScatterPlotVisualizerPolylines();
     }
+    this.polylineVisualizer.setSequences(this.sequences);
+    return this.polylineVisualizer;
   }
 
   private setVisualizers() {
-    this.scatterPlot.disposeAllVisualizers();
     const {dataset, renderMode} = this;
 
+    const activeVisualizers: ScatterPlotVisualizer[] = [];
+
     if (renderMode === RenderMode.TEXT) {
-      this.initialize3DLabelsVisualizer();
+      const visualizer = this.initialize3DLabelsVisualizer();
+      activeVisualizers.push(visualizer);
     } else if (renderMode === RenderMode.POINT) {
-      this.initializePointVisualizer();
+      const visualizer = this.initializePointVisualizer();
+      activeVisualizers.push(visualizer);
     } else if (renderMode === RenderMode.SPRITE && dataset!.spriteMetadata) {
-      this.initializeSpritesheetVisualizer();
+      const visualizer = this.initializeSpritesheetVisualizer();
+      if (visualizer) activeVisualizers.push(visualizer);
+    }
+
+    if (this.sequences.length > 0) {
+      const visualizer = this.initializePolylineVisualizer();
+      activeVisualizers.push(visualizer);
     }
 
     const textLabelsRenderMode =
       renderMode === RenderMode.POINT || renderMode === RenderMode.SPRITE;
     if (textLabelsRenderMode && this.showLabelsOnHover) {
-      this.initializeCanvasLabelsVisualizer();
+      const visualizer = this.initializeCanvasLabelsVisualizer();
+      activeVisualizers.push(visualizer);
     }
+
+    this.scatterPlot.setActiveVisualizers(activeVisualizers);
   }
 }

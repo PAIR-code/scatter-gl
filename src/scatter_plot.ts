@@ -634,12 +634,22 @@ export class ScatterPlot {
     }
   }
 
-  setActiveVisualizer(visualizer: ScatterPlotVisualizer) {
-    this.visualizers.set(visualizer.id, visualizer);
-    visualizer.setScene(this.scene);
-    visualizer.onResize(this.width, this.height);
-    if (this.worldSpacePointPositions) {
-      visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+  setActiveVisualizers(visualizers: ScatterPlotVisualizer[]) {
+    const nextVisualizerIds = new Set<string>(visualizers.map(v => v.id));
+    for (const visualizer of this.visualizers.values()) {
+      if (!nextVisualizerIds.has(visualizer.id)) {
+        visualizer.dispose();
+        this.visualizers.delete(visualizer.id);
+      }
+    }
+
+    for (const visualizer of visualizers) {
+      this.visualizers.set(visualizer.id, visualizer);
+      visualizer.setScene(this.scene);
+      visualizer.onResize(this.width, this.height);
+      if (this.worldSpacePointPositions) {
+        visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+      }
     }
   }
 

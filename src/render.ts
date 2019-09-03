@@ -54,7 +54,7 @@ export class RenderContext {
     public screenHeight: number,
     public nearestCameraSpacePointZ: number,
     public farthestCameraSpacePointZ: number,
-    public backgroundColor: number,
+    public backgroundColor: string,
     public pointColors: Float32Array,
     public pointScaleFactors: Float32Array,
     public labels: LabelRenderParams,

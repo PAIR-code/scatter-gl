@@ -13,14 +13,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+export type Color = string;
+
 export interface LabelStyles {
   fontSize: number;
   scaleDefault: number;
   scaleLarge: number;
-  fillColorSelected: number;
-  fillColorHover: number;
-  strokeColorSelected: number;
-  strokeColorHover: number;
+  fillColorSelected: Color;
+  fillColorHover: Color;
+  strokeColorSelected: Color;
+  strokeColorHover: Color;
   strokeWidth: number;
   fillWidth: number;
 }
@@ -28,17 +30,17 @@ export interface LabelStyles {
 export interface Label3DStyles {
   fontSize: number;
   scale: number;
-  color: string;
-  backgroundColor: string;
-  colorUnselected: number;
-  colorNoSelection: number;
+  color: Color;
+  backgroundColor: Color;
+  colorUnselected: Color;
+  colorNoSelection: Color;
 }
 
 export interface PointStyles {
-  colorUnselected: number;
-  colorNoSelection: number;
-  colorSelected: number;
-  colorHover: number;
+  colorUnselected: Color;
+  colorNoSelection: Color;
+  colorSelected: Color;
+  colorHover: Color;
   scaleDefault: number;
   scaleSelected: number;
   scaleHover: number;
@@ -57,9 +59,9 @@ export interface PolylineStyles {
 }
 
 export interface SelectStyles {
-  fill: string;
+  fill: Color;
   fillOpacity: number;
-  stroke: string;
+  stroke: Color;
   strokeWidth: number;
   strokeDashArray: string;
 }
@@ -68,12 +70,12 @@ export interface SpritesStyles {
   numPointsFogThreshold: number;
   minPointSize: number;
   imageSize: number;
-  colorUnselected: number;
-  colorNoSelection: number;
+  colorUnselected: Color;
+  colorNoSelection: Color;
 }
 
 export interface Styles {
-  backgroundColor: number;
+  backgroundColor: Color;
   label: LabelStyles;
   label3D: Label3DStyles;
   point: PointStyles;
@@ -93,16 +95,16 @@ export interface UserStyles {
 }
 
 const defaultStyles: Styles = {
-  backgroundColor: 0xffffff,
+  backgroundColor: '#ffffff',
 
   label: {
     fontSize: 10,
     scaleDefault: 1,
     scaleLarge: 2,
-    fillColorSelected: 0x000000,
-    fillColorHover: 0x000000,
-    strokeColorSelected: 0xffffff,
-    strokeColorHover: 0xffffff,
+    fillColorSelected: '#000000',
+    fillColorHover: '#000000',
+    strokeColorSelected: '#ffffff',
+    strokeColorHover: '#ffffff',
     strokeWidth: 3,
     fillWidth: 6,
   },
@@ -111,16 +113,16 @@ const defaultStyles: Styles = {
     fontSize: 80,
     scale: 2.2, // at 1:1 texel/pixel ratio
     color: 'black',
-    backgroundColor: 'white',
-    colorUnselected: 0xffffff,
-    colorNoSelection: 0xffffff,
+    backgroundColor: '#ffffff',
+    colorUnselected: '#ffffff',
+    colorNoSelection: '#ffffff',
   },
 
   point: {
-    colorUnselected: 0xe3e3e3,
-    colorNoSelection: 0x7575d9,
-    colorSelected: 0xfa6666,
-    colorHover: 0x760b4f,
+    colorUnselected: '#e3e3e3',
+    colorNoSelection: '#7575d9',
+    colorSelected: '#fa6666',
+    colorHover: '#760b4f',
     scaleDefault: 1.0,
     scaleSelected: 1.2,
     scaleHover: 1.2,
@@ -150,8 +152,8 @@ const defaultStyles: Styles = {
     numPointsFogThreshold: 5000,
     minPointSize: 5.0,
     imageSize: 30,
-    colorUnselected: 0xffffff,
-    colorNoSelection: 0xffffff,
+    colorUnselected: '#ffffff',
+    colorNoSelection: '#ffffff',
   },
 };
 
@@ -177,4 +179,14 @@ export function makeStyles(userStyles: UserStyles | undefined) {
     }
   }
   return defaultStyles;
+}
+
+const DEFAULT_COLOR = '#FFFFFF';
+
+export function parseColor(color: Color) {
+  if (typeof color === 'number') {
+    return;
+  } else if (typeof color === 'string') {
+  }
+  return DEFAULT_COLOR;
 }

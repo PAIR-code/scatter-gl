@@ -1,0 +1,18 @@
+{
+  "typescript.tsdk": "${workspaceRoot}/node_modules/typescript/lib",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/yarn.lock": true,
+    "**/.cache/**/*": true
+  },
+  "files.trimTrailingWhitespace": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "[typescript]": {
+    "editor.formatOnSave": true
+  },
+  "editor.rulers": [80],
+  "files.insertFinalNewline": true,
+  "editor.detectIndentation": false,
+  "editor.wrappingIndent": "none"
+}

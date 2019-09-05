@@ -17,7 +17,7 @@ const scatterGL = new ScatterGL(containerElement, dataset, params);
 ##### with yarn / npm
 
 ```bash
-yarn install scatter-gl
+yarn add scatter-gl
 ```
 
 ##### via cdn

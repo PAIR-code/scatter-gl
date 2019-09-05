@@ -29,18 +29,18 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 
 #### ScatterGL methods
 
-| Method                          | Description                                            |
-| ------------------------------- | ------------------------------------------------------ |
-| `setRenderMode(renderMode)`     | Sets a specific render mode                            |
-| `setPointRenderMode()`          | Sets point render mode                                 |
-| `setSpriteRenderMode()`         | Sets sprite render mode                                |
-| `setTextRenderMode()`           | Sets text render mode                                  |
-| `setPanMode()`                  | Sets interaction mode to 'pan'                         |
-| `setSelectMode()`               | Sets interaction mode to 'select'                      |
-| `setPointColorer(pointColorer)` | Sets a function to determin colors                     |
-| `resize()`                      | Updates the render size based on the container element |
-| `updateDataset(dataset)`        | Updates the dataset                                    |
-| `startOrbitAnimation()`         | Begin rotating until an interaction                    |
+| Method                                        | Description                                            |
+| --------------------------------------------- | ------------------------------------------------------ |
+| `setRenderMode(renderMode: RenderMode)`       | Sets a specific render mode                            |
+| `setPointRenderMode()`                        | Sets point render mode                                 |
+| `setSpriteRenderMode()`                       | Sets sprite render mode                                |
+| `setTextRenderMode()`                         | Sets text render mode                                  |
+| `setPanMode()`                                | Sets interaction mode to 'pan'                         |
+| `setSelectMode()`                             | Sets interaction mode to 'select'                      |
+| `setPointColorer(pointColorer: PointColorer)` | Sets a function to determin colors                     |
+| `resize()`                                    | Updates the render size based on the container element |
+| `updateDataset(dataset: Dataset)`             | Updates the dataset                                    |
+| `startOrbitAnimation()`                       | Begin rotating until an interaction                    |
 
 ## Advanced usage
 

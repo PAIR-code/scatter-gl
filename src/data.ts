@@ -34,7 +34,9 @@ export interface Sequence {
   pointIndices: number[];
 }
 
-export type Points = number[][];
+export type Point2D = [number, number];
+export type Point3D = [number, number, number];
+export type Points = Array<Point2D | Point3D>;
 
 export class Dataset {
   public spriteMetadata?: SpriteMetadata;

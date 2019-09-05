@@ -233,7 +233,7 @@ export class ScatterGL {
     yExtent = util.extent(dataset.points.map(p => p[1]));
 
     if (dataset.dimensions === 3) {
-      zExtent = util.extent(dataset.points.map(p => p[2]));
+      zExtent = util.extent(dataset.points.map(p => p[2]!));
     }
 
     const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
@@ -247,7 +247,7 @@ export class ScatterGL {
       positions[dst++] = util.scaleLinear(vector[1], yExtent, range);
 
       if (dataset.dimensions === 3) {
-        positions[dst++] = util.scaleLinear(vector[2], zExtent, range);
+        positions[dst++] = util.scaleLinear(vector[2]!, zExtent, range);
       } else {
         positions[dst++] = 0.0;
       }

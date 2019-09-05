@@ -13,18 +13,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import * as fmnist from './data/projection.json';
+import {data} from './data/projection';
 import {Points, Dataset, PointMetadata} from '../src/data';
 import {ScatterGL, RenderMode} from '../src';
 
 const dataPoints: Points = [];
 const metadata: PointMetadata[] = [];
-fmnist.projection.forEach((vector: number[], index) => {
-  const labelIndex = fmnist.labels[index];
+data.projection.forEach((vector, index) => {
+  const labelIndex = data.labels[index];
   dataPoints.push(vector);
   metadata.push({
     labelIndex,
-    label: fmnist.label_names[labelIndex],
+    label: data.labelNames[labelIndex],
   });
 });
 

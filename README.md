@@ -1,6 +1,6 @@
 # ScatterGL
 
-Standalone 3D / 2D webgl-accelerated scatter plot point projector. Core functionality from the [embedding projector](http://projector.tensorflow.org), capable of rendering and interacting with tens of thousands of points.
+Interactive 3D / 2D webgl-accelerated scatter plot point renderer. Core functionality from the [embedding projector](http://projector.tensorflow.org), capable of rendering and interacting with tens of thousands of points.
 
 ## Examples
 

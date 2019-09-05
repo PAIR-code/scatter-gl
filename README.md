@@ -24,9 +24,9 @@ yarn install scatter-gl
 
 ```html
 <!-- Load three.js -->
-<script src="https://unpkg.com/three@0.106.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
 <!-- Load scatter-gl.js -->
-<script src="https://unpkg.com/scatter-gl@0.1.0/dist/scatter-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.1.0/lib/scatter-gl.min.js"></script>
 ```
 
 #### Parameters

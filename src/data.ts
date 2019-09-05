@@ -38,22 +38,35 @@ export type Point2D = [number, number];
 export type Point3D = [number, number, number];
 export type Points = Array<Point2D | Point3D>;
 
+const DIMENSIONALITY_ERROR_MESSAGE =
+  'Points must be an array of either 2 or 3 dimensional number arrays';
+
 export class Dataset {
   public spriteMetadata?: SpriteMetadata;
+  public dimensions: number;
 
   /**
    *
-   * @param points the data as an array of number or Float32 arrays
-   * @param dimensions the number of dimensions
+   * @param points the data as an array of 2d or 3d number arrays
    * @param metadata an array of point metadata, corresponding to each point
    * @param sequences a collection of points that make up a sequence
    */
   constructor(
     public points: Points,
-    public dimensions: number,
     public metadata: PointMetadata[] = [],
     public sequences: Sequence[] = []
-  ) {}
+  ) {
+    const dimensions = points[0].length;
+    if (!(dimensions === 2 || dimensions === 3)) {
+      throw new Error(DIMENSIONALITY_ERROR_MESSAGE);
+    }
+    for (const point of points) {
+      if (dimensions !== point.length) {
+        throw new Error(DIMENSIONALITY_ERROR_MESSAGE);
+      }
+    }
+    this.dimensions = dimensions;
+  }
 
   setSpriteMetadata(spriteMetadata: SpriteMetadata) {
     this.spriteMetadata = spriteMetadata;

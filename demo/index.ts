@@ -28,8 +28,7 @@ data.projection.forEach((vector, index) => {
   });
 });
 
-const nDimensions = 3;
-const dataset = new Dataset(dataPoints, nDimensions, metadata);
+const dataset = new Dataset(dataPoints, metadata);
 
 dataset.setSpriteMetadata({
   spriteImage: 'spritesheet.png',

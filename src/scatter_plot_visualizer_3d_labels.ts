@@ -110,7 +110,6 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
 
   private createGlyphTexture(): GlyphTexture {
     const {fontSize, backgroundColor, color} = this.styles.label3D;
-
     const canvas = document.createElement('canvas');
     canvas.width = MAX_CANVAS_DIMENSION;
     canvas.height = fontSize;
@@ -120,6 +119,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     ctx.fillStyle = backgroundColor;
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
+
     ctx.fillStyle = color;
     const spaceOffset = ctx.measureText(' ').width;
     // For each letter, store length, position at the encoded index.
@@ -163,11 +163,11 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     for (let i = 0; i < pointCount; i++) {
-      let color = new THREE.Color(i);
+      const pickingColor = new THREE.Color(i);
       this.labelVertexMap[i].forEach(j => {
-        this.pickingColors[RGB_NUM_ELEMENTS * j] = color.r;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = color.g;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = color.b;
+        this.pickingColors[RGB_NUM_ELEMENTS * j] = pickingColor.r;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = pickingColor.g;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = pickingColor.b;
         this.renderColors[RGB_NUM_ELEMENTS * j] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 1] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 2] = 1.0;
@@ -289,7 +289,6 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     ) {
       return;
     }
-
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     colors.array = this.renderColors;
 
@@ -334,8 +333,6 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   onPickingRender(rc: RenderContext) {
     if (this.geometry == null) {
       this.createLabels();
-    }
-    if (this.geometry == null) {
       return;
     }
     this.material.uniforms.texture.value = this.glyphTexture.texture;
@@ -348,13 +345,9 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   onRender(rc: RenderContext) {
     if (this.geometry == null) {
       this.createLabels();
-    }
-    if (this.geometry == null) {
       return;
     }
-    // Only do this if the user selects a label coloring scheme...
-
-    // this.colorLabels(rc.pointColors);
+    this.colorLabels(rc.pointColors);
     this.material.uniforms.texture.value = this.glyphTexture.texture;
     this.material.uniforms.picking.value = false;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;

@@ -9,7 +9,8 @@ Interactive 3D / 2D webgl-accelerated scatter plot point renderer. Core function
 ```javascript
 // where `points` is an array of 2 or 3-dimensional points as number arrays.
 const dataset = new Dataset(points);
-const scatterGL = new ScatterGL(containerElement, dataset, params);
+const scatterGL = new ScatterGL();
+scatterGL.render(containerElement, dataset);
 ```
 
 ## Installation

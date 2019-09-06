@@ -67,17 +67,26 @@ export class ScatterGL {
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
 
-  constructor(
-    containerElement: HTMLElement,
-    dataset: Dataset,
-    params: ScatterGLParams = {}
-  ) {
-    this.containerElement = containerElement;
-    this.dataset = dataset;
+  constructor(params: ScatterGLParams = {}) {
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist
     this.setParameters(params);
+  }
+
+  private setParameters(p: ScatterGLParams) {
+    if (p.renderMode !== undefined) this.renderMode = p.renderMode;
+    if (p.showLabelsOnHover !== undefined)
+      this.showLabelsOnHover = p.showLabelsOnHover;
+    if (p.onHover !== undefined) this.hoverCallback = p.onHover;
+    if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
+    if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
+    if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;
+  }
+
+  render(containerElement: HTMLElement, dataset: Dataset) {
+    this.containerElement = containerElement;
+    this.dataset = dataset;
 
     this.scatterPlot = new ScatterPlot({
       containerElement: this.containerElement,
@@ -93,16 +102,6 @@ export class ScatterGL {
     if (this.rotateOnStart) {
       this.scatterPlot.startOrbitAnimation();
     }
-  }
-
-  private setParameters(p: ScatterGLParams) {
-    if (p.renderMode !== undefined) this.renderMode = p.renderMode;
-    if (p.showLabelsOnHover !== undefined)
-      this.showLabelsOnHover = p.showLabelsOnHover;
-    if (p.onHover !== undefined) this.hoverCallback = p.onHover;
-    if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
-    if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
-    if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;
   }
 
   setRenderMode(renderMode: RenderMode) {
@@ -156,10 +155,6 @@ export class ScatterGL {
 
   resize() {
     this.scatterPlot.resize();
-  }
-
-  render() {
-    this.scatterPlot.render();
   }
 
   onHover = (pointIndex: number | null) => {
@@ -568,7 +563,7 @@ export class ScatterGL {
       spriteIndices[i] = i;
     }
 
-    const onImageLoad = () => this.render();
+    const onImageLoad = () => this.scatterPlot.render();
 
     const spritesheetVisualizer = new ScatterPlotVisualizerSprites(styles, {
       spritesheetImage: spriteMetadata.spriteImage,

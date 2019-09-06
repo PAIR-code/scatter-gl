@@ -31,7 +31,7 @@ export interface SpriteMetadata {
 /** A single collection of points which make up a sequence through space. */
 export interface Sequence {
   /** Indices into the DataPoints array in the Data object. */
-  pointIndices: number[];
+  indices: number[];
 }
 
 export type Point2D = [number, number];
@@ -51,11 +51,7 @@ export class Dataset {
    * @param metadata an array of point metadata, corresponding to each point
    * @param sequences a collection of points that make up a sequence
    */
-  constructor(
-    public points: Points,
-    public metadata: PointMetadata[] = [],
-    public sequences: Sequence[] = []
-  ) {
+  constructor(public points: Points, public metadata: PointMetadata[] = []) {
     const dimensions = points[0].length;
     if (!(dimensions === 2 || dimensions === 3)) {
       throw new Error(DIMENSIONALITY_ERROR_MESSAGE);

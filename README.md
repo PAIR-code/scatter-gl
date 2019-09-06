@@ -48,15 +48,16 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 
 | Method                                        | Description                                                |
 | --------------------------------------------- | ---------------------------------------------------------- |
-| `setRenderMode(renderMode: RenderMode)`       | Sets a specific render mode                                |
-| `setPointRenderMode()`                        | Sets point render mode                                     |
-| `setSpriteRenderMode()`                       | Sets sprite render mode                                    |
-| `setTextRenderMode()`                         | Sets text render mode                                      |
-| `setPanMode()`                                | Sets interaction mode to 'pan'                             |
-| `setSelectMode()`                             | Sets interaction mode to 'select'                          |
-| `setPointColorer(pointColorer: PointColorer)` | Sets a function to determin colors                         |
 | `render(dataset: Dataset)`                    | Initializes and renders a dataset to the container element |
 | `resize()`                                    | Updates the render size based on the container element     |
+| `setPanMode()`                                | Sets interaction mode to 'pan'                             |
+| `setPointColorer(pointColorer: PointColorer)` | Sets a function to determin colors                         |
+| `setPointRenderMode()`                        | Sets point render mode                                     |
+| `setRenderMode(renderMode: RenderMode)`       | Sets a specific render mode                                |
+| `setSelectMode()`                             | Sets interaction mode to 'select'                          |
+| `setSequences(sequences: Sequence[])`         | Sets sequences with which to render polylines              |
+| `setSpriteRenderMode()`                       | Sets sprite render mode                                    |
+| `setTextRenderMode()`                         | Sets text render mode                                      |
 | `updateDataset(dataset: Dataset)`             | Updates the dataset                                        |
 | `startOrbitAnimation()`                       | Begin rotating until an interaction                        |
 

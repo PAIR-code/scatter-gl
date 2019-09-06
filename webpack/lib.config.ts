@@ -14,36 +14,37 @@ limitations under the License.
 ==============================================================================*/
 
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const minimize = process.env.MINIMIZE === 'true';
+const filename = minimize ? 'scatter-gl.min.js' : 'scatter-gl.js';
 
 module.exports = {
-  mode: 'development',
-  devtool: 'inline-source-map',
+  mode: 'production',
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /(\.ts$|\.js$)/,
         exclude: /node_modules/,
-        use: 'ts-loader',
+        loader: 'ts-loader',
       },
     ],
+  },
+  externals: {
+    three: 'THREE',
   },
   resolve: {
     modules: ['node_modules'],
     extensions: ['.ts', '.js'],
   },
   entry: {
-    demo: './demo/index.ts',
+    lib: path.resolve(__dirname, '../src/lib.ts'),
   },
   output: {
-    path: path.join(__dirname, '../demo_build'),
-    filename: 'bundle.min.js',
+    path: path.join(__dirname, '../lib'),
+    libraryTarget: 'umd',
+    filename,
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, '../demo/index.html'),
-    }),
-    new CopyWebpackPlugin([{from: 'demo/static'}]),
-  ],
+  optimization: {
+    minimize,
+  },
 };

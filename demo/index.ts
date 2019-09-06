@@ -64,8 +64,7 @@ const scatterGL = new ScatterGL(containerElement, {
   },
   renderMode: RenderMode.POINT,
 });
-// scatterGL.setSequences(sequences);
-// scatterGL.render(dataset);
+scatterGL.render(dataset);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="interactions"]')

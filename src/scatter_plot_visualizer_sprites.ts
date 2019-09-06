@@ -170,26 +170,26 @@ const FRAGMENT_SHADER_PICKING = `
 export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   public id = 'SPRITES';
 
-  private scene: THREE.Scene;
-  private fog: THREE.Fog;
-  private texture: THREE.Texture;
+  private scene!: THREE.Scene;
+  private fog!: THREE.Fog;
+  private texture!: THREE.Texture;
 
   private standinTextureForPoints: THREE.Texture;
-  private spriteIndexBufferAttribute: THREE.BufferAttribute;
+  private spriteIndexBufferAttribute!: THREE.BufferAttribute;
   private renderMaterial: THREE.ShaderMaterial;
   private pickingMaterial: THREE.ShaderMaterial;
 
   private isSpriteSheetMode = false;
-  private spriteSheetParams: SpriteSheetParams;
-  private spriteSheetImage: HTMLImageElement;
-  private spritesPerRow: number;
-  private spritesPerColumn: number;
-  private spriteDimensions: [number, number];
+  private spriteSheetParams!: SpriteSheetParams;
+  private spriteSheetImage!: HTMLImageElement;
+  private spritesPerRow = 0;
+  private spritesPerColumn = 0;
+  private spriteDimensions = [0, 0];
 
-  private points: THREE.Points;
-  private worldSpacePointPositions: Float32Array;
-  private pickingColors: Float32Array;
-  private renderColors: Float32Array;
+  private points!: THREE.Points;
+  private worldSpacePointPositions = new Float32Array();
+  private pickingColors = new Float32Array();
+  private renderColors = new Float32Array();
 
   constructor(private styles: Styles, spriteSheetParams?: SpriteSheetParams) {
     this.standinTextureForPoints = util.createTextureFromCanvas(

@@ -62,17 +62,15 @@ export type OnCameraMoveListener = (
 /** Defines a camera, suitable for serialization. */
 export class CameraDef {
   orthographic: boolean = false;
-  position: Point3D;
-  target: Point3D;
-  zoom: number;
+  position: Point3D = [0, 0, 0];
+  target: Point3D = [0, 0, 0];
+  zoom = 0;
 }
 
 export interface ScatterPlotParams {
-  containerElement: HTMLElement;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   styles: Styles;
-  dimensions: number;
 }
 
 /**
@@ -92,40 +90,39 @@ export class ScatterPlot {
 
   private onCameraMoveListeners: OnCameraMoveListener[] = [];
 
-  private height: number;
-  private width: number;
-  private dimensions: number;
+  private height = 0;
+  private width = 0;
+  private dimensions = 3;
 
   private interactionMode = InteractionMode.PAN;
 
   private renderer: THREE.WebGLRenderer;
 
   private scene: THREE.Scene;
-  private pickingTexture: THREE.WebGLRenderTarget;
+  private pickingTexture = new THREE.WebGLRenderTarget(0, 0);
   private light: THREE.PointLight;
 
-  private cameraDef: CameraDef;
-  private camera: THREE.Camera;
+  private camera!: THREE.Camera;
   private orbitAnimationOnNextCameraCreation: boolean = false;
   private orbitCameraControls: any;
-  private orbitAnimationId: number | null;
+  private orbitAnimationId: number | null = null;
 
-  private worldSpacePointPositions: Float32Array;
-  private pointColors: Float32Array;
-  private pointScaleFactors: Float32Array;
-  private labels: LabelRenderParams;
-  private polylineColors: {[polylineIndex: number]: Float32Array};
-  private polylineOpacities: Float32Array;
-  private polylineWidths: Float32Array;
+  private worldSpacePointPositions = new Float32Array();
+  private pointColors = new Float32Array();
+  private pointScaleFactors = new Float32Array();
+  private labels?: LabelRenderParams;
+  private polylineColors: {[polylineIndex: number]: Float32Array} = {};
+  private polylineOpacities = new Float32Array();
+  private polylineWidths = new Float32Array();
 
   private selecting = false;
-  private nearestPoint: number | null;
+  private nearestPoint: number | null = null;
   private mouseIsDown = false;
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  constructor(params: ScatterPlotParams) {
-    this.container = params.containerElement;
+  constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
+    this.container = containerElement;
     this.onHover = params.onHover || this.onHover;
     this.onSelect = params.onSelect || this.onSelect;
     this.styles = params.styles;
@@ -143,14 +140,14 @@ export class ScatterPlot {
     this.light = new THREE.PointLight(0xffecbf, 1, 0);
     this.scene.add(this.light);
 
-    this.setDimensions(params.dimensions);
-
     this.rectangleSelector = new ScatterPlotRectangleSelector(
       this.container,
       (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox),
       this.styles
     );
     this.addInteractionListeners();
+    this.setDimensions(3);
+    this.makeCamera();
     this.resize();
   }
 
@@ -216,6 +213,17 @@ export class ScatterPlot {
     this.orbitCameraControls = occ;
 
     this.addCameraControlsEventListeners(this.orbitCameraControls);
+  }
+
+  private makeCamera() {
+    const def = this.makeDefaultCameraDef(this.dimensions);
+    this.recreateCamera(def);
+
+    if (this.dimensions === 3) {
+      this.add3dAxis();
+    } else {
+      this.remove3dAxisFromScene();
+    }
   }
 
   private makeCamera3D(cameraDef: CameraDef, w: number, h: number) {
@@ -553,18 +561,13 @@ export class ScatterPlot {
 
   /** Set 2d vs 3d mode. */
   setDimensions(dimensions: number) {
-    if (dimensions === this.dimensions) return;
     if (dimensions !== 2 && dimensions !== 3) {
       throw new RangeError('dimensions must be 2 or 3');
     }
-    this.dimensions = dimensions;
 
-    const def = this.cameraDef || this.makeDefaultCameraDef(dimensions);
-    this.recreateCamera(def);
-
-    this.remove3dAxisFromScene();
-    if (dimensions === 3) {
-      this.add3dAxis();
+    if (this.dimensions !== dimensions) {
+      this.dimensions = dimensions;
+      this.makeCamera();
     }
   }
 

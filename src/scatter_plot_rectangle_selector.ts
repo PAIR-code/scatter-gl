@@ -32,8 +32,8 @@ export class ScatterPlotRectangleSelector {
   private rectElement: SVGRectElement;
 
   private isMouseDown: boolean;
-  private startCoordinates: [number, number];
-  private lastBoundingBox: ScatterBoundingBox;
+  private startCoordinates: [number, number] = [0, 0];
+  private lastBoundingBox!: ScatterBoundingBox;
 
   private selectionCallback: (boundingBox: ScatterBoundingBox) => void;
 
@@ -48,7 +48,7 @@ export class ScatterPlotRectangleSelector {
   constructor(
     container: HTMLElement,
     selectionCallback: (boundingBox: ScatterBoundingBox) => void,
-    private styles: Styles
+    styles: Styles
   ) {
     this.svgElement = document.createElementNS(
       'http://www.w3.org/2000/svg',

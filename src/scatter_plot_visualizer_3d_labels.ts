@@ -94,19 +94,19 @@ type GlyphTexture = {
 export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   public id = '3D_LABELS';
 
-  private scene: THREE.Scene;
-  private labelStrings: string[];
-  private geometry: THREE.BufferGeometry;
-  private worldSpacePointPositions: Float32Array;
-  private pickingColors: Float32Array;
-  private renderColors: Float32Array;
-  private material: THREE.ShaderMaterial;
-  private uniforms: Object;
-  private labelsMesh: THREE.Mesh;
-  private positions: THREE.BufferAttribute;
-  private totalVertexCount: number;
-  private labelVertexMap: number[][];
-  private glyphTexture: GlyphTexture;
+  private scene!: THREE.Scene;
+  private labelStrings: string[] = [];
+  private geometry!: THREE.BufferGeometry;
+  private worldSpacePointPositions = new Float32Array();
+  private pickingColors = new Float32Array();
+  private renderColors = new Float32Array();
+  private material!: THREE.ShaderMaterial;
+  private uniforms: Object = {};
+  private labelsMesh!: THREE.Mesh;
+  private positions!: THREE.BufferAttribute;
+  private totalVertexCount = 0;
+  private labelVertexMap: number[][] = [];
+  private glyphTexture!: GlyphTexture;
 
   constructor(private styles: Styles) {}
 

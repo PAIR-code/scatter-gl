@@ -30,7 +30,7 @@ export class ScatterPlotVisualizerCanvasLabels
   implements ScatterPlotVisualizer {
   public id = 'CANVAS_LABELS';
 
-  private worldSpacePointPositions: Float32Array;
+  private worldSpacePointPositions = new Float32Array();
   private gc: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private labelsActive: boolean = true;

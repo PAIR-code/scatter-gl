@@ -143,7 +143,6 @@ export class ScatterPlot {
     this.scene.add(this.light);
 
     this.setDimensions(params.dimensions);
-    this.renderer.render(this.scene, this.camera);
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
       this.container,
@@ -553,9 +552,7 @@ export class ScatterPlot {
 
   /** Set 2d vs 3d mode. */
   setDimensions(dimensions: number) {
-    if (dimensions === this.dimensions) {
-      return;
-    }
+    if (dimensions === this.dimensions) return;
     if (dimensions !== 2 && dimensions !== 3) {
       throw new RangeError('dimensions must be 2 or 3');
     }

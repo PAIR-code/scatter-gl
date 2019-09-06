@@ -40,7 +40,7 @@ let lastSelectedPoints: number[] = [];
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
-const scatterGL = new ScatterGL(containerElement, dataset, {
+const scatterGL = new ScatterGL({
   onHover: (point: number | null) => {
     const message = `🔥hover ${point}`;
     console.log(message);
@@ -62,6 +62,7 @@ const scatterGL = new ScatterGL(containerElement, dataset, {
   },
   renderMode: RenderMode.POINT,
 });
+scatterGL.render(containerElement, dataset);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="interactions"]')

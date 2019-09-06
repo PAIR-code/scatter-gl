@@ -45,22 +45,21 @@ export interface ScatterGLParams {
  */
 export class ScatterGL {
   private containerElement: HTMLElement;
-  private dataset: Dataset;
-  private styles: Styles;
-  private renderMode = RenderMode.POINT;
-  private showLabelsOnHover = true;
-  private rotateOnStart = true;
-
+  private dataset?: Dataset;
+  private pointColorer: PointColorer | null = null;
   private scatterPlot: ScatterPlot;
+  private styles: Styles;
 
-  private pointColorer: PointColorer | null;
+  private renderMode = RenderMode.POINT;
+  private rotateOnStart = true;
+  private showLabelsOnHover = true;
 
   /* Visualizers, maintained by ScatterGL but used by ScatterPlot */
-  private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
-  private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
-  private pointVisualizer: ScatterPlotVisualizerSprites;
-  private polylineVisualizer: ScatterPlotVisualizerPolylines;
-  private spritesheetVisualizer: ScatterPlotVisualizerSprites;
+  private canvasLabelsVisualizer?: ScatterPlotVisualizerCanvasLabels;
+  private labels3DVisualizer?: ScatterPlotVisualizer3DLabels;
+  private pointVisualizer?: ScatterPlotVisualizerSprites;
+  private polylineVisualizer?: ScatterPlotVisualizerPolylines;
+  private spritesheetVisualizer?: ScatterPlotVisualizerSprites;
 
   private hoverPointIndex: number | null = null;
   private selectedPointIndices: number[] = [];
@@ -68,11 +67,18 @@ export class ScatterGL {
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
 
-  constructor(params: ScatterGLParams = {}) {
+  constructor(containerElement: HTMLElement, params: ScatterGLParams = {}) {
+    this.containerElement = containerElement;
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist
     this.setParameters(params);
+
+    this.scatterPlot = new ScatterPlot(containerElement, {
+      onHover: this.onHover,
+      onSelect: this.onSelect,
+      styles: this.styles,
+    });
   }
 
   private setParameters(p: ScatterGLParams) {
@@ -85,18 +91,7 @@ export class ScatterGL {
     if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;
   }
 
-  render(containerElement: HTMLElement, dataset: Dataset) {
-    this.containerElement = containerElement;
-    this.dataset = dataset;
-
-    this.scatterPlot = new ScatterPlot({
-      containerElement: this.containerElement,
-      onHover: this.onHover,
-      onSelect: this.onSelect,
-      styles: this.styles,
-      dimensions: dataset.dimensions,
-    });
-
+  render(dataset: Dataset) {
     this.setVisualizers();
     this.updateDataset(dataset);
 
@@ -123,7 +118,7 @@ export class ScatterGL {
   }
 
   setSpriteRenderMode() {
-    if (this.dataset.spriteMetadata) {
+    if (this.dataset && this.dataset.spriteMetadata) {
       this.setRenderMode(RenderMode.SPRITE);
       this.scatterPlot.render();
     }
@@ -139,7 +134,8 @@ export class ScatterGL {
 
   setDimensions(nDimensions: number) {
     const outsideRange = nDimensions < 2 || nDimensions > 3;
-    const moreThanDataset = nDimensions > this.dataset.dimensions;
+    const moreThanDataset =
+      this.dataset && nDimensions > this.dataset.dimensions;
     if (outsideRange || moreThanDataset) {
       throw new RangeError('Setting invalid dimensionality');
     } else {
@@ -197,17 +193,23 @@ export class ScatterGL {
   }
 
   private updateScatterPlotPositions() {
-    const newPositions = this.generatePointPositionArray();
+    const {dataset} = this;
+    if (!dataset) return;
+
+    const newPositions = this.generatePointPositionArray(dataset);
     this.scatterPlot.setPointPositions(newPositions);
   }
 
   private updateScatterPlotAttributes() {
-    const pointColors = this.generatePointColorArray();
-    const pointScaleFactors = this.generatePointScaleFactorArray();
-    const labels = this.generateVisibleLabelRenderParams();
-    const polylineColors = this.generateLineSegmentColorMap();
-    const polylineOpacities = this.generateLineSegmentOpacityArray();
-    const polylineWidths = this.generateLineSegmentWidthArray();
+    const {dataset} = this;
+    if (!dataset) return;
+
+    const pointColors = this.generatePointColorArray(dataset);
+    const pointScaleFactors = this.generatePointScaleFactorArray(dataset);
+    const labels = this.generateVisibleLabelRenderParams(dataset);
+    const polylineColors = this.generateLineSegmentColorMap(dataset);
+    const polylineOpacities = this.generateLineSegmentOpacityArray(dataset);
+    const polylineWidths = this.generateLineSegmentWidthArray(dataset);
 
     this.scatterPlot.setPointColors(pointColors);
     this.scatterPlot.setPointScaleFactors(pointScaleFactors);
@@ -217,9 +219,7 @@ export class ScatterGL {
     this.scatterPlot.setPolylineWidths(polylineWidths);
   }
 
-  private generatePointPositionArray(): Float32Array {
-    const {dataset} = this;
-
+  private generatePointPositionArray(dataset: Dataset): Float32Array {
     let xExtent = [0, 0];
     let yExtent = [0, 0];
     let zExtent = [0, 0];
@@ -251,7 +251,9 @@ export class ScatterGL {
     return positions;
   }
 
-  private generateVisibleLabelRenderParams(): LabelRenderParams {
+  private generateVisibleLabelRenderParams(
+    dataset: Dataset
+  ): LabelRenderParams {
     const {hoverPointIndex, selectedPointIndices, styles} = this;
     const selectedPointCount = selectedPointIndices.length;
     const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
@@ -336,8 +338,9 @@ export class ScatterGL {
     );
   }
 
-  private generatePointScaleFactorArray(): Float32Array {
-    const {dataset, hoverPointIndex, selectedPointIndices, styles} = this;
+  private generatePointScaleFactorArray(dataset: Dataset): Float32Array {
+    const {hoverPointIndex, selectedPointIndices, styles} = this;
+
     const {scaleDefault, scaleSelected, scaleHover} = styles.point;
 
     const scale = new Float32Array(dataset.points.length);
@@ -362,14 +365,8 @@ export class ScatterGL {
     return scale;
   }
 
-  private generatePointColorArray(): Float32Array {
-    const {
-      dataset,
-      hoverPointIndex,
-      pointColorer,
-      selectedPointIndices,
-      styles,
-    } = this;
+  private generatePointColorArray(dataset: Dataset): Float32Array {
+    const {hoverPointIndex, pointColorer, selectedPointIndices, styles} = this;
 
     const {
       colorHover,
@@ -451,6 +448,8 @@ export class ScatterGL {
 
   private generate3DLabelsArray() {
     const {dataset} = this;
+    if (!dataset) return [];
+
     let labels: string[] = [];
     const n = dataset.points.length;
     for (let i = 0; i < n; ++i) {
@@ -459,10 +458,13 @@ export class ScatterGL {
     return labels;
   }
 
-  private generateLineSegmentColorMap(): {
+  private generateLineSegmentColorMap(
+    dataset: Dataset
+  ): {
     [polylineIndex: number]: Float32Array;
   } {
-    const {dataset, pointColorer, styles} = this;
+    const {pointColorer, styles} = this;
+
     const polylineColorArrayMap: {[polylineIndex: number]: Float32Array} = {};
 
     for (let i = 0; i < dataset.sequences.length; i++) {
@@ -516,8 +518,8 @@ export class ScatterGL {
     return polylineColorArrayMap;
   }
 
-  private generateLineSegmentOpacityArray(): Float32Array {
-    const {dataset, selectedPointIndices, styles} = this;
+  private generateLineSegmentOpacityArray(dataset: Dataset): Float32Array {
+    const {selectedPointIndices, styles} = this;
 
     const opacities = new Float32Array(dataset.sequences.length);
     const selectedPointCount = selectedPointIndices.length;
@@ -532,8 +534,8 @@ export class ScatterGL {
     return opacities;
   }
 
-  private generateLineSegmentWidthArray(): Float32Array {
-    const {dataset, selectedPointIndices, styles} = this;
+  private generateLineSegmentWidthArray(dataset: Dataset): Float32Array {
+    const {selectedPointIndices, styles} = this;
 
     const widths = new Float32Array(dataset.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
@@ -548,6 +550,7 @@ export class ScatterGL {
 
   private getLabelText(i: number) {
     const {dataset} = this;
+    if (!dataset) return '';
     const metadata = dataset.metadata[i];
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
@@ -555,7 +558,7 @@ export class ScatterGL {
   private initializeCanvasLabelsVisualizer() {
     if (!this.canvasLabelsVisualizer) {
       this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-        this.containerElement,
+        this.containerElement!,
         this.styles
       );
     }
@@ -578,7 +581,8 @@ export class ScatterGL {
   }
 
   private initializeSpritesheetVisualizer() {
-    const {dataset, styles} = this;
+    const {styles} = this;
+    const dataset = this.dataset!;
     const {spriteMetadata} = dataset;
     if (!this.spritesheetVisualizer && spriteMetadata) {
       if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
@@ -614,7 +618,7 @@ export class ScatterGL {
       this.initialize3DLabelsVisualizer();
     } else if (renderMode === RenderMode.POINT) {
       this.initializePointVisualizer();
-    } else if (renderMode === RenderMode.SPRITE && dataset.spriteMetadata) {
+    } else if (renderMode === RenderMode.SPRITE && dataset!.spriteMetadata) {
       this.initializeSpritesheetVisualizer();
     }
 

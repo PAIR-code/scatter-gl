@@ -26,9 +26,9 @@ import {RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
   public id = 'POLYLINES';
 
-  private dataset: Dataset;
-  private scene: THREE.Scene;
-  private polylines: THREE.Line[];
+  private dataset!: Dataset;
+  private scene!: THREE.Scene;
+  private polylines: THREE.Line[] = [];
   private polylinePositionBuffer: {
     [polylineIndex: number]: THREE.BufferAttribute;
   } = {};

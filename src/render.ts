@@ -57,7 +57,7 @@ export class RenderContext {
     public backgroundColor: string,
     public pointColors: Float32Array,
     public pointScaleFactors: Float32Array,
-    public labels: LabelRenderParams,
+    public labels: LabelRenderParams | undefined,
     public polylineColors: {[polylineIndex: number]: Float32Array},
     public polylineOpacities: Float32Array,
     public polylineWidths: Float32Array

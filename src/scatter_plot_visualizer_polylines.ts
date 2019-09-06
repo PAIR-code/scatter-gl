@@ -24,6 +24,8 @@ import {RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
  * Renders polylines that connect multiple points in the dataset.
  */
 export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
+  public id = 'POLYLINES';
+
   private dataset: Dataset;
   private scene: THREE.Scene;
   private polylines: THREE.Line[];

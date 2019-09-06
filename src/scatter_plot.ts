@@ -87,7 +87,8 @@ export class ScatterPlot {
   private onHover: (point: number | null) => void = () => {};
   private onSelect: (point: number[]) => void = () => {};
 
-  private visualizers: ScatterPlotVisualizer[] = [];
+  // Map of visualizers by visualizer name/id
+  private visualizers = new Map<string, ScatterPlotVisualizer>();
 
   private onCameraMoveListeners: OnCameraMoveListener[] = [];
 
@@ -630,21 +631,19 @@ export class ScatterPlot {
     }
   }
 
-  setActiveVisualizers(visualizers: ScatterPlotVisualizer[]) {
-    this.visualizers = [...visualizers];
-    this.visualizers.forEach(visualizer => {
-      visualizer.setScene(this.scene);
-      visualizer.onResize(this.width, this.height);
-      if (this.worldSpacePointPositions) {
-        visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
-      }
-    });
+  setActiveVisualizer(visualizer: ScatterPlotVisualizer) {
+    this.visualizers.set(visualizer.id, visualizer);
+    visualizer.setScene(this.scene);
+    visualizer.onResize(this.width, this.height);
+    if (this.worldSpacePointPositions) {
+      visualizer.onPointPositionsChanged(this.worldSpacePointPositions);
+    }
   }
 
   /** Disposes all visualizers attached to this scatter plot. */
   disposeAllVisualizers() {
     this.visualizers.forEach(v => v.dispose());
-    this.visualizers = [];
+    this.visualizers.clear();
   }
 
   /** Update scatter plot with a new array of packed xyz point positions. */

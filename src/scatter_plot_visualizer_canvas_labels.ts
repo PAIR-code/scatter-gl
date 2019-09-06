@@ -28,6 +28,8 @@ const MAX_LABELS_ON_SCREEN = 10000;
  */
 export class ScatterPlotVisualizerCanvasLabels
   implements ScatterPlotVisualizer {
+  public id = 'CANVAS_LABELS';
+
   private worldSpacePointPositions: Float32Array;
   private gc: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;

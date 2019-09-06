@@ -92,6 +92,8 @@ type GlyphTexture = {
  * Renders the text labels as 3d geometry in the world.
  */
 export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
+  public id = '3D_LABELS';
+
   private scene: THREE.Scene;
   private labelStrings: string[];
   private geometry: THREE.BufferGeometry;

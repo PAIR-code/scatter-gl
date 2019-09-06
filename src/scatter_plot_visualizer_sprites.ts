@@ -168,6 +168,8 @@ const FRAGMENT_SHADER_PICKING = `
  * render the dataset.
  */
 export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
+  public id = 'SPRITES';
+
   private scene: THREE.Scene;
   private fog: THREE.Fog;
   private texture: THREE.Texture;

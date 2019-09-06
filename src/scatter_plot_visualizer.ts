@@ -23,6 +23,9 @@ import {RenderContext} from './render';
  * implements this interface and attach it to the ScatterPlotContainer.
  */
 export interface ScatterPlotVisualizer {
+  /** Unique but modifiable identifier to maintain a map of visualizers with. */
+  id: string;
+
   /** Called to initialize the visualizer with the primary scene. */
   setScene(scene: THREE.Scene): void;
   /**

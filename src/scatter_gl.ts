@@ -55,8 +55,9 @@ export class ScatterGL {
 
   private pointColorer: PointColorer | null;
 
-  private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
+  /* Visualizers, maintained by ScatterGL but used by ScatterPlot */
   private canvasLabelsVisualizer: ScatterPlotVisualizerCanvasLabels;
+  private labels3DVisualizer: ScatterPlotVisualizer3DLabels;
   private pointVisualizer: ScatterPlotVisualizerSprites;
   private polylineVisualizer: ScatterPlotVisualizerPolylines;
   private spritesheetVisualizer: ScatterPlotVisualizerSprites;
@@ -551,66 +552,76 @@ export class ScatterGL {
     return metadata && metadata.label != null ? `${metadata.label}` : '';
   }
 
-  private initializeSpritesheetVisualizer(spriteMetadata: SpriteMetadata) {
+  private initializeCanvasLabelsVisualizer() {
+    if (!this.canvasLabelsVisualizer) {
+      this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
+        this.containerElement,
+        this.styles
+      );
+    }
+    this.scatterPlot.setActiveVisualizer(this.canvasLabelsVisualizer);
+  }
+
+  private initialize3DLabelsVisualizer() {
+    if (!this.labels3DVisualizer) {
+      this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(this.styles);
+    }
+    this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
+    this.scatterPlot.setActiveVisualizer(this.labels3DVisualizer);
+  }
+
+  private initializePointVisualizer() {
+    if (!this.pointVisualizer) {
+      this.pointVisualizer = new ScatterPlotVisualizerSprites(this.styles);
+    }
+    this.scatterPlot.setActiveVisualizer(this.pointVisualizer);
+  }
+
+  private initializeSpritesheetVisualizer() {
     const {dataset, styles} = this;
-    if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
-      return;
+    const {spriteMetadata} = dataset;
+    if (!this.spritesheetVisualizer && spriteMetadata) {
+      if (!spriteMetadata.spriteImage || !spriteMetadata.singleSpriteSize) {
+        return;
+      }
+
+      const n = dataset.points.length;
+      const spriteIndices = new Float32Array(n);
+      for (let i = 0; i < n; ++i) {
+        spriteIndices[i] = i;
+      }
+
+      const onImageLoad = () => this.scatterPlot.render();
+
+      const spritesheetVisualizer = new ScatterPlotVisualizerSprites(styles, {
+        spritesheetImage: spriteMetadata.spriteImage,
+        spriteDimensions: spriteMetadata.singleSpriteSize,
+        spriteIndices,
+        onImageLoad,
+      });
+      this.spritesheetVisualizer = spritesheetVisualizer;
     }
-
-    const n = dataset.points.length;
-    const spriteIndices = new Float32Array(n);
-    for (let i = 0; i < n; ++i) {
-      spriteIndices[i] = i;
+    if (this.spritesheetVisualizer) {
+      this.scatterPlot.setActiveVisualizer(this.spritesheetVisualizer);
     }
-
-    const onImageLoad = () => this.scatterPlot.render();
-
-    const spritesheetVisualizer = new ScatterPlotVisualizerSprites(styles, {
-      spritesheetImage: spriteMetadata.spriteImage,
-      spriteDimensions: spriteMetadata.singleSpriteSize,
-      spriteIndices,
-      onImageLoad,
-    });
-    this.spritesheetVisualizer = spritesheetVisualizer;
   }
 
   private setVisualizers() {
-    const {dataset, renderMode, scatterPlot, styles} = this;
-    scatterPlot.disposeAllVisualizers();
+    this.scatterPlot.disposeAllVisualizers();
+    const {dataset, renderMode} = this;
 
-    const activeVisualizers: ScatterPlotVisualizer[] = [];
     if (renderMode === RenderMode.TEXT) {
-      if (!this.labels3DVisualizer) {
-        this.labels3DVisualizer = new ScatterPlotVisualizer3DLabels(styles);
-      }
-      this.labels3DVisualizer.setLabelStrings(this.generate3DLabelsArray());
-      activeVisualizers.push(this.labels3DVisualizer);
+      this.initialize3DLabelsVisualizer();
     } else if (renderMode === RenderMode.POINT) {
-      if (!this.pointVisualizer) {
-        this.pointVisualizer = new ScatterPlotVisualizerSprites(styles);
-      }
-      activeVisualizers.push(this.pointVisualizer);
+      this.initializePointVisualizer();
     } else if (renderMode === RenderMode.SPRITE && dataset.spriteMetadata) {
-      if (!this.spritesheetVisualizer) {
-        this.initializeSpritesheetVisualizer(dataset.spriteMetadata);
-      }
-      if (this.spritesheetVisualizer) {
-        activeVisualizers.push(this.spritesheetVisualizer);
-      }
+      this.initializeSpritesheetVisualizer();
     }
 
     const textLabelsRenderMode =
       renderMode === RenderMode.POINT || renderMode === RenderMode.SPRITE;
     if (textLabelsRenderMode && this.showLabelsOnHover) {
-      if (!this.canvasLabelsVisualizer) {
-        this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-          this.containerElement,
-          this.styles
-        );
-      }
-      activeVisualizers.push(this.canvasLabelsVisualizer);
+      this.initializeCanvasLabelsVisualizer();
     }
-
-    this.scatterPlot.setActiveVisualizers(activeVisualizers);
   }
 }

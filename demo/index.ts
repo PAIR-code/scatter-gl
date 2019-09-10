@@ -13,29 +13,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import {data} from './data/projection';
-import {Point3D, Dataset, PointMetadata} from '../src/data';
-import {makeSequences} from './sequences';
+import data from './data/mammoth_3d_data.json';
+import {Point3D, Dataset} from '../src/data';
 import {ScatterGL, RenderMode} from '../src';
 
 const dataPoints: Point3D[] = [];
-const metadata: PointMetadata[] = [];
-data.projection.forEach((vector, index) => {
-  const labelIndex = data.labels[index];
-  dataPoints.push(vector);
-  metadata.push({
-    labelIndex,
-    label: data.labelNames[labelIndex],
-  });
+data.forEach((vector: number[], index) => {
+  dataPoints.push(vector as [number, number, number]);
 });
 
-const sequences = makeSequences(dataPoints, metadata);
-const dataset = new Dataset(dataPoints, metadata);
-
-dataset.setSpriteMetadata({
-  spriteImage: 'spritesheet.png',
-  singleSpriteSize: [28, 28],
-});
+const dataset = new Dataset(dataPoints);
 
 let lastSelectedPoints: number[] = [];
 
@@ -124,6 +111,6 @@ const sequencesToggle = document.querySelector<HTMLInputElement>(
   'input[name="sequences"]'
 )!;
 sequencesToggle.addEventListener('change', (e: any) => {
-  const showSequences = sequencesToggle.checked;
-  scatterGL.setSequences(showSequences ? sequences : []);
+  // const showSequences = sequencesToggle.checked;
+  // scatterGL.setSequences(showSequences ? sequences : []);
 });

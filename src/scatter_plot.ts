@@ -219,10 +219,10 @@ export class ScatterPlot {
     const def = this.makeDefaultCameraDef(this.dimensions);
     this.recreateCamera(def);
 
-    if (this.dimensions === 3) {
-      this.add3dAxis();
+    if (this.dimensions === 3 && this.styles.axesVisible) {
+      this.add3dAxes();
     } else {
-      this.remove3dAxisFromScene();
+      this.remove3dAxesFromScene();
     }
   }
 
@@ -545,7 +545,7 @@ export class ScatterPlot {
     return this.dimensions === 3;
   }
 
-  private remove3dAxisFromScene(): THREE.Object3D | undefined {
+  private remove3dAxesFromScene(): THREE.Object3D | undefined {
     const axes = this.scene.getObjectByName('axes');
     if (axes != null) {
       this.scene.remove(axes);
@@ -553,7 +553,7 @@ export class ScatterPlot {
     return axes;
   }
 
-  private add3dAxis() {
+  private add3dAxes() {
     const axes = new THREE.AxesHelper();
     axes.name = 'axes';
     this.scene.add(axes);
@@ -713,7 +713,7 @@ export class ScatterPlot {
     this.visualizers.forEach(v => v.onPickingRender(rc));
 
     {
-      const axes = this.remove3dAxisFromScene();
+      const axes = this.remove3dAxesFromScene();
       this.renderer.setRenderTarget(this.pickingTexture);
       this.renderer.render(this.scene, this.camera);
       if (axes != null) {
@@ -763,7 +763,7 @@ export class ScatterPlot {
 
   setDayNightMode(isNight: boolean) {
     const canvases = this.container.querySelectorAll('canvas');
-    const filterValue = isNight ? 'invert(100%)' : null;
+    const filterValue = isNight ? 'invert(100%)' : '';
     for (let i = 0; i < canvases.length; i++) {
       canvases[i].style.filter = filterValue;
     }

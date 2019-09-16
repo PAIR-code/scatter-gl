@@ -81,6 +81,7 @@ export interface SpritesStyles {
 
 export interface Styles {
   backgroundColor: Color;
+  axesVisible: boolean;
   fog: FogStyles;
   label: LabelStyles;
   label3D: Label3DStyles;
@@ -92,6 +93,7 @@ export interface Styles {
 
 export interface UserStyles {
   backgroundColor?: number;
+  axesVisible?: boolean;
   fog?: Partial<FogStyles>;
   label?: Partial<LabelStyles>;
   label3D?: Partial<Label3DStyles>;
@@ -103,6 +105,7 @@ export interface UserStyles {
 
 const defaultStyles: Styles = {
   backgroundColor: '#ffffff',
+  axesVisible: true,
 
   fog: {
     color: '#ffffff',

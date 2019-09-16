@@ -46,6 +46,12 @@ export interface PointStyles {
   scaleHover: number;
 }
 
+export interface FogStyles {
+  color: Color;
+  enabled: boolean;
+  threshold: number;
+}
+
 export interface PolylineStyles {
   startHue: number;
   endHue: number;
@@ -67,7 +73,6 @@ export interface SelectStyles {
 }
 
 export interface SpritesStyles {
-  numPointsFogThreshold: number;
   minPointSize: number;
   imageSize: number;
   colorUnselected: Color;
@@ -76,6 +81,7 @@ export interface SpritesStyles {
 
 export interface Styles {
   backgroundColor: Color;
+  fog: FogStyles;
   label: LabelStyles;
   label3D: Label3DStyles;
   point: PointStyles;
@@ -86,16 +92,23 @@ export interface Styles {
 
 export interface UserStyles {
   backgroundColor?: number;
-  label: Partial<LabelStyles>;
-  label3D: Partial<Label3DStyles>;
-  point: Partial<PointStyles>;
-  polyline: Partial<PolylineStyles>;
-  select: Partial<SelectStyles>;
-  sprites: Partial<SpritesStyles>;
+  fog?: Partial<FogStyles>;
+  label?: Partial<LabelStyles>;
+  label3D?: Partial<Label3DStyles>;
+  point?: Partial<PointStyles>;
+  polyline?: Partial<PolylineStyles>;
+  select?: Partial<SelectStyles>;
+  sprites?: Partial<SpritesStyles>;
 }
 
 const defaultStyles: Styles = {
   backgroundColor: '#ffffff',
+
+  fog: {
+    color: '#ffffff',
+    enabled: true,
+    threshold: 5000,
+  },
 
   label: {
     fontSize: 10,
@@ -149,7 +162,6 @@ const defaultStyles: Styles = {
   },
 
   sprites: {
-    numPointsFogThreshold: 5000,
     minPointSize: 5.0,
     imageSize: 30,
     colorUnselected: '#ffffff',

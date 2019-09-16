@@ -675,4 +675,6 @@ export class ScatterGL {
 
     this.scatterPlot.setActiveVisualizers(activeVisualizers);
   }
+
+  static Dataset = Dataset;
 }

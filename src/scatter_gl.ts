@@ -35,9 +35,10 @@ export interface ScatterGLParams {
   onSelect?: (points: number[]) => void;
   pointColorer?: PointColorer;
   renderMode?: RenderMode;
+  rotateOnStart?: boolean;
+  selectEnabled?: boolean;
   showLabelsOnHover?: boolean;
   styles?: UserStyles;
-  rotateOnStart?: boolean;
 }
 
 /**
@@ -53,6 +54,7 @@ export class ScatterGL {
 
   private renderMode = RenderMode.POINT;
   private rotateOnStart = true;
+  private selectEnabled = true;
   private showLabelsOnHover = true;
 
   /* Visualizers, maintained by ScatterGL but used by ScatterPlot */
@@ -83,13 +85,14 @@ export class ScatterGL {
   }
 
   private setParameters(p: ScatterGLParams) {
-    if (p.renderMode !== undefined) this.renderMode = p.renderMode;
-    if (p.showLabelsOnHover !== undefined)
-      this.showLabelsOnHover = p.showLabelsOnHover;
     if (p.onHover !== undefined) this.hoverCallback = p.onHover;
     if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
     if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
+    if (p.renderMode !== undefined) this.renderMode = p.renderMode;
     if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;
+    if (p.selectEnabled !== undefined) this.selectEnabled = p.selectEnabled;
+    if (p.showLabelsOnHover !== undefined)
+      this.showLabelsOnHover = p.showLabelsOnHover;
   }
 
   render(dataset: Dataset) {
@@ -174,6 +177,7 @@ export class ScatterGL {
   };
 
   onSelect = (pointIndices: number[]) => {
+    if (!this.selectEnabled) return;
     this.selectCallback(pointIndices);
     this.selectedPointIndices = pointIndices;
     this.updateScatterPlotAttributes();

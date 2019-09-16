@@ -15,7 +15,7 @@ limitations under the License.
 
 import * as THREE from 'three';
 import {ScatterPlot} from './scatter_plot';
-import {Dataset, SpriteMetadata, Sequence} from './data';
+import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';

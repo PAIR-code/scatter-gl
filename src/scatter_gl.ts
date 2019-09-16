@@ -247,18 +247,32 @@ export class ScatterGL {
       zExtent = util.extent(dataset.points.map(p => p[2]!));
     }
 
-    const range = [-SCATTER_PLOT_CUBE_LENGTH / 2, SCATTER_PLOT_CUBE_LENGTH / 2];
+    const getRange = (extent: number[]) => Math.abs(extent[1] - extent[0]);
+    const xRange = getRange(xExtent);
+    const yRange = getRange(yExtent);
+    const zRange = getRange(zExtent);
+    const maxRange = Math.max(xRange, yRange, zRange);
+
+    const halfCube = SCATTER_PLOT_CUBE_LENGTH / 2;
+    const makeScaleRange = (range: number, base: number) => [
+      -base * (range / maxRange),
+      base * (range / maxRange),
+    ];
+    const xScale = makeScaleRange(xRange, halfCube);
+    const yScale = makeScaleRange(yRange, halfCube);
+    const zScale = makeScaleRange(zRange, halfCube);
+
     const positions = new Float32Array(dataset.points.length * 3);
     let dst = 0;
 
     dataset.points.forEach((d, i) => {
       const vector = dataset.points[i];
 
-      positions[dst++] = util.scaleLinear(vector[0], xExtent, range);
-      positions[dst++] = util.scaleLinear(vector[1], yExtent, range);
+      positions[dst++] = util.scaleLinear(vector[0], xExtent, xScale);
+      positions[dst++] = util.scaleLinear(vector[1], yExtent, yScale);
 
       if (dataset.dimensions === 3) {
-        positions[dst++] = util.scaleLinear(vector[2]!, zExtent, range);
+        positions[dst++] = util.scaleLinear(vector[2]!, zExtent, zScale);
       } else {
         positions[dst++] = 0.0;
       }

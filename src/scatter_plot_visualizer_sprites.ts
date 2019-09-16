@@ -230,7 +230,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       transparent: !isSpriteSheetMode,
       depthTest: isSpriteSheetMode,
       depthWrite: isSpriteSheetMode,
-      fog: true,
+      fog: this.styles.fog.enabled,
       blending: THREE.MultiplyBlending,
     });
   }
@@ -328,15 +328,15 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     nearestPointZ: number,
     farthestPointZ: number
   ) {
-    const {numPointsFogThreshold} = this.styles.sprites;
-    if (sceneIs3D) {
+    const {threshold, enabled} = this.styles.fog;
+
+    if (sceneIs3D && enabled) {
       const n = this.worldSpacePointPositions.length / XYZ_NUM_ELEMENTS;
       this.fog.near = nearestPointZ;
       // If there are fewer points we want less fog. We do this
       // by making the "far" value (that is, the distance from the camera to the
       // far edge of the fog) proportional to the number of points.
-      let multiplier =
-        2 - Math.min(n, numPointsFogThreshold) / numPointsFogThreshold;
+      let multiplier = 2 - Math.min(n, threshold) / threshold;
       this.fog.far = farthestPointZ * multiplier;
     } else {
       this.fog.near = Infinity;

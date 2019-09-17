@@ -73,6 +73,7 @@ export type CameraParams = Partial<
 
 export interface ScatterPlotParams {
   camera?: CameraParams;
+  onClick?: (point: number | null) => void;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   styles: Styles;
@@ -87,8 +88,9 @@ export interface ScatterPlotParams {
 export class ScatterPlot {
   private container: HTMLElement;
   private styles: Styles;
-  private onHover: (point: number | null) => void = () => {};
-  private onSelect: (point: number[]) => void = () => {};
+  private clickCallback: (point: number | null) => void = () => {};
+  private hoverCallback: (point: number | null) => void = () => {};
+  private selectCallback: (point: number[]) => void = () => {};
 
   // Map of visualizers by visualizer name/id
   private visualizers = new Map<string, ScatterPlotVisualizer>();
@@ -128,8 +130,9 @@ export class ScatterPlot {
 
   constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
     this.container = containerElement;
-    this.onHover = params.onHover || this.onHover;
-    this.onSelect = params.onSelect || this.onSelect;
+    this.clickCallback = params.onClick || this.clickCallback;
+    this.hoverCallback = params.onHover || this.hoverCallback;
+    this.selectCallback = params.onSelect || this.selectCallback;
     this.styles = params.styles;
 
     this.computeLayoutValues();
@@ -359,7 +362,8 @@ export class ScatterPlot {
     // Only call event handlers if the click originated from the scatter plot.
     if (!this.isDragSequence && notify) {
       const selection = this.nearestPoint != null ? [this.nearestPoint] : [];
-      this.onSelect(selection);
+      this.selectCallback(selection);
+      this.clickCallback(this.nearestPoint);
     }
     this.isDragSequence = false;
     this.render();
@@ -418,7 +422,7 @@ export class ScatterPlot {
       this.setNearestPointToMouse(e);
       if (this.nearestPoint != this.lastHovered) {
         this.lastHovered = this.nearestPoint;
-        this.onHover(this.nearestPoint);
+        this.hoverCallback(this.nearestPoint);
       }
     }
   }
@@ -513,7 +517,7 @@ export class ScatterPlot {
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.onSelect(pointIndices);
+    this.selectCallback(pointIndices);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {

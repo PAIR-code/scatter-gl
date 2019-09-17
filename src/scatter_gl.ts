@@ -33,6 +33,7 @@ export type PointColorer = (index: number) => string;
 export interface ScatterGLParams {
   camera?: CameraParams;
   onHover?: (point: number | null) => void;
+  onClick?: (points: number | null) => void;
   onSelect?: (points: number[]) => void;
   pointColorer?: PointColorer;
   renderMode?: RenderMode;
@@ -68,6 +69,7 @@ export class ScatterGL {
   private hoverPointIndex: number | null = null;
   private selectedPointIndices: number[] = [];
 
+  private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
 
@@ -80,6 +82,7 @@ export class ScatterGL {
 
     this.scatterPlot = new ScatterPlot(containerElement, {
       camera: params.camera,
+      onClick: this.onClick,
       onHover: this.onHover,
       onSelect: this.onSelect,
       styles: this.styles,
@@ -87,6 +90,7 @@ export class ScatterGL {
   }
 
   private setParameters(p: ScatterGLParams) {
+    if (p.onClick !== undefined) this.clickCallback = p.onClick;
     if (p.onHover !== undefined) this.hoverCallback = p.onHover;
     if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
     if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
@@ -176,6 +180,10 @@ export class ScatterGL {
     this.hoverPointIndex = pointIndex;
     this.updateScatterPlotAttributes();
     this.renderScatterPlot();
+  };
+
+  onClick = (pointIndex: number | null) => {
+    this.clickCallback(pointIndex);
   };
 
   onSelect = (pointIndices: number[]) => {

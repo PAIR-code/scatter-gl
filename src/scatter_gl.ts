@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {ScatterPlot} from './scatter_plot';
+import {ScatterPlot, CameraParams} from './scatter_plot';
 import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
@@ -31,6 +31,7 @@ import {ScatterPlotVisualizerPolylines} from './scatter_plot_visualizer_polyline
 export type PointColorer = (index: number) => string;
 
 export interface ScatterGLParams {
+  camera?: CameraParams;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
   pointColorer?: PointColorer;
@@ -78,6 +79,7 @@ export class ScatterGL {
     this.setParameters(params);
 
     this.scatterPlot = new ScatterPlot(containerElement, {
+      camera: params.camera,
       onHover: this.onHover,
       onSelect: this.onSelect,
       styles: this.styles,

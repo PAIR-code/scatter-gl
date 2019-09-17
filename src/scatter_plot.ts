@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {OrbitControls} from './orbit_controls';
+import {OrbitControls} from 'three-orbitcontrols-ts';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
@@ -188,32 +188,22 @@ export class ScatterPlot {
     cameraControls.addEventListener('end', () => {});
   }
 
-  private makeOrbitControls(
-    camera: THREE.Camera,
-    cameraDef: CameraDef,
-    cameraIs3D: boolean
-  ) {
+  private makeOrbitControls(camera: THREE.Camera, cameraIs3D: boolean) {
     if (this.orbitCameraControls != null) {
       this.orbitCameraControls.dispose();
     }
     const occ = new OrbitControls(camera, this.renderer.domElement);
-    occ.target0 = new THREE.Vector3(
-      cameraDef.target[0],
-      cameraDef.target[1],
-      cameraDef.target[2]
-    );
-    occ.position0 = new THREE.Vector3().copy(camera.position);
-    occ.zoom0 = cameraDef.zoom;
+
     occ.zoomSpeed = ORBIT_ZOOM_SPEED;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
     if (cameraIs3D) {
-      occ.mouseButtons.LEFT = THREE.MOUSE.LEFT; // Orbit
-      occ.mouseButtons.RIGHT = THREE.MOUSE.RIGHT; // Pan
+      occ.mouseButtons.ORBIT = THREE.MOUSE.LEFT; // Orbit
+      occ.mouseButtons.PAN = THREE.MOUSE.RIGHT; // Pan
     } else {
-      occ.mouseButtons.LEFT = null; // Orbit
-      occ.mouseButtons.RIGHT = THREE.MOUSE.LEFT; //Pan
+      occ.mouseButtons.ORBIT = THREE.MOUSE.RIGHT; // Orbit
+      occ.mouseButtons.PAN = THREE.MOUSE.LEFT; //Pan
     }
     occ.reset();
 
@@ -259,7 +249,7 @@ export class ScatterPlot {
       camera.updateProjectionMatrix();
     }
     this.camera = camera;
-    this.makeOrbitControls(camera, cameraDef, true);
+    this.makeOrbitControls(camera, true);
   }
 
   private makeCamera2D(cameraDef: CameraDef, w: number, h: number) {
@@ -303,7 +293,7 @@ export class ScatterPlot {
       camera.updateProjectionMatrix();
     }
     this.camera = camera;
-    this.makeOrbitControls(camera, cameraDef, false);
+    this.makeOrbitControls(camera, false);
   }
 
   private makeDefaultCameraDef(

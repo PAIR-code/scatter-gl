@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "three": "^0.106.2",
-    "three-orbitcontrols": "^2.102.2"
+    "three-orbitcontrols-ts": "git+https://git@github.com/nicolaspanel/three-orbitcontrols-ts.git"
   },
   "prettier": {
     "bracketSpacing": false,

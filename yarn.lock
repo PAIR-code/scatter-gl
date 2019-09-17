@@ -5229,15 +5229,21 @@ test-exclude@^4.2.1:
     read-pkg-up "^1.0.1"
     require-main-filename "^1.0.1"
 
-three-orbitcontrols@^2.102.2:
-  version "2.102.2"
-  resolved "https://registry.yarnpkg.com/three-orbitcontrols/-/three-orbitcontrols-2.102.2.tgz#4126cbc941227ef03acdd9f2cc0551b7c7271e64"
-  integrity sha512-VIJpnJoL6PXbGiTX+z68/uu9E+I8cACVr6m1qm9yjfel6PU1/VE78B6gar9fVaQUhrXCCK0GlvpYsyZjCsisrQ==
+"three-orbitcontrols-ts@git+https://git@github.com/nicolaspanel/three-orbitcontrols-ts.git":
+  version "0.1.2"
+  resolved "git+https://git@github.com/nicolaspanel/three-orbitcontrols-ts.git#b5b2685a88b880822c62275f2a76bdaa3954f76c"
+  dependencies:
+    three "^0.94.0"
 
 three@^0.106.2:
   version "0.106.2"
   resolved "https://registry.yarnpkg.com/three/-/three-0.106.2.tgz#6752d304c470e4df230944ecd45325e7bf79e1f8"
   integrity sha512-4Tlx43uoxnIaZFW2Bzkd1rXsatvVHEWAZJy8LuE+s6Q8c66ogNnhfq1bHiBKPAnXP230LD11H/ScIZc2LZMviA==
+
+three@^0.94.0:
+  version "0.94.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.94.0.tgz#4ce6db7f2bfbf79c2d73444aa6e3cfc08a32d762"
+  integrity sha1-TObbfyv795wtc0RKpuPPwIoy12I=
 
 throat@^4.0.0:
   version "4.1.0"

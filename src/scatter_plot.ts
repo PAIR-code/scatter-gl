@@ -76,6 +76,7 @@ export interface ScatterPlotParams {
   onClick?: (point: number | null) => void;
   onHover?: (point: number | null) => void;
   onSelect?: (points: number[]) => void;
+  selectEnabled?: boolean;
   styles: Styles;
 }
 
@@ -91,6 +92,7 @@ export class ScatterPlot {
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (point: number[]) => void = () => {};
+  private selectEnabled = true;
 
   // Map of visualizers by visualizer name/id
   private visualizers = new Map<string, ScatterPlotVisualizer>();
@@ -130,10 +132,8 @@ export class ScatterPlot {
 
   constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
     this.container = containerElement;
-    this.clickCallback = params.onClick || this.clickCallback;
-    this.hoverCallback = params.onHover || this.hoverCallback;
-    this.selectCallback = params.onSelect || this.selectCallback;
     this.styles = params.styles;
+    this.setParameters(params);
 
     this.computeLayoutValues();
 
@@ -157,6 +157,13 @@ export class ScatterPlot {
     this.setDimensions(3);
     this.makeCamera(params.camera);
     this.resize();
+  }
+
+  private setParameters(p: ScatterPlotParams) {
+    if (p.onClick !== undefined) this.clickCallback = p.onClick;
+    if (p.onHover !== undefined) this.hoverCallback = p.onHover;
+    if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
+    if (p.selectEnabled !== undefined) this.selectEnabled = p.selectEnabled;
   }
 
   private addInteractionListeners() {
@@ -418,7 +425,7 @@ export class ScatterPlot {
   }
 
   /** For using ctrl + left click as right click, and for circle select */
-  private onKeyDown(e: any) {
+  private onKeyDown(e: KeyboardEvent) {
     // If ctrl is pressed, use left click to orbit
     if (e.keyCode === CTRL_KEY && this.sceneIs3D()) {
       this.orbitCameraControls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
@@ -426,25 +433,23 @@ export class ScatterPlot {
     }
 
     // If shift is pressed, start selecting
-    if (e.keyCode === SHIFT_KEY) {
+    if (e.keyCode === SHIFT_KEY && this.selectEnabled) {
       this.selecting = true;
       this.container.style.cursor = 'crosshair';
     }
   }
 
   /** For using ctrl + left click as right click, and for circle select */
-  private onKeyUp(e: any) {
+  private onKeyUp(e: KeyboardEvent) {
     if (e.keyCode === CTRL_KEY && this.sceneIs3D()) {
       this.orbitCameraControls.mouseButtons.ORBIT = THREE.MOUSE.LEFT;
       this.orbitCameraControls.mouseButtons.PAN = THREE.MOUSE.RIGHT;
     }
 
     // If shift is released, stop selecting
-    if (e.keyCode === SHIFT_KEY) {
-      this.selecting = this.interactionMode === InteractionMode.PAN;
-      if (!this.selecting) {
-        this.container.style.cursor = 'default';
-      }
+    if (e.keyCode === SHIFT_KEY && this.selectEnabled) {
+      this.selecting = false;
+      this.container.style.cursor = 'default';
       this.render();
     }
   }

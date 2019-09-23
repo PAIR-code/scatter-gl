@@ -87,6 +87,7 @@ export class ScatterGL {
       onClick: this.onClick,
       onHover: this.onHover,
       onSelect: this.onSelect,
+      selectEnabled: this.selectEnabled,
       styles: this.styles,
     });
 

@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {ScatterPlot, CameraParams} from './scatter_plot';
+import {ScatterPlot, CameraParams, OnCameraMoveListener} from './scatter_plot';
 import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
@@ -35,6 +35,7 @@ export interface ScatterGLParams {
   onHover?: (point: number | null) => void;
   onClick?: (points: number | null) => void;
   onSelect?: (points: number[]) => void;
+  onCameraMove?: OnCameraMoveListener;
   pointColorer?: PointColorer;
   renderMode?: RenderMode;
   rotateOnStart?: boolean;
@@ -72,6 +73,7 @@ export class ScatterGL {
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (points: number[]) => void = () => {};
+  private cameraMoveCallback: OnCameraMoveListener = () => {};
 
   constructor(containerElement: HTMLElement, params: ScatterGLParams = {}) {
     this.containerElement = containerElement;
@@ -87,12 +89,15 @@ export class ScatterGL {
       onSelect: this.onSelect,
       styles: this.styles,
     });
+
+    this.scatterPlot.onCameraMove(this.cameraMoveCallback);
   }
 
   private setParameters(p: ScatterGLParams) {
     if (p.onClick !== undefined) this.clickCallback = p.onClick;
     if (p.onHover !== undefined) this.hoverCallback = p.onHover;
     if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
+    if (p.onCameraMove !== undefined) this.cameraMoveCallback = p.onCameraMove;
     if (p.pointColorer !== undefined) this.pointColorer = p.pointColorer;
     if (p.renderMode !== undefined) this.renderMode = p.renderMode;
     if (p.rotateOnStart !== undefined) this.rotateOnStart = p.rotateOnStart;

@@ -18,7 +18,12 @@ import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {RenderContext} from './render';
 import {Styles} from './styles';
 import * as util from './util';
-import {RGB_NUM_ELEMENTS, UV_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
+import {
+  RGB_NUM_ELEMENTS,
+  RGBA_NUM_ELEMENTS,
+  UV_NUM_ELEMENTS,
+  XYZ_NUM_ELEMENTS,
+} from './constants';
 
 const MAX_CANVAS_DIMENSION = 8192;
 const NUM_GLYPHS = 256;
@@ -39,9 +44,9 @@ const VERTICES_PER_GLYPH = 2 * 3; // 2 triangles, 3 verts per triangle
 
 const makeVertexShader = (fontSize: number, scale: number) => `
       attribute vec2 posObj;
-      attribute vec3 color;
+      attribute vec4 color;
       varying vec2 vUv;
-      varying vec3 vColor;
+      varying vec4 vColor;
 
       void main() {
         vUv = uv;
@@ -71,14 +76,14 @@ const FRAGMENT_SHADER = `
       uniform sampler2D texture;
       uniform bool picking;
       varying vec2 vUv;
-      varying vec3 vColor;
+      varying vec4 vColor;
 
       void main() {
         if (picking) {
-          gl_FragColor = vec4(vColor, 1.0);
+          gl_FragColor = vColor;
         } else {
           vec4 fromTexture = texture2D(texture, vUv);
-          gl_FragColor = vec4(vColor, 1.0) * fromTexture;
+          gl_FragColor = vColor * fromTexture;
         }
       }`;
 
@@ -294,7 +299,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     colors.array = this.renderColors;
 
-    const n = pointColors.length / XYZ_NUM_ELEMENTS;
+    const n = pointColors.length / RGBA_NUM_ELEMENTS;
     let src = 0;
     for (let i = 0; i < n; ++i) {
       const c = new THREE.Color(
@@ -306,7 +311,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       for (let j = 0; j < m; ++j) {
         colors.setXYZ(this.labelVertexMap[i][j], c.r, c.g, c.b);
       }
-      src += RGB_NUM_ELEMENTS;
+      src += RGBA_NUM_ELEMENTS;
     }
     colors.needsUpdate = true;
   }

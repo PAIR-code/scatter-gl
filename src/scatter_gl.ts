@@ -15,12 +15,13 @@ limitations under the License.
 
 import * as THREE from 'three';
 import {ScatterPlot, CameraParams, OnCameraMoveListener} from './scatter_plot';
+import {parseColor} from './color';
 import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';
 import * as util from './util';
-import {SCATTER_PLOT_CUBE_LENGTH} from './constants';
+import {SCATTER_PLOT_CUBE_LENGTH, RGBA_NUM_ELEMENTS} from './constants';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {ScatterPlotVisualizer3DLabels} from './scatter_plot_visualizer_3d_labels';
@@ -426,7 +427,7 @@ export class ScatterGL {
 
     const selectedPointCount = selectedPointIndices.length;
 
-    const colors = new Float32Array(dataset.points.length * 3);
+    const colors = new Float32Array(dataset.points.length * RGBA_NUM_ELEMENTS);
 
     let unselectedColor = colorUnselected;
     let noSelectionColor = colorNoSelection;
@@ -446,26 +447,30 @@ export class ScatterGL {
       const n = dataset.points.length;
       let dst = 0;
       if (selectedPointCount > 0) {
-        const c = new THREE.Color(unselectedColor);
+        const c = parseColor(unselectedColor);
         for (let i = 0; i < n; ++i) {
           colors[dst++] = c.r;
           colors[dst++] = c.g;
           colors[dst++] = c.b;
+          colors[dst++] = c.opacity;
         }
       } else {
         if (pointColorer) {
           for (let i = 0; i < n; ++i) {
-            const c = new THREE.Color(pointColorer(i) || noSelectionColor);
+            const c = parseColor(pointColorer(i) || noSelectionColor);
+
             colors[dst++] = c.r;
             colors[dst++] = c.g;
             colors[dst++] = c.b;
+            colors[dst++] = c.opacity;
           }
         } else {
-          const c = new THREE.Color(noSelectionColor);
+          const c = parseColor(noSelectionColor);
           for (let i = 0; i < n; ++i) {
             colors[dst++] = c.r;
             colors[dst++] = c.g;
             colors[dst++] = c.b;
+            colors[dst++] = c.opacity;
           }
         }
       }
@@ -474,22 +479,24 @@ export class ScatterGL {
     // Color the selected points.
     {
       const n = selectedPointCount;
-      const c = new THREE.Color(colorSelected);
+      const c = parseColor(colorSelected);
       for (let i = 0; i < n; ++i) {
-        let dst = selectedPointIndices[i] * 3;
+        let dst = selectedPointIndices[i] * RGBA_NUM_ELEMENTS;
         colors[dst++] = c.r;
         colors[dst++] = c.g;
         colors[dst++] = c.b;
+        colors[dst++] = c.opacity;
       }
     }
 
     // Color the hover point.
     if (hoverPointIndex != null) {
-      const c = new THREE.Color(colorHover);
-      let dst = hoverPointIndex * 3;
+      const c = parseColor(colorHover);
+      let dst = hoverPointIndex * RGBA_NUM_ELEMENTS;
       colors[dst++] = c.r;
       colors[dst++] = c.g;
       colors[dst++] = c.b;
+      colors[dst++] = c.opacity;
     }
 
     return colors;
@@ -522,8 +529,8 @@ export class ScatterGL {
 
       if (pointColorer) {
         for (let j = 0; j < sequence.indices.length - 1; j++) {
-          const c1 = new THREE.Color(pointColorer(sequence.indices[j]));
-          const c2 = new THREE.Color(pointColorer(sequence.indices[j + 1]));
+          const c1 = parseColor(pointColorer(sequence.indices[j]));
+          const c2 = parseColor(pointColorer(sequence.indices[j + 1]));
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
           colors[colorIndex++] = c1.b;

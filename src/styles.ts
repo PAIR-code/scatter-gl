@@ -135,10 +135,10 @@ const defaultStyles: Styles = {
   },
 
   point: {
-    colorUnselected: '#e3e3e3',
-    colorNoSelection: '#7575d9',
-    colorSelected: '#fa6666',
-    colorHover: '#760b4f',
+    colorUnselected: 'rgba(227, 227, 227, 0.7)',
+    colorNoSelection: 'rgba(117, 117, 217, 0.7)',
+    colorSelected: 'rgba(250, 102, 102, 0.7)',
+    colorHover: 'rgba(118, 11, 79, 0.7)',
     scaleDefault: 1.0,
     scaleSelected: 1.2,
     scaleHover: 1.2,
@@ -194,14 +194,4 @@ export function makeStyles(userStyles: UserStyles | undefined) {
     }
   }
   return defaultStyles;
-}
-
-const DEFAULT_COLOR = '#FFFFFF';
-
-export function parseColor(color: Color) {
-  if (typeof color === 'number') {
-    return;
-  } else if (typeof color === 'string') {
-  }
-  return DEFAULT_COLOR;
 }

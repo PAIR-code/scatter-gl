@@ -38,6 +38,7 @@ dataset.setSpriteMetadata({
 });
 
 let lastSelectedPoints: number[] = [];
+let renderMode = 'points';
 
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
@@ -82,6 +83,7 @@ document
   .querySelectorAll<HTMLInputElement>('input[name="render"]')
   .forEach(inputElement => {
     inputElement.addEventListener('change', () => {
+      renderMode = inputElement.value;
       if (inputElement.value === 'points') {
         scatterGL.setPointRenderMode();
       } else if (inputElement.value === 'sprites') {
@@ -92,10 +94,12 @@ document
     });
   });
 
-const colorsByLabel = [...new Array(10)].map((_, i) => {
-  const hue = Math.floor((255 / 10) * i);
-  return `hsl(${hue}, 100%, 50%)`;
-});
+const hues = [...new Array(10)].map((_, i) => Math.floor((255 / 10) * i));
+
+const transparentColorsByLabel = hues.map(
+  hue => `hsla(${hue}, 100%, 50%, 0.75)`
+);
+const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="color"]')
@@ -106,7 +110,10 @@ document
       } else if (inputElement.value === 'label') {
         scatterGL.setPointColorer(i => {
           const labelIndex = dataset.metadata![i].labelIndex as number;
-          return colorsByLabel[labelIndex];
+          const opaque = renderMode !== 'points';
+          return opaque
+            ? opaqueColorsByLabel[labelIndex]
+            : transparentColorsByLabel[labelIndex];
         });
       }
     });

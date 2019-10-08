@@ -20,6 +20,7 @@ import {Styles} from './styles';
 import * as util from './util';
 import {
   RGB_NUM_ELEMENTS,
+  RGBA_NUM_ELEMENTS,
   INDEX_NUM_ELEMENTS,
   XYZ_NUM_ELEMENTS,
 } from './constants';
@@ -35,11 +36,11 @@ const makeVertexShader = (minPointSize: number) => `
     // Index of the specific vertex (passed in as bufferAttribute), and the
     // variable that will be used to pass it to the fragment shader.
     attribute float spriteIndex;
-    attribute vec3 color;
+    attribute vec4 color;
     attribute float scaleFactor;
 
     varying vec2 xyIndex;
-    varying vec3 vColor;
+    varying vec4 vColor;
 
     uniform bool sizeAttenuation;
     uniform float pointSize;
@@ -109,7 +110,7 @@ const FRAGMENT_SHADER_POINT_TEST_CHUNK = `
 
 const FRAGMENT_SHADER = `
     varying vec2 xyIndex;
-    varying vec3 vColor;
+    varying vec4 vColor;
 
     uniform sampler2D texture;
     uniform float spritesPerRow;
@@ -128,13 +129,13 @@ const FRAGMENT_SHADER = `
         // Coordinates of the vertex within the entire sprite image.
         vec2 coords =
           (gl_PointCoord + xyIndex) / vec2(spritesPerRow, spritesPerColumn);
-        gl_FragColor = vec4(vColor, 1.0) * texture2D(texture, coords);
+        gl_FragColor = vColor * texture2D(texture, coords);
       } else {
         bool inside = point_in_unit_circle(gl_PointCoord);
         if (!inside) {
           discard;
         }
-        gl_FragColor = vec4(vColor, 1);
+        gl_FragColor = vColor;
       }
       float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
       gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
@@ -142,7 +143,7 @@ const FRAGMENT_SHADER = `
 
 const FRAGMENT_SHADER_PICKING = `
     varying vec2 xyIndex;
-    varying vec3 vColor;
+    varying vec4 vColor;
     uniform bool isImage;
 
     ${FRAGMENT_SHADER_POINT_TEST_CHUNK}
@@ -153,13 +154,13 @@ const FRAGMENT_SHADER_PICKING = `
       xyIndex; // Silence 'unused variable' warning.
       fogDepth; // Silence 'unused variable' warning.
       if (isImage) {
-        gl_FragColor = vec4(vColor, 1);
+        gl_FragColor = vColor;
       } else {
         bool inside = point_in_unit_circle(gl_PointCoord);
         if (!inside) {
           discard;
         }
-        gl_FragColor = vec4(vColor, 1);
+        gl_FragColor = vColor;
       }
     }`;
 
@@ -227,11 +228,10 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       uniforms: uniforms,
       vertexShader: makeVertexShader(this.styles.sprites.minPointSize),
       fragmentShader: FRAGMENT_SHADER,
-      transparent: !isSpriteSheetMode,
-      depthTest: isSpriteSheetMode,
-      depthWrite: isSpriteSheetMode,
+      transparent: true,
+      depthFunc: THREE.LessDepth,
       fog: this.styles.fog.enabled,
-      blending: THREE.MultiplyBlending,
+      blending: THREE.NormalBlending,
     });
   }
 
@@ -295,7 +295,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     const n = pointCount;
 
     // Fill pickingColors with each point's unique id as its color.
-    this.pickingColors = new Float32Array(n * RGB_NUM_ELEMENTS);
+    this.pickingColors = new Float32Array(n * RGBA_NUM_ELEMENTS);
     {
       let dst = 0;
       for (let i = 0; i < n; i++) {
@@ -303,6 +303,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
         this.pickingColors[dst++] = c.r;
         this.pickingColors[dst++] = c.g;
         this.pickingColors[dst++] = c.b;
+        this.pickingColors[dst++] = 1;
       }
     }
 
@@ -313,7 +314,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     );
     geometry.addAttribute(
       'color',
-      new THREE.BufferAttribute(new Float32Array([]), RGB_NUM_ELEMENTS)
+      new THREE.BufferAttribute(new Float32Array([]), RGBA_NUM_ELEMENTS)
     );
     geometry.addAttribute(
       'scaleFactor',
@@ -450,7 +451,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'color'
     ) as THREE.BufferAttribute;
     colors.array = this.pickingColors;
-    colors.count = this.pickingColors.length / RGB_NUM_ELEMENTS;
+    colors.count = this.pickingColors.length / RGBA_NUM_ELEMENTS;
     colors.needsUpdate = true;
 
     let scaleFactors = (this.points
@@ -490,7 +491,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     ) as THREE.BufferAttribute;
     this.renderColors = rc.pointColors;
     colors.array = this.renderColors;
-    colors.count = this.renderColors.length / RGB_NUM_ELEMENTS;
+    colors.count = this.renderColors.length / RGBA_NUM_ELEMENTS;
     colors.needsUpdate = true;
     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(

@@ -18,7 +18,7 @@ import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {RenderContext} from './render';
 import {Dataset, Sequence} from './data';
 import * as util from './util';
-import {RGB_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
+import {RGBA_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 
 /**
  * Renders polylines that connect multiple points in the dataset.
@@ -111,10 +111,10 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
         XYZ_NUM_ELEMENTS
       );
 
-      let colors = new Float32Array(vertexCount * RGB_NUM_ELEMENTS);
+      let colors = new Float32Array(vertexCount * RGBA_NUM_ELEMENTS);
       this.polylineColorBuffer[i] = new THREE.BufferAttribute(
         colors,
-        RGB_NUM_ELEMENTS
+        RGBA_NUM_ELEMENTS
       );
     }
     for (let i = 0; i < this.sequences.length; i++) {

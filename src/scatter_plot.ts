@@ -602,6 +602,10 @@ export class ScatterPlot {
     this.updateOrbitAnimation();
   }
 
+  orbitIsAnimating(){
+    return this.orbitAnimationId != null
+  }
+
   private updateOrbitAnimation() {
     this.orbitCameraControls.update();
     this.orbitAnimationId = requestAnimationFrame(() =>

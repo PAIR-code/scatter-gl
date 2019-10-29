@@ -56,6 +56,7 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `resize()`                                    | Updates the render size based on the container element     |
 | `setPanMode()`                                | Sets interaction mode to 'pan'                             |
 | `setPointColorer(pointColorer: PointColorer)` | Sets a function to determin colors                         |
+| `setHoverPointIndex()`                        | Sets the hovered point                                     |
 | `setPointRenderMode()`                        | Sets point render mode                                     |
 | `setRenderMode(renderMode: RenderMode)`       | Sets a specific render mode                                |
 | `setSelectMode()`                             | Sets interaction mode to 'select'                          |

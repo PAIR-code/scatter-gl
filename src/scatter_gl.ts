@@ -221,6 +221,10 @@ export class ScatterGL {
     this.scatterPlot.startOrbitAnimation();
   }
 
+  stopOrbitAnimation() {
+    this.scatterPlot.stopOrbitAnimation();
+  }
+
   private setDataset(dataset: Dataset) {
     this.dataset = dataset;
 

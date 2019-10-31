@@ -65,6 +65,7 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `setTextRenderMode()`                         | Sets text render mode                                      |
 | `updateDataset(dataset: Dataset)`             | Updates the dataset                                        |
 | `startOrbitAnimation()`                       | Begin rotating until an interaction                        |
+| `stopOrbitAnimation()`                        | Stops automatic rotation                                   |
 
 ## Advanced usage
 

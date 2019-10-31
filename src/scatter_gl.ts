@@ -178,6 +178,14 @@ export class ScatterGL {
     this.renderScatterPlot();
   }
 
+  setHoverPointIndex(index: number) {
+    this.hoverPointIndex = index;
+    this.updateScatterPlotAttributes();
+    /* Skip render if currently animating */
+    if (this.scatterPlot.orbitIsAnimating()) return;
+    this.renderScatterPlot();
+  }
+
   resize() {
     this.scatterPlot.resize();
   }

@@ -8,7 +8,7 @@ Interactive 3D / 2D webgl-accelerated scatter plot point renderer. Core function
 
 ```javascript
 // where `points` is an array of 2 or 3-dimensional points as number arrays.
-const dataset = new Dataset(points);
+const dataset = new ScatterGL.Dataset(points);
 const scatterGL = new ScatterGL(containerElement);
 scatterGL.render(dataset);
 ```
@@ -27,7 +27,7 @@ yarn add scatter-gl
 <!-- Load three.js -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
 <!-- Load scatter-gl.js -->
-<script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.1.0/lib/scatter-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script>
 ```
 
 #### Parameters

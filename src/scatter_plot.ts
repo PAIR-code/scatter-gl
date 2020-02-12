@@ -204,6 +204,7 @@ export class ScatterPlot {
     occ.zoomSpeed = ORBIT_ZOOM_SPEED;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
+    occ.enableKeys = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
     if (cameraIs3D) {
       occ.mouseButtons.ORBIT = THREE.MOUSE.LEFT; // Orbit

@@ -210,11 +210,11 @@ export class ScatterPlot {
     occ.enableKeys = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
     if (cameraIs3D) {
-      (occ.mouseButtons as any).ORBIT = THREE.MOUSE.LEFT; // Orbit
-      (occ.mouseButtons as any).PAN = THREE.MOUSE.RIGHT; // Pan
+      occ.mouseButtons.LEFT = THREE.MOUSE.LEFT; // Orbit
+      occ.mouseButtons.RIGHT = THREE.MOUSE.RIGHT; // Pan
     } else {
-      (occ.mouseButtons as any).ORBIT = THREE.MOUSE.RIGHT; // Orbit
-      (occ.mouseButtons as any).PAN = THREE.MOUSE.LEFT; //Pan
+      occ.mouseButtons.LEFT = THREE.MOUSE.RIGHT; // Orbit
+      occ.mouseButtons.RIGHT = THREE.MOUSE.LEFT; //Pan
     }
     occ.reset();
 

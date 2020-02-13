@@ -37,8 +37,6 @@ export type PointColorer = (
   hoverIndex: number | null
 ) => string;
 
-type InternalPointColorer = (index: number) => string;
-
 export interface ScatterGLParams {
   camera?: CameraParams;
   onHover?: (point: number | null) => void;

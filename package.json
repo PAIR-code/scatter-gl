@@ -32,14 +32,13 @@
     "prettier": "^1.16.4",
     "ts-jest": "^23.10.5",
     "ts-loader": "^5.3.3",
-    "typescript": "^3.5.3",
+    "typescript": "^3.7",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.4.1"
   },
   "dependencies": {
-    "three": "^0.106.2",
-    "three-orbitcontrols-ts": "git+https://git@github.com/nicolaspanel/three-orbitcontrols-ts.git"
+    "three": "^0.108"
   },
   "prettier": {
     "bracketSpacing": false,

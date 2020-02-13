@@ -31,7 +31,13 @@ import {ScatterPlotVisualizerSprites} from './scatter_plot_visualizer_sprites';
 import {ScatterPlotVisualizerCanvasLabels} from './scatter_plot_visualizer_canvas_labels';
 import {ScatterPlotVisualizerPolylines} from './scatter_plot_visualizer_polylines';
 
-export type PointColorer = (index: number) => string;
+export type PointColorer = (
+  index: number,
+  selectedIndices: Set<number>,
+  hoverIndex: number | null
+) => string;
+
+type InternalPointColorer = (index: number) => string;
 
 export interface ScatterGLParams {
   camera?: CameraParams;
@@ -71,7 +77,7 @@ export class ScatterGL {
   private spritesheetVisualizer?: ScatterPlotVisualizerSprites;
 
   private hoverPointIndex: number | null = null;
-  private selectedPointIndices: number[] = [];
+  private selectedPointIndices = new Set<number>();
 
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
@@ -180,6 +186,10 @@ export class ScatterGL {
     this.renderScatterPlot();
   }
 
+  private callPointColorer(pointColorer: PointColorer, index: number) {
+    return pointColorer(index, this.selectedPointIndices, this.hoverPointIndex);
+  }
+
   setHoverPointIndex(index: number) {
     this.hoverPointIndex = index;
     this.updateScatterPlotAttributes();
@@ -206,7 +216,7 @@ export class ScatterGL {
   onSelect = (pointIndices: number[]) => {
     if (!this.selectEnabled) return;
     this.selectCallback(pointIndices);
-    this.selectedPointIndices = pointIndices;
+    this.selectedPointIndices = new Set(pointIndices);
     this.updateScatterPlotAttributes();
     this.renderScatterPlot();
   };
@@ -319,7 +329,7 @@ export class ScatterGL {
     dataset: Dataset
   ): LabelRenderParams {
     const {hoverPointIndex, selectedPointIndices, styles} = this;
-    const selectedPointCount = selectedPointIndices.length;
+    const selectedPointCount = selectedPointIndices.size;
     const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
 
     const visibleLabels = new Uint32Array(n);
@@ -362,17 +372,17 @@ export class ScatterGL {
 
     // Selected points
     {
-      const n = selectedPointCount;
       const fillRgb = util.styleRgbFromHexColor(styles.label.fillColorSelected);
       const strokeRgb = util.styleRgbFromHexColor(
         styles.label.strokeColorSelected
       );
-      for (let i = 0; i < n; ++i) {
-        const labelIndex = selectedPointIndices[i];
+
+      if (selectedPointIndices.size === 1) {
+        const labelIndex = [...selectedPointIndices][0];
         labelStrings.push(this.getLabelText(labelIndex));
         visibleLabels[dst] = labelIndex;
         scale[dst] = styles.label.scaleLarge;
-        opacityFlags[dst] = n === 1 ? 0 : 1;
+        opacityFlags[dst] = 0;
         util.packRgbIntoUint8Array(
           fillColors,
           dst,
@@ -387,7 +397,6 @@ export class ScatterGL {
           strokeRgb[1],
           strokeRgb[2]
         );
-        ++dst;
       }
     }
 
@@ -410,13 +419,11 @@ export class ScatterGL {
     const scale = new Float32Array(dataset.points.length);
     scale.fill(scaleDefault);
 
-    const selectedPointCount = selectedPointIndices.length;
+    const selectedPointCount = selectedPointIndices.size;
 
     // Scale up all selected points.
     {
-      const n = selectedPointCount;
-      for (let i = 0; i < n; ++i) {
-        const p = selectedPointIndices[i];
+      for (const p of selectedPointIndices.values()) {
         scale[p] = scaleSelected;
       }
     }
@@ -439,8 +446,6 @@ export class ScatterGL {
       colorUnselected,
     } = styles.point;
 
-    const selectedPointCount = selectedPointIndices.length;
-
     const colors = new Float32Array(dataset.points.length * RGBA_NUM_ELEMENTS);
 
     let unselectedColor = colorUnselected;
@@ -456,61 +461,58 @@ export class ScatterGL {
       noSelectionColor = this.styles.sprites.colorNoSelection;
     }
 
-    // Give all points the unselected color.
-    {
-      const n = dataset.points.length;
+    const n = dataset.points.length;
+    const selectedPointCount = this.selectedPointIndices.size;
+
+    // Color points with the point colorer, otherwise use default colors
+    if (pointColorer) {
       let dst = 0;
-      if (selectedPointCount > 0) {
-        const c = parseColor(unselectedColor);
-        for (let i = 0; i < n; ++i) {
-          colors[dst++] = c.r;
-          colors[dst++] = c.g;
-          colors[dst++] = c.b;
-          colors[dst++] = c.opacity;
-        }
-      } else {
-        if (pointColorer) {
-          for (let i = 0; i < n; ++i) {
-            const c = parseColor(pointColorer(i) || noSelectionColor);
-
-            colors[dst++] = c.r;
-            colors[dst++] = c.g;
-            colors[dst++] = c.b;
-            colors[dst++] = c.opacity;
-          }
-        } else {
-          const c = parseColor(noSelectionColor);
-          for (let i = 0; i < n; ++i) {
-            colors[dst++] = c.r;
-            colors[dst++] = c.g;
-            colors[dst++] = c.b;
-            colors[dst++] = c.opacity;
-          }
-        }
-      }
-    }
-
-    // Color the selected points.
-    {
-      const n = selectedPointCount;
-      const c = parseColor(colorSelected);
       for (let i = 0; i < n; ++i) {
-        let dst = selectedPointIndices[i] * RGBA_NUM_ELEMENTS;
+        const c = parseColor(
+          this.callPointColorer(pointColorer, i) || noSelectionColor
+        );
+
         colors[dst++] = c.r;
         colors[dst++] = c.g;
         colors[dst++] = c.b;
         colors[dst++] = c.opacity;
       }
     }
+    // Otherwise, determine whether to first color all points with the default
+    // unselected color or the color where none is selected...
+    else {
+      // First color all unselected / non-selected points
+      let dst = 0;
+      let c =
+        selectedPointCount > 0
+          ? parseColor(unselectedColor)
+          : parseColor(noSelectionColor);
+      for (let i = 0; i < n; ++i) {
+        colors[dst++] = c.r;
+        colors[dst++] = c.g;
+        colors[dst++] = c.b;
+        colors[dst++] = c.opacity;
+      }
 
-    // Color the hover point.
-    if (hoverPointIndex != null) {
-      const c = parseColor(colorHover);
-      let dst = hoverPointIndex * RGBA_NUM_ELEMENTS;
-      colors[dst++] = c.r;
-      colors[dst++] = c.g;
-      colors[dst++] = c.b;
-      colors[dst++] = c.opacity;
+      // Then, color selected points
+      c = parseColor(colorSelected);
+      for (const selectedPointIndex of selectedPointIndices.values()) {
+        let dst = selectedPointIndex * RGBA_NUM_ELEMENTS;
+        colors[dst++] = c.r;
+        colors[dst++] = c.g;
+        colors[dst++] = c.b;
+        colors[dst++] = c.opacity;
+      }
+
+      // Last, color the hover point.
+      if (hoverPointIndex != null) {
+        const c = parseColor(colorHover);
+        let dst = hoverPointIndex * RGBA_NUM_ELEMENTS;
+        colors[dst++] = c.r;
+        colors[dst++] = c.g;
+        colors[dst++] = c.b;
+        colors[dst++] = c.opacity;
+      }
     }
 
     return colors;
@@ -543,8 +545,12 @@ export class ScatterGL {
 
       if (pointColorer) {
         for (let j = 0; j < sequence.indices.length - 1; j++) {
-          const c1 = parseColor(pointColorer(sequence.indices[j]));
-          const c2 = parseColor(pointColorer(sequence.indices[j + 1]));
+          const c1 = parseColor(
+            this.callPointColorer(pointColorer, sequence.indices[j])
+          );
+          const c2 = parseColor(
+            this.callPointColorer(pointColorer, sequence.indices[j + 1])
+          );
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
           colors[colorIndex++] = c1.b;
@@ -589,11 +595,11 @@ export class ScatterGL {
     const {selectedPointIndices, styles} = this;
 
     const opacities = new Float32Array(this.sequences.length);
-    const selectedPointCount = selectedPointIndices.length;
+    const selectedPointCount = selectedPointIndices.size;
     if (selectedPointCount > 0) {
       opacities.fill(styles.polyline.deselectedOpacity);
       const i = this.polylineVisualizer!.getPointSequenceIndex(
-        selectedPointIndices[0]
+        [...selectedPointIndices][0]
       );
       if (i !== undefined) opacities[i] = styles.polyline.selectedOpacity;
     } else {
@@ -607,10 +613,10 @@ export class ScatterGL {
 
     const widths = new Float32Array(this.sequences.length);
     widths.fill(styles.polyline.defaultLineWidth);
-    const selectedPointCount = selectedPointIndices.length;
+    const selectedPointCount = selectedPointIndices.size;
     if (selectedPointCount > 0) {
       const i = this.polylineVisualizer!.getPointSequenceIndex(
-        selectedPointIndices[0]
+        [...selectedPointIndices][0]
       );
       if (i !== undefined) widths[i] = styles.polyline.selectedLineWidth;
     }

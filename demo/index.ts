@@ -103,7 +103,10 @@ document
 
 const hues = [...new Array(10)].map((_, i) => Math.floor((255 / 10) * i));
 
-const transparentColorsByLabel = hues.map(
+const lightTransparentColorsByLabel = hues.map(
+  hue => `hsla(${hue}, 100%, 50%, 0.05)`
+);
+const heavyTransparentColorsByLabel = hues.map(
   hue => `hsla(${hue}, 100%, 50%, 0.75)`
 );
 const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`);
@@ -115,12 +118,28 @@ document
       if (inputElement.value === 'default') {
         scatterGL.setPointColorer(null);
       } else if (inputElement.value === 'label') {
-        scatterGL.setPointColorer(i => {
+        scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
           const labelIndex = dataset.metadata![i]['labelIndex'] as number;
           const opaque = renderMode !== 'points';
-          return opaque
-            ? opaqueColorsByLabel[labelIndex]
-            : transparentColorsByLabel[labelIndex];
+          if (opaque) {
+            return opaqueColorsByLabel[labelIndex];
+          } else {
+            if (hoverIndex === i) {
+              return 'red';
+            }
+
+            // If nothing is selected, return the heavy color
+            if (selectedIndices.size === 0) {
+              return heavyTransparentColorsByLabel[labelIndex];
+            }
+            // Otherwise, keep the selected points heavy and non-selected light
+            else {
+              const isSelected = selectedIndices.has(i);
+              return isSelected
+                ? heavyTransparentColorsByLabel[labelIndex]
+                : lightTransparentColorsByLabel[labelIndex];
+            }
+          }
         });
       }
     });

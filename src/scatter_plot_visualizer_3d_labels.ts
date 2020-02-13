@@ -102,9 +102,9 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private scene!: THREE.Scene;
   private labelStrings: string[] = [];
   private geometry!: THREE.BufferGeometry;
-  private worldSpacePointPositions = new Float32Array();
-  private pickingColors = new Float32Array();
-  private renderColors = new Float32Array();
+  private worldSpacePointPositions = new Float32Array(0);
+  private pickingColors = new Float32Array(0);
+  private renderColors = new Float32Array(0);
   private material!: THREE.ShaderMaterial;
   private uniforms: Object = {};
   private labelsMesh!: THREE.Mesh;

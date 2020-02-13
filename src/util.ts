@@ -174,7 +174,7 @@ export function packRgbIntoUint8Array(
 export function styleRgbFromHexColor(
   hex: number | string
 ): [number, number, number] {
-  const c = new THREE.Color(hex);
+  const c = new THREE.Color(hex as string);
   return [(c.r * 255) | 0, (c.g * 255) | 0, (c.b * 255) | 0];
 }
 

@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {OrbitControls} from 'three-orbitcontrols-ts';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
@@ -116,13 +116,13 @@ export class ScatterPlot {
   private orbitCameraControls: any;
   private orbitAnimationId: number | null = null;
 
-  private worldSpacePointPositions = new Float32Array();
-  private pointColors = new Float32Array();
-  private pointScaleFactors = new Float32Array();
+  private worldSpacePointPositions = new Float32Array(0);
+  private pointColors = new Float32Array(0);
+  private pointScaleFactors = new Float32Array(0);
   private labels?: LabelRenderParams;
   private polylineColors: {[polylineIndex: number]: Float32Array} = {};
-  private polylineOpacities = new Float32Array();
-  private polylineWidths = new Float32Array();
+  private polylineOpacities = new Float32Array(0);
+  private polylineWidths = new Float32Array(0);
 
   private selecting = false;
   private nearestPoint: number | null = null;
@@ -199,6 +199,7 @@ export class ScatterPlot {
     if (this.orbitCameraControls != null) {
       this.orbitCameraControls.dispose();
     }
+
     const occ = new OrbitControls(camera, this.renderer.domElement);
 
     occ.zoomSpeed = ORBIT_ZOOM_SPEED;
@@ -207,11 +208,11 @@ export class ScatterPlot {
     occ.enableKeys = false;
     occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
     if (cameraIs3D) {
-      occ.mouseButtons.ORBIT = THREE.MOUSE.LEFT; // Orbit
-      occ.mouseButtons.PAN = THREE.MOUSE.RIGHT; // Pan
+      (occ.mouseButtons as any).ORBIT = THREE.MOUSE.LEFT; // Orbit
+      (occ.mouseButtons as any).PAN = THREE.MOUSE.RIGHT; // Pan
     } else {
-      occ.mouseButtons.ORBIT = THREE.MOUSE.RIGHT; // Orbit
-      occ.mouseButtons.PAN = THREE.MOUSE.LEFT; //Pan
+      (occ.mouseButtons as any).ORBIT = THREE.MOUSE.RIGHT; // Orbit
+      (occ.mouseButtons as any).PAN = THREE.MOUSE.LEFT; //Pan
     }
     occ.reset();
 
@@ -603,8 +604,8 @@ export class ScatterPlot {
     this.updateOrbitAnimation();
   }
 
-  orbitIsAnimating(){
-    return this.orbitAnimationId != null
+  orbitIsAnimating() {
+    return this.orbitAnimationId != null;
   }
 
   private updateOrbitAnimation() {

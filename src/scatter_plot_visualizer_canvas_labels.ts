@@ -1,4 +1,6 @@
-/* Copyright 2019 Google LLC. All Rights Reserved.
+/*
+@license
+Copyright 2019 Google LLC. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,7 +32,7 @@ export class ScatterPlotVisualizerCanvasLabels
   implements ScatterPlotVisualizer {
   public id = 'CANVAS_LABELS';
 
-  private worldSpacePointPositions = new Float32Array();
+  private worldSpacePointPositions = new Float32Array(0);
   private gc: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private labelsActive: boolean = true;

@@ -1,4 +1,6 @@
-/* Copyright 2019 Google LLC. All Rights Reserved.
+/*
+@license
+Copyright 2019 Google LLC. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -188,9 +190,9 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   private spriteDimensions = [0, 0];
 
   private points!: THREE.Points;
-  private worldSpacePointPositions = new Float32Array();
-  private pickingColors = new Float32Array();
-  private renderColors = new Float32Array();
+  private worldSpacePointPositions = new Float32Array(0);
+  private pickingColors = new Float32Array(0);
+  private renderColors = new Float32Array(0);
 
   constructor(private styles: Styles, spriteSheetParams?: SpriteSheetParams) {
     this.standinTextureForPoints = util.createTextureFromCanvas(

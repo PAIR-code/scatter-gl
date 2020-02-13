@@ -67,6 +67,11 @@ const scatterGL = new ScatterGL(containerElement, {
 });
 scatterGL.render(dataset);
 
+// Add in a resize observer for automatic window resize.
+window.addEventListener('resize', () => {
+  scatterGL.resize();
+});
+
 document
   .querySelectorAll<HTMLInputElement>('input[name="interactions"]')
   .forEach(inputElement => {

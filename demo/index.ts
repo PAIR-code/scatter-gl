@@ -116,7 +116,7 @@ document
         scatterGL.setPointColorer(null);
       } else if (inputElement.value === 'label') {
         scatterGL.setPointColorer(i => {
-          const labelIndex = dataset.metadata![i].labelIndex as number;
+          const labelIndex = dataset.metadata![i]['labelIndex'] as number;
           const opaque = renderMode !== 'points';
           return opaque
             ? opaqueColorsByLabel[labelIndex]

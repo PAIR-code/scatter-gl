@@ -199,6 +199,7 @@ export class ScatterPlot {
     if (this.orbitCameraControls != null) {
       this.orbitCameraControls.dispose();
     }
+
     const occ = new OrbitControls(camera, this.renderer.domElement);
 
     occ.zoomSpeed = ORBIT_ZOOM_SPEED;

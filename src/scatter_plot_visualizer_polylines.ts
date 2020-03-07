@@ -16,11 +16,11 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import { ScatterPlotVisualizer } from './scatter_plot_visualizer';
-import { RenderContext } from './render';
-import { Dataset, Sequence } from './data';
+import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
+import {RenderContext} from './render';
+import {Dataset, Sequence} from './data';
 import * as util from './util';
-import { RGBA_NUM_ELEMENTS, XYZ_NUM_ELEMENTS } from './constants';
+import {RGBA_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 
 /**
  * Renders polylines that connect multiple points in the dataset.
@@ -153,6 +153,6 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
     }
   }
 
-  onPickingRender(renderContext: RenderContext) { }
-  onResize(newWidth: number, newHeight: number) { }
+  onPickingRender(renderContext: RenderContext) {}
+  onResize(newWidth: number, newHeight: number) {}
 }

@@ -16,11 +16,12 @@ limitations under the License.
 ==============================================================================*/
 
 import * as THREE from 'three';
-import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
-import {RenderContext} from './render';
-import {Dataset, Sequence} from './data';
-import * as util from './util';
+
 import {RGBA_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
+import {Dataset, Sequence} from './data';
+import {RenderContext} from './render';
+import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
+import * as util from './util';
 
 /**
  * Renders polylines that connect multiple points in the dataset.
@@ -31,12 +32,10 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
   private sequences: Sequence[] = [];
   private scene!: THREE.Scene;
   private polylines: THREE.LineSegments[] = [];
-  private polylinePositionBuffer: {
-    [polylineIndex: number]: THREE.BufferAttribute;
-  } = {};
-  private polylineColorBuffer: {
-    [polylineIndex: number]: THREE.BufferAttribute;
-  } = {};
+  private polylinePositionBuffer:
+      {[polylineIndex: number]: THREE.BufferAttribute;} = {};
+  private polylineColorBuffer:
+      {[polylineIndex: number]: THREE.BufferAttribute;} = {};
 
   private pointSequenceIndices = new Map<number, number>();
 
@@ -57,6 +56,12 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
 
   private createPolylines() {
     this.updateSequenceIndices();
+
+    for (const polyline of this.polylines) {
+      this.scene.remove(polyline);
+      polyline.geometry.dispose();
+    }
+
     this.polylines = [];
 
     for (let i = 0; i < this.sequences.length; i++) {
@@ -65,8 +70,8 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
       geometry.addAttribute('color', this.polylineColorBuffer[i]);
 
       const material = new THREE.LineBasicMaterial({
-        linewidth: 1, // unused default, overwritten by width array.
-        opacity: 1.0, // unused default, overwritten by opacity array.
+        linewidth: 1,  // unused default, overwritten by width array.
+        opacity: 1.0,  // unused default, overwritten by opacity array.
         transparent: true,
         vertexColors: THREE.VertexColors,
       });
@@ -108,16 +113,12 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
       const vertexCount = 2 * (sequence.indices.length - 1);
 
       let polylines = new Float32Array(vertexCount * XYZ_NUM_ELEMENTS);
-      this.polylinePositionBuffer[i] = new THREE.BufferAttribute(
-        polylines,
-        XYZ_NUM_ELEMENTS
-      );
+      this.polylinePositionBuffer[i] =
+          new THREE.BufferAttribute(polylines, XYZ_NUM_ELEMENTS);
 
       let colors = new Float32Array(vertexCount * RGBA_NUM_ELEMENTS);
-      this.polylineColorBuffer[i] = new THREE.BufferAttribute(
-        colors,
-        RGBA_NUM_ELEMENTS
-      );
+      this.polylineColorBuffer[i] =
+          new THREE.BufferAttribute(colors, RGBA_NUM_ELEMENTS);
     }
     for (let i = 0; i < this.sequences.length; i++) {
       const sequence = this.sequences[i];

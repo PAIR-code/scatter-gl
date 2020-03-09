@@ -57,6 +57,12 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
 
   private createPolylines() {
     this.updateSequenceIndices();
+
+    for (const polyline of this.polylines) {
+      this.scene.remove(polyline);
+      polyline.geometry.dispose();
+    }
+
     this.polylines = [];
 
     for (let i = 0; i < this.sequences.length; i++) {

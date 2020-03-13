@@ -1,6 +1,6 @@
 {
   "name": "scatter-gl",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "webgl accelerated 3D/2D scatterplot renderer",
   "author": {
     "name": "Andy Coenen",

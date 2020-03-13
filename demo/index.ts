@@ -160,3 +160,19 @@ sequencesToggle.addEventListener('change', (e: any) => {
   const showSequences = sequencesToggle.checked;
   scatterGL.setSequences(showSequences ? sequences : []);
 });
+
+// Set up controls for buttons
+const selectRandomButton = document.getElementById('select-random')!;
+selectRandomButton.addEventListener('click', () => {
+  const randomIndex = Math.floor(dataPoints.length * Math.random());
+  scatterGL.select([randomIndex]);
+});
+
+const toggleOrbitButton = document.getElementById('toggle-orbit')!;
+toggleOrbitButton.addEventListener('click', () => {
+  if (scatterGL.isOrbiting) {
+    scatterGL.stopOrbitAnimation();
+  } else {
+    scatterGL.startOrbitAnimation();
+  }
+});

@@ -52,12 +52,16 @@ limitations under the License.
       .mdl-js-radio {
         margin-left: 10px;
       }
+
+      .button {
+        margin-top: 18px;
+      }
     </style>
   </head>
   <body>
     <div id="container"></div>
     <div id="controls">
-      <div id="interactions control">
+      <div class="interactions control">
         <h5>Controls</h5>
         <label class="mdl-radio mdl-js-radio" for="pan-interaction">
           <input
@@ -81,8 +85,24 @@ limitations under the License.
           <span class="mdl-radio__label">Select</span>
         </label>
       </div>
+      <div class="button control">
+        <button
+          id="select-random"
+          class="mdl-button mdl-js-button mdl-button--raised"
+        >
+          Select random
+        </button>
+      </div>
+      <div class="button control">
+        <button
+          id="toggle-orbit"
+          class="mdl-button mdl-js-button mdl-button--raised"
+        >
+          Toggle Orbit
+        </button>
+      </div>
       <hr />
-      <div id="render-modes control">
+      <div class="render-modes control">
         <h5>Render</h5>
         <label class="mdl-radio mdl-js-radio" for="point-render">
           <input
@@ -139,7 +159,7 @@ limitations under the License.
           </label>
         </div>
       </div>
-      <div id="color control">
+      <div class="color control">
         <h5>Color by</h5>
         <label class="mdl-radio mdl-js-radio" for="color-default">
           <input

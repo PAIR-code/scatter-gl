@@ -170,7 +170,7 @@ selectRandomButton.addEventListener('click', () => {
 
 const toggleOrbitButton = document.getElementById('toggle-orbit')!;
 toggleOrbitButton.addEventListener('click', () => {
-  if (scatterGL.isOrbiting) {
+  if (scatterGL.isOrbiting()) {
     scatterGL.stopOrbitAnimation();
   } else {
     scatterGL.startOrbitAnimation();

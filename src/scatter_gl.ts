@@ -232,7 +232,7 @@ export class ScatterGL {
     this.renderScatterPlot();
   }
 
-  get isOrbiting() {
+  isOrbiting() {
     return this.scatterPlot.orbitIsAnimating();
   }
 

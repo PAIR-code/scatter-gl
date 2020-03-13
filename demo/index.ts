@@ -51,7 +51,7 @@ const scatterGL = new ScatterGL(containerElement, {
     console.log(message);
     messagesElement.innerHTML = message;
   },
-  onSelect: (points: number[]) => {
+  onSelect: (points: number[], boundingBox) => {
     let message = '';
     if (points.length === 0 && lastSelectedPoints.length === 0) {
       message = '🔥 no selection';
@@ -63,6 +63,7 @@ const scatterGL = new ScatterGL(containerElement, {
       message = `🔥selected ${points.length} points`;
     }
     console.log(message);
+    console.log(boundingBox)
     messagesElement.innerHTML = message;
   },
   renderMode: RenderMode.POINT,

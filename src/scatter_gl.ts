@@ -15,21 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import * as THREE from 'three';
-import {ScatterPlot, CameraParams, OnCameraMoveListener} from './scatter_plot';
+import {CameraParams, OnCameraMoveListener, ScatterPlot} from './scatter_plot';
 import {parseColor} from './color';
 import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
-import {Styles, UserStyles, makeStyles} from './styles';
+import {makeStyles, Styles, UserStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';
 import * as util from './util';
-import {SCATTER_PLOT_CUBE_LENGTH, RGBA_NUM_ELEMENTS} from './constants';
+import {RGBA_NUM_ELEMENTS, SCATTER_PLOT_CUBE_LENGTH} from './constants';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {ScatterPlotVisualizer3DLabels} from './scatter_plot_visualizer_3d_labels';
 import {ScatterPlotVisualizerSprites} from './scatter_plot_visualizer_sprites';
 import {ScatterPlotVisualizerCanvasLabels} from './scatter_plot_visualizer_canvas_labels';
 import {ScatterPlotVisualizerPolylines} from './scatter_plot_visualizer_polylines';
+import {ScatterBoundingBox} from "./scatter_plot_rectangle_selector";
 
 export type PointColorer = (
   index: number,
@@ -41,7 +41,7 @@ export interface ScatterGLParams {
   camera?: CameraParams;
   onHover?: (point: number | null) => void;
   onClick?: (points: number | null) => void;
-  onSelect?: (points: number[]) => void;
+  onSelect?: (points: number[], boundingBox?: ScatterBoundingBox) => void;
   onCameraMove?: OnCameraMoveListener;
   pointColorer?: PointColorer;
   renderMode?: RenderMode;
@@ -79,7 +79,8 @@ export class ScatterGL {
 
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
-  private selectCallback: (points: number[]) => void = () => {};
+  private selectCallback: (points: number[], boundingBox?: ScatterBoundingBox) => void = () => {
+  };
   private cameraMoveCallback: OnCameraMoveListener = () => {};
 
   constructor(containerElement: HTMLElement, params: ScatterGLParams = {}) {
@@ -211,9 +212,9 @@ export class ScatterGL {
     this.clickCallback(pointIndex);
   };
 
-  onSelect = (pointIndices: number[]) => {
+  onSelect = (pointIndices: number[], boundingBox?: ScatterBoundingBox) => {
     if (!this.selectEnabled) return;
-    this.selectCallback(pointIndices);
+    this.selectCallback(pointIndices, boundingBox);
     this.selectedPointIndices = new Set(pointIndices);
     this.updateScatterPlotAttributes();
     this.renderScatterPlot();

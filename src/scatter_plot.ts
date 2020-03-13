@@ -20,14 +20,11 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
-import {Point2D, Point3D, InteractionMode} from './types';
+import {InteractionMode, Point2D, Point3D} from './types';
 import * as util from './util';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
-import {
-  ScatterBoundingBox,
-  ScatterPlotRectangleSelector,
-} from './scatter_plot_rectangle_selector';
+import {ScatterBoundingBox, ScatterPlotRectangleSelector,} from './scatter_plot_rectangle_selector';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the
@@ -77,7 +74,7 @@ export interface ScatterPlotParams {
   camera?: CameraParams;
   onClick?: (point: number | null) => void;
   onHover?: (point: number | null) => void;
-  onSelect?: (points: number[]) => void;
+  onSelect?: (points: number[], boundingBox?: ScatterBoundingBox) => void;
   selectEnabled?: boolean;
   styles: Styles;
 }
@@ -93,7 +90,8 @@ export class ScatterPlot {
   private styles: Styles;
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
-  private selectCallback: (point: number[]) => void = () => {};
+  private selectCallback: (point: number[], boundingBox?: ScatterBoundingBox, ) => void = () => {
+  };
   private selectEnabled = true;
 
   // Map of visualizers by visualizer name/id
@@ -516,7 +514,7 @@ export class ScatterPlot {
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.selectCallback(pointIndices);
+    this.selectCallback(pointIndices, boundingBox);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {

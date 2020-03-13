@@ -200,23 +200,28 @@ export class ScatterGL {
     this.scatterPlot.resize();
   }
 
-  onHover = (pointIndex: number | null) => {
+  private onHover = (pointIndex: number | null) => {
     this.hoverCallback(pointIndex);
     this.hoverPointIndex = pointIndex;
     this.updateScatterPlotAttributes();
     this.renderScatterPlot();
   };
 
-  onClick = (pointIndex: number | null) => {
+  private onClick = (pointIndex: number | null) => {
     this.clickCallback(pointIndex);
   };
 
-  onSelect = (pointIndices: number[]) => {
+  select = (pointIndices: number[]) => {
     if (!this.selectEnabled) return;
-    this.selectCallback(pointIndices);
     this.selectedPointIndices = new Set(pointIndices);
     this.updateScatterPlotAttributes();
     this.renderScatterPlot();
+  };
+
+  private onSelect = (pointIndices: number[]) => {
+    if (!this.selectEnabled) return;
+    this.selectCallback(pointIndices);
+    this.select(pointIndices);
   };
 
   updateDataset(dataset: Dataset) {
@@ -225,6 +230,10 @@ export class ScatterGL {
     this.updateScatterPlotAttributes();
     this.updateScatterPlotPositions();
     this.renderScatterPlot();
+  }
+
+  get isOrbiting() {
+    return this.scatterPlot.orbitIsAnimating();
   }
 
   startOrbitAnimation() {

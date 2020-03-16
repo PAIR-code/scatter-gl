@@ -15,7 +15,7 @@
   "scripts": {
     "build": "yarn build-dist && yarn build-lib && yarn build-lib-min",
     "build-dist": "rm -rf dist && tsc",
-    "postinstall": "yarn build-dist && yarn build-lib && yarn build-lib-min",
+    "postinstall": "yarn build",
     "build-lib": "webpack --config ./webpack/lib.config.ts",
     "build-lib-min": "MINIMIZE=true webpack --config ./webpack/lib.config.ts",
     "build-demo": "rm -rf demo_build && webpack --config ./webpack/demo.config.ts",

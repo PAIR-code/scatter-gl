@@ -265,7 +265,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     this.points = new THREE.Points(geometry, this.renderMaterial);
     this.points.frustumCulled = false;
     if (this.spriteIndexBufferAttribute != null) {
-      (this.points.geometry as THREE.BufferGeometry).addAttribute(
+      (this.points.geometry as THREE.BufferGeometry).setAttribute(
         'spriteIndex',
         this.spriteIndexBufferAttribute
       );
@@ -310,15 +310,15 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.addAttribute(
+    geometry.setAttribute(
       'position',
       new THREE.BufferAttribute(new Float32Array([]), XYZ_NUM_ELEMENTS)
     );
-    geometry.addAttribute(
+    geometry.setAttribute(
       'color',
       new THREE.BufferAttribute(new Float32Array([]), RGBA_NUM_ELEMENTS)
     );
-    geometry.addAttribute(
+    geometry.setAttribute(
       'scaleFactor',
       new THREE.BufferAttribute(new Float32Array([]), INDEX_NUM_ELEMENTS)
     );
@@ -402,7 +402,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     );
 
     if (this.points != null) {
-      (this.points.geometry as THREE.BufferGeometry).addAttribute(
+      (this.points.geometry as THREE.BufferGeometry).setAttribute(
         'spriteIndex',
         this.spriteIndexBufferAttribute
       );

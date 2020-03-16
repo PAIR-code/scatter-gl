@@ -74,7 +74,7 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
         linewidth: 1, // unused default, overwritten by width array.
         opacity: 1.0, // unused default, overwritten by opacity array.
         transparent: true,
-        vertexColors: THREE.VertexColors,
+        // vertexColors: THREE.VertexColors,
       });
 
       const polyline = new THREE.LineSegments(geometry, material);

@@ -77,6 +77,7 @@ export interface ScatterPlotParams {
   onSelect?: (points: number[], boundingBox?: ScatterBoundingBox) => void;
   selectEnabled?: boolean;
   styles: Styles;
+  interactive?: boolean;
 }
 
 /**
@@ -124,6 +125,7 @@ export class ScatterPlot {
   private polylineOpacities = new Float32Array(0);
   private polylineWidths = new Float32Array(0);
 
+  private interactive = true;
   private selecting = false;
   private nearestPoint: number | null = null;
   private mouseIsDown = false;
@@ -164,6 +166,7 @@ export class ScatterPlot {
     if (p.onHover !== undefined) this.hoverCallback = p.onHover;
     if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
     if (p.selectEnabled !== undefined) this.selectEnabled = p.selectEnabled;
+    if (p.interactive !== undefined) this.interactive = p.interactive;
   }
 
   private addInteractionListeners() {
@@ -701,7 +704,9 @@ export class ScatterPlot {
     // with colors that are actually point ids, so that sampling the texture at
     // the mouse's current x,y coordinates will reveal the data point that the
     // mouse is over.
-    this.visualizers.forEach(v => v.onPickingRender(rc));
+    if(this.interactive) {
+      this.visualizers.forEach(v => v.onPickingRender(rc));
+    }
 
     {
       const axes = this.remove3dAxesFromScene();
@@ -796,6 +801,7 @@ export class ScatterPlot {
         renderCanvasSize.width * pixelRatio,
         renderCanvasSize.height * pixelRatio
       );
+
       this.pickingTexture.texture.minFilter = THREE.LinearFilter;
     }
 

@@ -20,53 +20,56 @@ limitations under the License.
  * where the value can be a string or a number.
  */
 export interface PointMetadata {
-  label?: string;
-  [key: string]: number | string | undefined;
+    label?: string;
+
+    [key: string]: number | string | undefined;
 }
+
+export type Vector =
+    [number]
+    | Int8Array
+    | Uint8Array
+    | Int16Array
+    | Uint16Array
+    | Int32Array
+    | Uint32Array
+    | Uint8ClampedArray
+    | Float32Array
+    | Float64Array;
 
 /** Matches the json format of `projector_config.proto` */
 export interface SpriteMetadata {
-  spriteImage?: HTMLImageElement | string;
-  singleSpriteSize: [number, number];
+    spriteImage?: HTMLImageElement | string;
+    singleSpriteSize: [number, number];
 }
 
 /** A single collection of points which make up a sequence through space. */
 export interface Sequence {
-  /** Indices into the DataPoints array in the Data object. */
-  indices: number[];
+    /** Indices into the DataPoints array in the Data object. */
+    indices: number[];
 }
 
-export type Point2D = [number, number];
-export type Point3D = [number, number, number];
-export type Points = Array<Point2D | Point3D>;
-
-const DIMENSIONALITY_ERROR_MESSAGE =
-  'Points must be an array of either 2 or 3 dimensional number arrays';
 
 export class Dataset {
-  public spriteMetadata?: SpriteMetadata;
-  public dimensions: number;
+    public spriteMetadata?: SpriteMetadata;
+    public dimensions: number;
 
-  /**
-   *
-   * @param points the data as an array of 2d or 3d number arrays
-   * @param metadata an array of point metadata, corresponding to each point
-   * @param sequences a collection of points that make up a sequence
-   */
-  constructor(public points: Points, public metadata: PointMetadata[] = []) {
-    const dimensions = points[0].length;
-    if (!(dimensions === 2 || dimensions === 3)) {
-      throw new Error(DIMENSIONALITY_ERROR_MESSAGE);
+    /**
+     *
+     * @param points the data as an array of 2d or 3d number arrays
+     * @param metadata an array of point metadata, corresponding to each point
+     * @param sequences a collection of points that make up a sequence
+     */
+    constructor(public x: Vector, public y: Vector, public z?: Vector, public metadata: PointMetadata[] = []) {
+        // for (const point of points) {
+        //   if (dimensions !== point.length) {
+        //     throw new Error(DIMENSIONALITY_ERROR_MESSAGE);
+        //   }
+        // }
+        this.dimensions = z != null ? 3 : 2;
     }
-    for (const point of points) {
-      if (dimensions !== point.length) {
-        throw new Error(DIMENSIONALITY_ERROR_MESSAGE);
-      }
-    }
-    this.dimensions = dimensions;
-  }
 
-  setSpriteMetadata(spriteMetadata: SpriteMetadata) {
-    this.spriteMetadata = spriteMetadata;
-  }
+    setSpriteMetadata(spriteMetadata: SpriteMetadata) {
+        this.spriteMetadata = spriteMetadata;
+    }
 }

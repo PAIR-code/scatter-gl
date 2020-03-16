@@ -15,7 +15,7 @@
   "scripts": {
     "build": "yarn build-dist && yarn build-lib && yarn build-lib-min",
     "build-dist": "rm -rf dist && tsc",
-    "postinstall": "yarn build",
+    "postinstall": "yarn build-dist",
     "build-lib": "webpack --config ./webpack/lib.config.ts",
     "build-lib-min": "MINIMIZE=true webpack --config ./webpack/lib.config.ts",
     "build-demo": "rm -rf demo_build && webpack --config ./webpack/demo.config.ts",
@@ -34,7 +34,7 @@
     "ts-loader": "^5.3.3",
     "typescript": "^3.7",
     "webpack": "^4.29.5",
-    "webpack-cli": "^3.2.3",
+    "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.4.1"
   },
   "dependencies": {

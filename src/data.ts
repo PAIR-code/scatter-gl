@@ -43,7 +43,21 @@ export type Points = Array<Point2D | Point3D>;
 const DIMENSIONALITY_ERROR_MESSAGE =
   'Points must be an array of either 2 or 3 dimensional number arrays';
 
-export class Dataset {
+export interface DatasetInterface {
+  spriteMetadata?: SpriteMetadata;
+  dimensions: number;
+  metadata: PointMetadata[],
+
+  getX(index: number): number;
+
+  getY(index: number): number;
+
+  getZ(index: number): number;
+
+  npoints(): number;
+}
+
+export class Dataset implements DatasetInterface{
   public spriteMetadata?: SpriteMetadata;
   public dimensions: number;
 
@@ -68,5 +82,21 @@ export class Dataset {
 
   setSpriteMetadata(spriteMetadata: SpriteMetadata) {
     this.spriteMetadata = spriteMetadata;
+  }
+
+  getX(index: number): number {
+    return this.points[index][0];
+  }
+
+  getY(index: number): number {
+    return this.points[index][1];
+  }
+
+  getZ(index: number): number {
+    return this.points[index][2]!;
+  }
+
+  npoints(): number {
+    return this.points.length;
   }
 }

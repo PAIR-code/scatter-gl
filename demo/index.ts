@@ -16,9 +16,10 @@ limitations under the License.
 ==============================================================================*/
 
 import {data} from './data/projection';
-import {Point3D, Dataset, PointMetadata} from '../src/data';
+import {Dataset, Point3D, PointMetadata} from '../src/data';
 import {makeSequences} from './sequences';
-import {ScatterGL, RenderMode} from '../src';
+import {RenderMode, ScatterGL} from '../src';
+import {parseColor} from '../src/color';
 
 const dataPoints: Point3D[] = [];
 const metadata: PointMetadata[] = [];
@@ -105,11 +106,11 @@ const hues = [...new Array(10)].map((_, i) => Math.floor((255 / 10) * i));
 
 const lightTransparentColorsByLabel = hues.map(
   hue => `hsla(${hue}, 100%, 50%, 0.05)`
-);
+).map(c => parseColor(c));
 const heavyTransparentColorsByLabel = hues.map(
   hue => `hsla(${hue}, 100%, 50%, 0.75)`
-);
-const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`);
+).map(c => parseColor(c));
+const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`).map(c => parseColor(c))
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="color"]')
@@ -125,7 +126,7 @@ document
             return opaqueColorsByLabel[labelIndex];
           } else {
             if (hoverIndex === i) {
-              return 'red';
+              return {r: 1, g: 0, b: 0, opacity: 1};
             }
 
             // If nothing is selected, return the heavy color

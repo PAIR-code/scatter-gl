@@ -19,10 +19,10 @@ import {CameraParams, OnCameraMoveListener, ScatterPlot} from './scatter_plot';
 import {Color, parseColor} from './color';
 import {DatasetInterface, Sequence} from './data';
 import {LabelRenderParams} from './render';
-import {makeStyles, Styles, UserStyles} from './styles';
+import {Styles, UserStyles, makeStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';
 import * as util from './util';
-import {RGBA_NUM_ELEMENTS, SCATTER_PLOT_CUBE_LENGTH} from './constants';
+import {SCATTER_PLOT_CUBE_LENGTH, RGBA_NUM_ELEMENTS} from './constants';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {ScatterPlotVisualizer3DLabels} from './scatter_plot_visualizer_3d_labels';
@@ -34,7 +34,7 @@ export type PointColorer = (
   index: number,
   selectedIndices: Set<number>,
   hoverIndex: number | null
-) => Color;
+) => string;
 
 export interface ScatterGLParams {
   camera?: CameraParams;
@@ -299,7 +299,7 @@ export class ScatterGL {
       const y = dataset.getY(i);
       if (y < yExtent[0]) yExtent[0] = y;
       if (y > yExtent[1]) yExtent[1] = y;
-      if (dataset.dimensions === 3) {
+    if (dataset.dimensions === 3) {
         const z = dataset.getZ(i);
         if (z < zExtent[0]) zExtent[0] = z;
         if (z > zExtent[1]) zExtent[1] = z;
@@ -481,8 +481,9 @@ export class ScatterGL {
     if (pointColorer) {
       let dst = 0;
       for (let i = 0; i < n; ++i) {
-        const c =
-          this.callPointColorer(pointColorer, i) || noSelectionColor;
+        const c = parseColor(
+          this.callPointColorer(pointColorer, i) || noSelectionColor
+        );
 
         colors[dst++] = c.r;
         colors[dst++] = c.g;
@@ -557,8 +558,12 @@ export class ScatterGL {
 
       if (pointColorer) {
         for (let j = 0; j < sequence.indices.length - 1; j++) {
-          const c1 = this.callPointColorer(pointColorer, sequence.indices[j]);
-          const c2 = this.callPointColorer(pointColorer, sequence.indices[j + 1]);
+          const c1 = parseColor(
+            this.callPointColorer(pointColorer, sequence.indices[j])
+          );
+          const c2 = parseColor(
+            this.callPointColorer(pointColorer, sequence.indices[j + 1])
+          );
           colors[colorIndex++] = c1.r;
           colors[colorIndex++] = c1.g;
           colors[colorIndex++] = c1.b;

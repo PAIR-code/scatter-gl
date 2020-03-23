@@ -20,14 +20,11 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
-import {Point2D, Point3D, InteractionMode} from './types';
+import {InteractionMode, Point2D, Point3D} from './types';
 import * as util from './util';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
-import {
-  ScatterBoundingBox,
-  ScatterPlotRectangleSelector,
-} from './scatter_plot_rectangle_selector';
+import {ScatterBoundingBox, ScatterPlotRectangleSelector,} from './scatter_plot_rectangle_selector';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the
@@ -77,9 +74,10 @@ export interface ScatterPlotParams {
   camera?: CameraParams;
   onClick?: (point: number | null) => void;
   onHover?: (point: number | null) => void;
-  onSelect?: (points: number[]) => void;
+  onSelect?: (points: number[], boundingBox?: ScatterBoundingBox) => void;
   selectEnabled?: boolean;
   styles: Styles;
+  interactive?: boolean;
 }
 
 /**
@@ -93,7 +91,8 @@ export class ScatterPlot {
   private styles: Styles;
   private clickCallback: (point: number | null) => void = () => {};
   private hoverCallback: (point: number | null) => void = () => {};
-  private selectCallback: (point: number[]) => void = () => {};
+  private selectCallback: (point: number[], boundingBox?: ScatterBoundingBox, ) => void = () => {
+  };
   private selectEnabled = true;
 
   // Map of visualizers by visualizer name/id
@@ -126,6 +125,7 @@ export class ScatterPlot {
   private polylineOpacities = new Float32Array(0);
   private polylineWidths = new Float32Array(0);
 
+  private interactive = true;
   private selecting = false;
   private nearestPoint: number | null = null;
   private mouseIsDown = false;
@@ -166,6 +166,7 @@ export class ScatterPlot {
     if (p.onHover !== undefined) this.hoverCallback = p.onHover;
     if (p.onSelect !== undefined) this.selectCallback = p.onSelect;
     if (p.selectEnabled !== undefined) this.selectEnabled = p.selectEnabled;
+    if (p.interactive !== undefined) this.interactive = p.interactive;
   }
 
   private addInteractionListeners() {
@@ -516,7 +517,7 @@ export class ScatterPlot {
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
-    this.selectCallback(pointIndices);
+    this.selectCallback(pointIndices, boundingBox);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {
@@ -703,7 +704,9 @@ export class ScatterPlot {
     // with colors that are actually point ids, so that sampling the texture at
     // the mouse's current x,y coordinates will reveal the data point that the
     // mouse is over.
-    this.visualizers.forEach(v => v.onPickingRender(rc));
+    if(this.interactive) {
+      this.visualizers.forEach(v => v.onPickingRender(rc));
+    }
 
     {
       const axes = this.remove3dAxesFromScene();
@@ -798,6 +801,7 @@ export class ScatterPlot {
         renderCanvasSize.width * pixelRatio,
         renderCanvasSize.height * pixelRatio
       );
+
       this.pickingTexture.texture.minFilter = THREE.LinearFilter;
     }
 

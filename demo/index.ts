@@ -52,7 +52,7 @@ const scatterGL = new ScatterGL(containerElement, {
     console.log(message);
     messagesElement.innerHTML = message;
   },
-  onSelect: (points: number[]) => {
+  onSelect: (points: number[], boundingBox) => {
     let message = '';
     if (points.length === 0 && lastSelectedPoints.length === 0) {
       message = '🔥 no selection';
@@ -64,6 +64,7 @@ const scatterGL = new ScatterGL(containerElement, {
       message = `🔥selected ${points.length} points`;
     }
     console.log(message);
+    console.log(boundingBox)
     messagesElement.innerHTML = message;
   },
   renderMode: RenderMode.POINT,
@@ -160,20 +161,4 @@ const sequencesToggle = document.querySelector<HTMLInputElement>(
 sequencesToggle.addEventListener('change', (e: any) => {
   const showSequences = sequencesToggle.checked;
   scatterGL.setSequences(showSequences ? sequences : []);
-});
-
-// Set up controls for buttons
-const selectRandomButton = document.getElementById('select-random')!;
-selectRandomButton.addEventListener('click', () => {
-  const randomIndex = Math.floor(dataPoints.length * Math.random());
-  scatterGL.select([randomIndex]);
-});
-
-const toggleOrbitButton = document.getElementById('toggle-orbit')!;
-toggleOrbitButton.addEventListener('click', () => {
-  if (scatterGL.isOrbiting()) {
-    scatterGL.stopOrbitAnimation();
-  } else {
-    scatterGL.startOrbitAnimation();
-  }
 });

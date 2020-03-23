@@ -17,7 +17,7 @@ limitations under the License.
 
 import {CameraParams, OnCameraMoveListener, ScatterPlot} from './scatter_plot';
 import {Color, parseColor} from './color';
-import {Dataset, Vector, Sequence} from './data';
+import {DatasetInterface, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {makeStyles, Styles, UserStyles} from './styles';
 import {InteractionMode, RenderMode} from './types';
@@ -29,19 +29,18 @@ import {ScatterPlotVisualizer3DLabels} from './scatter_plot_visualizer_3d_labels
 import {ScatterPlotVisualizerSprites} from './scatter_plot_visualizer_sprites';
 import {ScatterPlotVisualizerCanvasLabels} from './scatter_plot_visualizer_canvas_labels';
 import {ScatterPlotVisualizerPolylines} from './scatter_plot_visualizer_polylines';
-import {ScatterBoundingBox} from "./scatter_plot_rectangle_selector";
 
 export type PointColorer = (
     index: number,
     selectedIndices: Set<number>,
     hoverIndex: number | null
-) => Color
+) => Color;
 
 export interface ScatterGLParams {
     camera?: CameraParams;
     onHover?: (point: number | null) => void;
     onClick?: (points: number | null) => void;
-    onSelect?: (points: number[], boundingBox?: ScatterBoundingBox) => void;
+    onSelect?: (points: number[]) => void;
     onCameraMove?: OnCameraMoveListener;
     pointColorer?: PointColorer;
     renderMode?: RenderMode;
@@ -56,7 +55,7 @@ export interface ScatterGLParams {
  */
 export class ScatterGL {
     private containerElement: HTMLElement;
-    private dataset?: Dataset;
+    private dataset?: DatasetInterface;
     private pointColorer: PointColorer | null = null;
     private scatterPlot: ScatterPlot;
     private sequences: Sequence[] = [];
@@ -81,11 +80,10 @@ export class ScatterGL {
     };
     private hoverCallback: (point: number | null) => void = () => {
     };
-    private selectCallback: (points: number[], boundingBox?: ScatterBoundingBox) => void = () => {
+    private selectCallback: (points: number[]) => void = () => {
     };
     private cameraMoveCallback: OnCameraMoveListener = () => {
     };
-
 
     constructor(containerElement: HTMLElement, params: ScatterGLParams = {}) {
         this.containerElement = containerElement;
@@ -119,7 +117,7 @@ export class ScatterGL {
             this.showLabelsOnHover = p.showLabelsOnHover;
     }
 
-    render(dataset: Dataset) {
+    render(dataset: DatasetInterface) {
         this.updateDataset(dataset);
         this.setVisualizers();
 
@@ -161,10 +159,6 @@ export class ScatterGL {
         this.updatePolylineAttributes();
         this.setVisualizers();
         this.renderScatterPlot();
-    }
-
-    setSelectedPointIndices(selectedPointIndices: Set<number>) {
-        this.selectedPointIndices = selectedPointIndices;
     }
 
     setPanMode() {
@@ -209,31 +203,40 @@ export class ScatterGL {
         this.scatterPlot.resize();
     }
 
-    onHover = (pointIndex: number | null) => {
+    private onHover = (pointIndex: number | null) => {
         this.hoverCallback(pointIndex);
         this.hoverPointIndex = pointIndex;
         this.updateScatterPlotAttributes();
         this.renderScatterPlot();
     };
 
-    onClick = (pointIndex: number | null) => {
+    private onClick = (pointIndex: number | null) => {
         this.clickCallback(pointIndex);
     };
 
-    onSelect = (pointIndices: number[], boundingBox?: ScatterBoundingBox) => {
+    select = (pointIndices: number[]) => {
         if (!this.selectEnabled) return;
-        this.selectCallback(pointIndices, boundingBox);
-        // this.selectedPointIndices = new Set(pointIndices);
-        // this.updateScatterPlotAttributes();
-        // this.renderScatterPlot();
+        this.selectedPointIndices = new Set(pointIndices);
+        this.updateScatterPlotAttributes();
+        this.renderScatterPlot();
     };
 
-    updateDataset(dataset: Dataset) {
+    private onSelect = (pointIndices: number[]) => {
+        if (!this.selectEnabled) return;
+        this.selectCallback(pointIndices);
+        this.select(pointIndices);
+    };
+
+    updateDataset(dataset: DatasetInterface) {
         this.setDataset(dataset);
         this.scatterPlot.setDimensions(dataset.dimensions);
         this.updateScatterPlotAttributes();
         this.updateScatterPlotPositions();
         this.renderScatterPlot();
+    }
+
+    isOrbiting() {
+        return this.scatterPlot.orbitIsAnimating();
     }
 
     startOrbitAnimation() {
@@ -244,7 +247,7 @@ export class ScatterGL {
         this.scatterPlot.stopOrbitAnimation();
     }
 
-    private setDataset(dataset: Dataset) {
+    private setDataset(dataset: DatasetInterface) {
         this.dataset = dataset;
 
         if (this.labels3DVisualizer) {
@@ -286,25 +289,32 @@ export class ScatterGL {
         this.scatterPlot.setPolylineWidths(polylineWidths);
     }
 
-    private generatePointPositionArray(dataset: Dataset): Float32Array {
-        let xExtent = [0, 0];
-        let yExtent = [0, 0];
-        let zExtent = [0, 0];
-
+    private generatePointPositionArray(dataset: DatasetInterface): Float32Array {
+        let xExtent = [Infinity, -Infinity];
+        let yExtent = [Infinity, -Infinity];
+        let zExtent = [Infinity, -Infinity];
+        const npoints = dataset.npoints();
         // Determine max and min of each axis of our data.
-        xExtent = util.extent(dataset.x);
-        yExtent = util.extent(dataset.y);
+        for (let i = 0; i < npoints; i++) {
+            const x = dataset.getX(i);
+            if (x < xExtent[0]) xExtent[0] = x;
+            if (x > xExtent[1]) xExtent[1] = x;
 
-        if (dataset.dimensions === 3) {
-            zExtent = util.extent(dataset.z!);
+            const y = dataset.getY(i);
+            if (y < yExtent[0]) yExtent[0] = y;
+            if (y > yExtent[1]) yExtent[1] = y;
+            if (dataset.dimensions === 3) {
+                const z = dataset.getZ(i);
+                if (z < zExtent[0]) zExtent[0] = z;
+                if (z > zExtent[1]) zExtent[1] = z;
+            }
         }
 
         const getRange = (extent: number[]) => Math.abs(extent[1] - extent[0]);
         const xRange = getRange(xExtent);
         const yRange = getRange(yExtent);
-        const zRange = getRange(zExtent);
-        const maxRange = Math.max(xRange, yRange, zRange);
-
+        const zRange = dataset.dimensions === 3 ? getRange(zExtent) : 0;
+        const maxRange = Math.max(xRange, yRange);
         const halfCube = SCATTER_PLOT_CUBE_LENGTH / 2;
         const makeScaleRange = (range: number, base: number) => [
             -base * (range / maxRange),
@@ -314,29 +324,25 @@ export class ScatterGL {
         const yScale = makeScaleRange(yRange, halfCube);
         const zScale = makeScaleRange(zRange, halfCube);
 
-        const positions = new Float32Array(dataset.x.length * 3);
+        const positions = new Float32Array(npoints * 3);
         let dst = 0;
-        const is3d = dataset.dimensions === 3;
-        for (let i = 0, n = dataset.x.length; i < n; i++) {
-            positions[dst++] = util.scaleLinear(dataset.x[i], xExtent, xScale);
-            positions[dst++] = util.scaleLinear(dataset.y[i], yExtent, yScale);
-            if (is3d) {
-                positions[dst++] = util.scaleLinear(dataset.z![i], zExtent, zScale);
+
+        for (let i = 0; i < npoints; i++) {
+
+            positions[dst++] = util.scaleLinear(dataset.getX(i), xExtent, xScale);
+            positions[dst++] = util.scaleLinear(dataset.getY(i), yExtent, yScale);
+
+            if (dataset.dimensions === 3) {
+                positions[dst++] = util.scaleLinear(dataset.getZ(i)!, zExtent, zScale);
             } else {
                 positions[dst++] = 0.0;
             }
         }
-        // this.xExtent = xExtent;
-        // this.xScale = xScale;
-        // this.yExtent = yExtent;
-        // this.yScale = yScale;
-        // this.zExtent = zExtent;
-        // this.zScale = zScale;
         return positions;
     }
 
     private generateVisibleLabelRenderParams(
-        dataset: Dataset
+        dataset: DatasetInterface
     ): LabelRenderParams {
         const {hoverPointIndex, selectedPointIndices, styles} = this;
         const selectedPointCount = selectedPointIndices.size;
@@ -421,12 +427,12 @@ export class ScatterGL {
         );
     }
 
-    private generatePointScaleFactorArray(dataset: Dataset): Float32Array {
+    private generatePointScaleFactorArray(dataset: DatasetInterface): Float32Array {
         const {hoverPointIndex, selectedPointIndices, styles} = this;
 
         const {scaleDefault, scaleSelected, scaleHover} = styles.point;
 
-        const scale = new Float32Array(dataset.x.length);
+        const scale = new Float32Array(dataset.npoints());
         scale.fill(scaleDefault);
 
         const selectedPointCount = selectedPointIndices.size;
@@ -446,7 +452,7 @@ export class ScatterGL {
         return scale;
     }
 
-    private generatePointColorArray(dataset: Dataset): Float32Array {
+    private generatePointColorArray(dataset: DatasetInterface): Float32Array {
         const {hoverPointIndex, pointColorer, selectedPointIndices, styles} = this;
 
         const {
@@ -456,7 +462,7 @@ export class ScatterGL {
             colorUnselected,
         } = styles.point;
 
-        const colors = new Float32Array(dataset.x.length * RGBA_NUM_ELEMENTS);
+        const colors = new Float32Array(dataset.npoints() * RGBA_NUM_ELEMENTS);
 
         let unselectedColor = colorUnselected;
         let noSelectionColor = colorNoSelection;
@@ -471,15 +477,14 @@ export class ScatterGL {
             noSelectionColor = this.styles.sprites.colorNoSelection;
         }
 
-        const n = dataset.x.length;
+        const n = dataset.npoints();
         const selectedPointCount = this.selectedPointIndices.size;
 
         // Color points with the point colorer, otherwise use default colors
         if (pointColorer) {
             let dst = 0;
             for (let i = 0; i < n; ++i) {
-                const c =
-                    this.callPointColorer(pointColorer, i);
+                const c = this.callPointColorer(pointColorer, i) || noSelectionColor
 
                 colors[dst++] = c.r;
                 colors[dst++] = c.g;
@@ -532,7 +537,7 @@ export class ScatterGL {
         if (!dataset) return [];
 
         let labels: string[] = [];
-        const n = dataset.x.length;
+        const n = dataset.npoints();
         for (let i = 0; i < n; ++i) {
             labels.push(this.getLabelText(i));
         }
@@ -540,7 +545,7 @@ export class ScatterGL {
     }
 
     private generateLineSegmentColorMap(
-        dataset: Dataset
+        dataset: DatasetInterface
     ): {
         [polylineIndex: number]: Float32Array;
     } {
@@ -554,8 +559,8 @@ export class ScatterGL {
 
             if (pointColorer) {
                 for (let j = 0; j < sequence.indices.length - 1; j++) {
-                    const c1 =
-                        this.callPointColorer(pointColorer, sequence.indices[j]);
+                    const c1 = this.callPointColorer(pointColorer, sequence.indices[j]
+                    );
                     const c2 =
                         this.callPointColorer(pointColorer, sequence.indices[j + 1]);
                     colors[colorIndex++] = c1.r;
@@ -598,7 +603,7 @@ export class ScatterGL {
         return polylineColorArrayMap;
     }
 
-    private generateLineSegmentOpacityArray(dataset: Dataset): Float32Array {
+    private generateLineSegmentOpacityArray(dataset: DatasetInterface): Float32Array {
         const {selectedPointIndices, styles} = this;
 
         const opacities = new Float32Array(this.sequences.length);
@@ -615,7 +620,7 @@ export class ScatterGL {
         return opacities;
     }
 
-    private generateLineSegmentWidthArray(dataset: Dataset): Float32Array {
+    private generateLineSegmentWidthArray(dataset: DatasetInterface): Float32Array {
         const {selectedPointIndices, styles} = this;
 
         const widths = new Float32Array(this.sequences.length);
@@ -671,7 +676,7 @@ export class ScatterGL {
                 return;
             }
 
-            const n = dataset.x.length;
+            const n = dataset.npoints();
             const spriteIndices = new Float32Array(n);
             for (let i = 0; i < n; ++i) {
                 spriteIndices[i] = i;
@@ -730,5 +735,5 @@ export class ScatterGL {
         this.scatterPlot.setActiveVisualizers(activeVisualizers);
     }
 
-    static Dataset = Dataset;
+
 }

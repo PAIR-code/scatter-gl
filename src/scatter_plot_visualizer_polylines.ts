@@ -18,7 +18,7 @@ limitations under the License.
 import * as THREE from 'three';
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
 import {RenderContext} from './render';
-import {Dataset, Sequence} from './data';
+import {Sequence} from './data';
 import * as util from './util';
 import {RGBA_NUM_ELEMENTS, XYZ_NUM_ELEMENTS} from './constants';
 
@@ -67,14 +67,14 @@ export class ScatterPlotVisualizerPolylines implements ScatterPlotVisualizer {
 
     for (let i = 0; i < this.sequences.length; i++) {
       const geometry = new THREE.BufferGeometry();
-      geometry.addAttribute('position', this.polylinePositionBuffer[i]);
-      geometry.addAttribute('color', this.polylineColorBuffer[i]);
+      geometry.setAttribute('position', this.polylinePositionBuffer[i]);
+      geometry.setAttribute('color', this.polylineColorBuffer[i]);
 
       const material = new THREE.LineBasicMaterial({
         linewidth: 1, // unused default, overwritten by width array.
         opacity: 1.0, // unused default, overwritten by opacity array.
         transparent: true,
-        // vertexColors: THREE.VertexColors,
+        vertexColors: true
       });
 
       const polyline = new THREE.LineSegments(geometry, material);

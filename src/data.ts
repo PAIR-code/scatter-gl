@@ -65,10 +65,9 @@ export class DatasetArray implements DatasetInterface{
   /**
    *
    * @param x the x data as an array
-   * @param y the x data as an array
-   * @param z the x data as an array
+   * @param y the y data as an array
+   * @param z the z data as an array
    * @param metadata an array of point metadata, corresponding to each point
-   * @param sequences a collection of points that make up a sequence
    */
   constructor(public x: [number], public y: [number], public z?: [number], public metadata: PointMetadata[] = []) {
     const dimensions = z == null ? 2 : 3

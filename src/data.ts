@@ -19,6 +19,7 @@ limitations under the License.
  * Metadata for each point. Each metadata is a set of key/value pairs
  * where the value can be a string or a number.
  */
+
 export interface PointMetadata {
   label?: string;
   [key: string]: number | string | undefined;
@@ -55,6 +56,44 @@ export interface DatasetInterface {
   getZ(index: number): number;
 
   npoints(): number;
+}
+
+export class DatasetArray implements DatasetInterface{
+  public spriteMetadata?: SpriteMetadata;
+  public dimensions: number;
+
+  /**
+   *
+   * @param x the x data as an array
+   * @param y the x data as an array
+   * @param z the x data as an array
+   * @param metadata an array of point metadata, corresponding to each point
+   * @param sequences a collection of points that make up a sequence
+   */
+  constructor(public x: [number], public y: [number], public z?: [number], public metadata: PointMetadata[] = []) {
+    const dimensions = z == null ? 2 : 3
+    this.dimensions = dimensions;
+  }
+
+  setSpriteMetadata(spriteMetadata: SpriteMetadata) {
+    this.spriteMetadata = spriteMetadata;
+  }
+
+  getX(index: number): number {
+    return this.x[index];
+  }
+
+  getY(index: number): number {
+    return this.y[index];
+  }
+
+  getZ(index: number): number {
+    return this.z![index];
+  }
+
+  npoints(): number {
+    return this.x.length;
+  }
 }
 
 export class Dataset implements DatasetInterface{

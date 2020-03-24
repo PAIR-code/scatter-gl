@@ -706,9 +706,6 @@ export class ScatterPlot {
     // mouse is over.
     if(this.interactive) {
       this.visualizers.forEach(v => v.onPickingRender(rc));
-    }
-
-    {
       const axes = this.remove3dAxesFromScene();
       this.renderer.setRenderTarget(this.pickingTexture);
       this.renderer.render(this.scene, this.camera);

@@ -18,3 +18,6 @@ limitations under the License.
 export {ScatterGL, ScatterGLParams} from './scatter_gl';
 export {Dataset, DatasetArray, Points, PointMetadata, Sequence, SpriteMetadata} from './data';
 export {InteractionMode, RenderMode, Vector, Point2D, Point3D} from './types';
+export {ScatterPlotVisualizerSprites} from './scatter_plot_visualizer_sprites'
+export {ScatterPlot} from './scatter_plot'
+export {makeStyles} from './styles'

@@ -84,9 +84,9 @@ const makeVertexShader = (minPointSize: number) => `
                       1. + 2. / PI * (maxScale - 1.) * atan(inSpeed * (zoom - 1.));
         outputPointSize = pointSize * scale;
       }
-
-      gl_PointSize =
-        max(outputPointSize * scaleFactor, ${minPointSize.toFixed(1)});
+      gl_PointSize = outputPointSize * scaleFactor;
+      // gl_PointSize =
+      //   max(outputPointSize * scaleFactor, ${minPointSize.toFixed(1)});
     }`;
 
 const FRAGMENT_SHADER_POINT_TEST_CHUNK = `

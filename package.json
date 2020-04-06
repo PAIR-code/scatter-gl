@@ -32,14 +32,14 @@
     "prettier": "^1.16.4",
     "ts-jest": "^23.10.5",
     "ts-loader": "^5.3.3",
-    "typescript": "^3.7",
+    "typescript": "^3.8.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.4.1"
   },
   "dependencies": {
     "simplify-js": "^1.2.4",
-    "three": "^0.114.0"
+    "three": "^0.115.0"
   },
   "prettier": {
     "bracketSpacing": false,

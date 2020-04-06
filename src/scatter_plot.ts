@@ -24,7 +24,7 @@ import {InteractionMode, Point2D, Point3D} from './types';
 import * as util from './util';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
-import {ScatterBoundingBox, ScatterPlotRectangleSelector,} from './scatter_plot_rectangle_selector';
+import {Point, ScatterBoundingBox, ScatterPlotRectangleSelector,} from './scatter_plot_rectangle_selector';
 
 /**
  * The length of the cube (diameter of the circumscribing sphere) where all the
@@ -93,6 +93,8 @@ export class ScatterPlot {
   private hoverCallback: (point: number | null) => void = () => {};
   private selectCallback: (point: number[], boundingBox?: ScatterBoundingBox, ) => void = () => {
   };
+  private lassoCallback: (points: Point[]) => void = () => {
+  };
   private selectEnabled = true;
 
   // Map of visualizers by visualizer name/id
@@ -151,9 +153,10 @@ export class ScatterPlot {
     this.scene.add(this.light);
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
-      this.container,
-      (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox),
-      this.styles
+        this.container,
+        (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox),
+        points => this.selectLasso(points),
+        this.styles
     );
     this.addInteractionListeners();
     this.setDimensions(3);
@@ -404,7 +407,7 @@ export class ScatterPlot {
     if (this.selecting) {
       this.orbitCameraControls.enabled = true;
       this.rectangleSelector.onMouseUp();
-      this.render();
+      // this.render();
     }
     this.mouseIsDown = false;
   }
@@ -419,7 +422,7 @@ export class ScatterPlot {
     // Depending if we're selecting or just navigating, handle accordingly.
     if (this.selecting && this.mouseIsDown) {
       this.rectangleSelector.onMouseMove(e.offsetX, e.offsetY);
-      this.render();
+      // this.render();
     } else if (!this.mouseIsDown) {
       this.setNearestPointToMouse(e);
       if (this.nearestPoint != this.lastHovered) {
@@ -518,6 +521,10 @@ export class ScatterPlot {
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
     let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
     this.selectCallback(pointIndices, boundingBox);
+  }
+
+  private selectLasso(points: Point[]) {
+    this.lassoCallback(points);
   }
 
   private setNearestPointToMouse(e: MouseEvent) {

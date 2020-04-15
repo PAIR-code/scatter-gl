@@ -225,10 +225,10 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     let colors = new THREE.BufferAttribute(colorsArray, RGB_NUM_ELEMENTS);
 
     this.geometry = new THREE.BufferGeometry();
-    this.geometry.addAttribute('posObj', positionObject);
-    this.geometry.addAttribute('position', this.positions);
-    this.geometry.addAttribute('uv', uv);
-    this.geometry.addAttribute('color', colors);
+    this.geometry.setAttribute('posObj', positionObject);
+    this.geometry.setAttribute('position', this.positions);
+    this.geometry.setAttribute('uv', uv);
+    this.geometry.setAttribute('color', colors);
 
     let lettersSoFar = 0;
     for (let i = 0; i < pointCount; i++) {

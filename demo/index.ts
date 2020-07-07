@@ -66,6 +66,9 @@ const scatterGL = new ScatterGL(containerElement, {
     messagesElement.innerHTML = message;
   },
   renderMode: RenderMode.POINT,
+  orbitControls: {
+    zoomSpeed: 1.125,
+  },
 });
 scatterGL.render(dataset);
 

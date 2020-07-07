@@ -20,7 +20,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 import {CameraType, LabelRenderParams, RenderContext} from './render';
 import {Styles} from './styles';
-import {Point2D, Point3D, InteractionMode} from './types';
+import {Optional, Point2D, Point3D, InteractionMode} from './types';
 import * as util from './util';
 
 import {ScatterPlotVisualizer} from './scatter_plot_visualizer';
@@ -52,9 +52,17 @@ const START_CAMERA_TARGET_3D = new THREE.Vector3(0, 0, 0);
 const START_CAMERA_POS_2D = new THREE.Vector3(0, 0, 4);
 const START_CAMERA_TARGET_2D = new THREE.Vector3(0, 0, 0);
 
-const ORBIT_MOUSE_ROTATION_SPEED = 1;
-const ORBIT_ANIMATION_ROTATION_CYCLE_IN_SECONDS = 7;
-const ORBIT_ZOOM_SPEED = 0.125;
+export interface OrbitControlParams {
+  mouseRotateSpeed: number;
+  autoRotateSpeed: number;
+  zoomSpeed: number;
+}
+
+const DEFAULT_ORBIT_CONTROL_PARAMS: OrbitControlParams = {
+  mouseRotateSpeed: 1,
+  autoRotateSpeed: 2,
+  zoomSpeed: 0.125,
+};
 
 export type OnCameraMoveListener = (
   cameraPosition: THREE.Vector3,
@@ -80,6 +88,7 @@ export interface ScatterPlotParams {
   onSelect?: (points: number[]) => void;
   selectEnabled?: boolean;
   styles: Styles;
+  orbitControlParams?: Optional<OrbitControlParams>;
 }
 
 /**
@@ -132,6 +141,8 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
+  private orbitControlParams: OrbitControlParams;
+
   constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
     this.container = containerElement;
     this.styles = params.styles;
@@ -149,6 +160,11 @@ export class ScatterPlot {
     this.container.appendChild(this.renderer.domElement);
     this.light = new THREE.PointLight(0xffecbf, 1, 0);
     this.scene.add(this.light);
+
+    this.orbitControlParams = {
+      ...DEFAULT_ORBIT_CONTROL_PARAMS,
+      ...params.orbitControlParams,
+    };
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
       this.container,
@@ -204,11 +220,13 @@ export class ScatterPlot {
 
     const occ = new OrbitControls(camera, this.renderer.domElement);
 
-    occ.zoomSpeed = ORBIT_ZOOM_SPEED;
+    console.log(occ);
+
+    occ.zoomSpeed = this.orbitControlParams.zoomSpeed;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
     occ.enableKeys = false;
-    occ.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
+    occ.rotateSpeed = this.orbitControlParams.mouseRotateSpeed;
     if (cameraIs3D) {
       occ.mouseButtons.LEFT = THREE.MOUSE.LEFT; // Orbit
       occ.mouseButtons.RIGHT = THREE.MOUSE.RIGHT; // Pan
@@ -602,7 +620,7 @@ export class ScatterPlot {
       this.stopOrbitAnimation();
     }
     this.orbitCameraControls.autoRotate = true;
-    this.orbitCameraControls.rotateSpeed = ORBIT_ANIMATION_ROTATION_CYCLE_IN_SECONDS;
+    this.orbitCameraControls.autoRotateSpeed = this.orbitControlParams.autoRotateSpeed;
     this.updateOrbitAnimation();
   }
 
@@ -620,7 +638,7 @@ export class ScatterPlot {
   /** Stops the orbiting animation on the camera. */
   stopOrbitAnimation() {
     this.orbitCameraControls.autoRotate = false;
-    this.orbitCameraControls.rotateSpeed = ORBIT_MOUSE_ROTATION_SPEED;
+    this.orbitCameraControls.rotateSpeed = this.orbitControlParams.mouseRotateSpeed;
     if (this.orbitAnimationId != null) {
       cancelAnimationFrame(this.orbitAnimationId);
       this.orbitAnimationId = null;

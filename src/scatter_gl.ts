@@ -15,13 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-import * as THREE from 'three';
-import {ScatterPlot, CameraParams, OnCameraMoveListener} from './scatter_plot';
+import {
+  ScatterPlot,
+  CameraParams,
+  OnCameraMoveListener,
+  OrbitControlParams,
+} from './scatter_plot';
 import {parseColor} from './color';
 import {Dataset, Sequence} from './data';
 import {LabelRenderParams} from './render';
 import {Styles, UserStyles, makeStyles} from './styles';
-import {InteractionMode, RenderMode} from './types';
+import {InteractionMode, Optional, RenderMode} from './types';
 import * as util from './util';
 import {SCATTER_PLOT_CUBE_LENGTH, RGBA_NUM_ELEMENTS} from './constants';
 
@@ -49,6 +53,7 @@ export interface ScatterGLParams {
   selectEnabled?: boolean;
   showLabelsOnHover?: boolean;
   styles?: UserStyles;
+  orbitControls?: Optional<OrbitControlParams>;
 }
 
 /**
@@ -96,6 +101,7 @@ export class ScatterGL {
       onSelect: this.onSelect,
       selectEnabled: this.selectEnabled,
       styles: this.styles,
+      orbitControlParams: params.orbitControls,
     });
 
     this.scatterPlot.onCameraMove(this.cameraMoveCallback);

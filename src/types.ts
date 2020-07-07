@@ -29,3 +29,5 @@ export const enum RenderMode {
   TEXT = 'TEXT',
   SPRITE = 'SPRITE',
 }
+
+export type Optional<T> = {[P in keyof T]?: T[P]};

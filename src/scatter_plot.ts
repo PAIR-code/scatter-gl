@@ -595,6 +595,11 @@ export class ScatterPlot {
     return this.camera;
   }
 
+  /** Gets the current camera controls. */
+  getCameraControls(): OrbitControls {
+    return this.orbitCameraControls;
+  }
+
 
   /** Gets the current camera position. */
   getCameraPosition(): Point3D {

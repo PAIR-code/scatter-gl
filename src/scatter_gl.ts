@@ -254,6 +254,9 @@ export class ScatterGL {
     return this.scatterPlot.getCamera();
   }
 
+  getCameraControls() {
+    return this.scatterPlot.getCameraControls();
+  }
 
   private setDataset(dataset: Dataset) {
     this.dataset = dataset;

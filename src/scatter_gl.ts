@@ -66,6 +66,7 @@ export class ScatterGL {
   private scatterPlot: ScatterPlot;
   private sequences: Sequence[] = [];
   private styles: Styles;
+  private addLabels: number[] = [];
 
   private renderMode = RenderMode.POINT;
   private rotateOnStart = true;
@@ -200,6 +201,12 @@ export class ScatterGL {
     /* Skip render if currently animating */
     if (this.scatterPlot.orbitIsAnimating()) return;
     this.renderScatterPlot();
+  }
+
+  /* Sets the additional labels; points with indicies in list 
+  will have labels appear */
+  setAddLabels(indicies: number[]) {
+    this.addLabels = indicies;
   }
 
   resize() {
@@ -351,7 +358,7 @@ export class ScatterGL {
   ): LabelRenderParams {
     const {hoverPointIndex, selectedPointIndices, styles} = this;
     const selectedPointCount = selectedPointIndices.size;
-    const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
+    let n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0) + this.addLabels.length;   
 
     const visibleLabels = new Uint32Array(n);
     const scale = new Float32Array(n);
@@ -418,8 +425,37 @@ export class ScatterGL {
           strokeRgb[1],
           strokeRgb[2]
         );
+        ++dst;
       }
     }
+
+    // Additional labels.
+    const fillRgb = util.styleRgbFromHexColor(styles.label.fillColorSelected);
+    const strokeRgb = util.styleRgbFromHexColor(
+      styles.label.strokeColorSelected
+    );
+    this.addLabels.forEach((point, idx) => {
+      labelStrings.push(this.getLabelText(point));
+      visibleLabels[dst] = point;
+      scale[dst] = styles.label.scaleLarge;
+      opacityFlags[dst] = 0;
+      util.packRgbIntoUint8Array(
+        fillColors,
+        dst,
+        fillRgb[0],
+        fillRgb[1],
+        fillRgb[2]
+      );
+      util.packRgbIntoUint8Array(
+        strokeColors,
+        dst,
+        strokeRgb[0],
+        strokeRgb[1],
+        strokeRgb[2]
+      );
+      ++dst;
+    });
+    
 
     return new LabelRenderParams(
       new Float32Array(visibleLabels),

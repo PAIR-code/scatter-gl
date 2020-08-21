@@ -66,6 +66,7 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `setSequences(sequences: Sequence[])`         | Sets sequences with which to render polylines              |
 | `setSpriteRenderMode()`                       | Sets sprite render mode                                    |
 | `setTextRenderMode()`                         | Sets text render mode                                      |
+| `setAddLabels(indicies: number[])`            | Sets points which always have visible labels.              |
 | `updateDataset(dataset: Dataset)`             | Updates the dataset                                        |
 | `startOrbitAnimation()`                       | Begin rotating until an interaction                        |
 | `stopOrbitAnimation()`                        | Stops automatic rotation                                   |

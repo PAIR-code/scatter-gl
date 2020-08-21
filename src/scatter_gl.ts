@@ -250,6 +250,11 @@ export class ScatterGL {
     this.scatterPlot.stopOrbitAnimation();
   }
 
+  getCamera() {
+    return this.scatterPlot.getCamera();
+  }
+
+
   private setDataset(dataset: Dataset) {
     this.dataset = dataset;
 

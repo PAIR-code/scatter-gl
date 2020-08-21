@@ -590,6 +590,12 @@ export class ScatterPlot {
     }
   }
 
+  /** Gets the current camera object. */
+  getCamera(): THREE.Camera {
+    return this.camera;
+  }
+
+
   /** Gets the current camera position. */
   getCameraPosition(): Point3D {
     const currPos = this.camera.position;

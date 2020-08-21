@@ -70,8 +70,12 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `updateDataset(dataset: Dataset)`             | Updates the dataset                                        |
 | `startOrbitAnimation()`                       | Begin rotating until an interaction                        |
 | `stopOrbitAnimation()`                        | Stops automatic rotation                                   |
-| `getCamera()`                                 | Gets the underlying 3js camera.                            |
-| `getCameraControls()`                         | Gets the underlying 3js camera controls.                   |
+| `getCamera()`                                 | Gets the underlying 3js camera                          |
+| `getCameraControls()`                         | Gets the underlying 3js camera controls                    |
+| `getCurrentVisiblePoints()`                   | Gets a list of all currently selected points               |
+
+
+
 
 ## Advanced usage
 

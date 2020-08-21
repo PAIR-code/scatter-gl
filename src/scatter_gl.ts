@@ -265,6 +265,10 @@ export class ScatterGL {
     return this.scatterPlot.getCameraControls();
   }
 
+  getCurrentVisiblePoints(): number[] {
+    return this.scatterPlot.getCurrentVisiblePoints();
+  }
+
   private setDataset(dataset: Dataset) {
     this.dataset = dataset;
 

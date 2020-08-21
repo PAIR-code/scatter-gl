@@ -622,6 +622,16 @@ export class ScatterPlot {
     this.render();
   }
 
+  /** Gets the indicies of all points currently visible in camera. */
+  getCurrentVisiblePoints(): number[] {
+    let box: ScatterBoundingBox = {x: 0, 
+      y: this.container.clientHeight, 
+      width: this.container.clientWidth, 
+      height: this.container.clientHeight};
+    return this.getPointIndicesFromPickingTexture(box);
+  }
+
+
   /** Starts orbiting the camera around its current lookat target. */
   startOrbitAnimation() {
     if (!this.sceneIs3D()) {

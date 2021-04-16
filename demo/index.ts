@@ -37,6 +37,8 @@ const dataset = new Dataset(dataPoints, metadata);
 dataset.setSpriteMetadata({
   spriteImage: 'spritesheet.png',
   singleSpriteSize: [28, 28],
+  // Uncomment the following line to only use the first sprite for every point
+  // spriteIndices: dataPoints.map(d => 0),
 });
 
 let lastSelectedPoints: number[] = [];

@@ -168,7 +168,9 @@ export class ScatterPlot {
 
     this.rectangleSelector = new ScatterPlotRectangleSelector(
       this.container,
-      (boundingBox: ScatterBoundingBox) => this.selectBoundingBox(boundingBox),
+      (boundingBox: ScatterBoundingBox) => {
+        this.selectBoundingBox(boundingBox);
+      },
       this.styles
     );
     this.addInteractionListeners();
@@ -219,8 +221,6 @@ export class ScatterPlot {
     }
 
     const occ = new OrbitControls(camera, this.renderer.domElement);
-
-    console.log(occ);
 
     occ.zoomSpeed = this.orbitControlParams.zoomSpeed;
     occ.enableRotate = cameraIs3D;
@@ -477,11 +477,69 @@ export class ScatterPlot {
   }
 
   /**
+   * Returns a list of indices of points in a bounding box by manually
+   * projecting those points into camera space. This is less efficient than the
+   * picking texture approach, but the picking texture approach has issues with
+   * fully occluded points being left out (for instance when selecting many
+   * points while very zoomed out)
+   *
+   * @param boundingBox The bounding box to select from.
+   */
+  private getPointIndicesFromBoundingBox(boundingBox: ScatterBoundingBox) {
+    if (this.worldSpacePointPositions == null) {
+      return [];
+    }
+    this.camera.updateMatrixWorld();
+
+    const dpr = window.devicePixelRatio || 1;
+    const selectionX = Math.floor(boundingBox.x * dpr);
+    const selectionY = Math.floor(boundingBox.y * dpr);
+    const selectionWidth = Math.max(Math.floor(boundingBox.width * dpr), 1);
+    const selectionHeight = Math.max(Math.floor(boundingBox.height * dpr), 1);
+
+    // If the bounding box is size 2 or less (indicating a click with the
+    // selection tool enabled), then we'll use the more efficient and forgiving
+    // picking texture approach.
+    if (selectionWidth <= 2 && selectionHeight <= 2) {
+      return this.getPointIndicesFromBoundingBoxPickingTexture(boundingBox);
+    }
+
+    const canvas = this.renderer.domElement;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    let pointIndices: number[] = [];
+    // Reuse the same Vector3 to avoid unnecessary allocations.
+    const vector3 = new THREE.Vector3();
+    for (let i = 0; i < this.worldSpacePointPositions.length; i++) {
+      const start = i * 3;
+      const [worldX, worldY, worldZ] = this.worldSpacePointPositions.slice(
+        start,
+        start + 3
+      );
+      vector3.x = worldX;
+      vector3.y = worldY;
+      vector3.z = worldZ;
+      const screenVector = vector3.project(this.camera);
+      const x = ((screenVector.x + 1) * canvasWidth) / 2;
+      const y = (-(screenVector.y - 1) * canvasHeight) / 2;
+
+      if (x >= selectionX && x <= selectionX + selectionWidth) {
+        if (y <= selectionY && y >= selectionY - selectionHeight) {
+          pointIndices.push(i);
+        }
+      }
+    }
+
+    return pointIndices;
+  }
+
+  /**
    * Returns a list of indices of points in a bounding box from the picking
    * texture.
    * @param boundingBox The bounding box to select from.
    */
-  private getPointIndicesFromPickingTexture(
+  private getPointIndicesFromBoundingBoxPickingTexture(
     boundingBox: ScatterBoundingBox
   ): number[] {
     if (this.worldSpacePointPositions == null) {
@@ -533,7 +591,7 @@ export class ScatterPlot {
   }
 
   private selectBoundingBox(boundingBox: ScatterBoundingBox) {
-    let pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
+    let pointIndices = this.getPointIndicesFromBoundingBox(boundingBox);
     this.selectCallback(pointIndices);
   }
 
@@ -550,7 +608,9 @@ export class ScatterPlot {
       height: 1,
     };
 
-    const pointIndices = this.getPointIndicesFromPickingTexture(boundingBox);
+    const pointIndices = this.getPointIndicesFromBoundingBoxPickingTexture(
+      boundingBox
+    );
     this.nearestPoint = pointIndices.length ? pointIndices[0] : null;
   }
 

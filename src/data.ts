@@ -24,10 +24,16 @@ export interface PointMetadata {
   [key: string]: number | string | undefined;
 }
 
-/** Matches the json format of `projector_config.proto` */
+/**
+ * Metadata for displaying sprites in the renderer - the renderer expects a
+ * sprite sheet with tiled sprites, which it reads left-to-right and
+ * top-to-bottom. If `spriteIndices` is specified, each data point will be
+ * associated with an index-specified sprite from the sprite sheet.
+ */
 export interface SpriteMetadata {
   spriteImage?: HTMLImageElement | string;
   singleSpriteSize: [number, number];
+  spriteIndices?: number[];
 }
 
 /** A single collection of points which make up a sequence through space. */

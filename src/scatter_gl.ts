@@ -675,9 +675,15 @@ export class ScatterGL {
       }
 
       const n = dataset.points.length;
-      const spriteIndices = new Float32Array(n);
-      for (let i = 0; i < n; ++i) {
-        spriteIndices[i] = i;
+
+      let spriteIndices: Float32Array;
+      if (spriteMetadata.spriteIndices) {
+        spriteIndices = new Float32Array(spriteMetadata.spriteIndices);
+      } else {
+        spriteIndices = new Float32Array(n);
+        for (let i = 0; i < n; ++i) {
+          spriteIndices[i] = i;
+        }
       }
 
       const onImageLoad = () => this.renderScatterPlot();

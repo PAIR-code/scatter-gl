@@ -141,7 +141,7 @@ export class ScatterPlot {
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
 
-  private orbitControlParams: OrbitControlParams;
+  private readonly orbitControlParams: OrbitControlParams;
 
   constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
     this.container = containerElement;

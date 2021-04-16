@@ -272,7 +272,7 @@ export class ScatterGL {
 
     const pointColors = this.generatePointColorArray(dataset);
     const pointScaleFactors = this.generatePointScaleFactorArray(dataset);
-    const labels = this.generateVisibleLabelRenderParams(dataset);
+    const labels = this.generateVisibleLabelRenderParams();
 
     this.scatterPlot.setPointColors(pointColors);
     this.scatterPlot.setPointScaleFactors(pointScaleFactors);
@@ -338,12 +338,9 @@ export class ScatterGL {
     return positions;
   }
 
-  private generateVisibleLabelRenderParams(
-    dataset: Dataset
-  ): LabelRenderParams {
+  private generateVisibleLabelRenderParams(): LabelRenderParams {
     const {hoverPointIndex, selectedPointIndices, styles} = this;
-    const selectedPointCount = selectedPointIndices.size;
-    const n = selectedPointCount + (hoverPointIndex !== null ? 1 : 0);
+    const n = hoverPointIndex !== null ? 1 : 0;
 
     const visibleLabels = new Uint32Array(n);
     const scale = new Float32Array(n);

@@ -48,6 +48,11 @@ const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
 const scatterGL = new ScatterGL(containerElement, {
+  onClick: (point: number | null) => {
+    const message = `🔥click ${point}`;
+    console.log(message);
+    messagesElement.innerHTML = message;
+  },
   onHover: (point: number | null) => {
     const message = `🔥hover ${point}`;
     console.log(message);

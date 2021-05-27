@@ -19,6 +19,7 @@ import {data} from './data/projection';
 import {Point3D, Dataset, PointMetadata} from '../src/data';
 import {makeSequences} from './sequences';
 import {ScatterGL, RenderMode} from '../src';
+/** SAFEHTML */
 
 const dataPoints: Point3D[] = [];
 const metadata: PointMetadata[] = [];
@@ -47,30 +48,31 @@ let renderMode = 'points';
 const containerElement = document.getElementById('container')!;
 const messagesElement = document.getElementById('messages')!;
 
+const setMessage = (message: string) => {
+  const messageStr = `🔥 ${message}`;
+  console.log(messageStr);
+  messagesElement.innerHTML = messageStr;
+};
+
 const scatterGL = new ScatterGL(containerElement, {
   onClick: (point: number | null) => {
-    const message = `🔥click ${point}`;
-    console.log(message);
-    messagesElement.innerHTML = message;
+    setMessage(`click ${point}`);
   },
   onHover: (point: number | null) => {
-    const message = `🔥hover ${point}`;
-    console.log(message);
-    messagesElement.innerHTML = message;
+    setMessage(`hover ${point}`);
   },
   onSelect: (points: number[]) => {
     let message = '';
     if (points.length === 0 && lastSelectedPoints.length === 0) {
-      message = '🔥 no selection';
+      message = 'no selection';
     } else if (points.length === 0 && lastSelectedPoints.length > 0) {
-      message = '🔥 deselected';
+      message = 'deselected';
     } else if (points.length === 1) {
-      message = `🔥 selected ${points}`;
+      message = `selected ${points}`;
     } else {
-      message = `🔥selected ${points.length} points`;
+      message = `selected ${points.length} points`;
     }
-    console.log(message);
-    messagesElement.innerHTML = message;
+    setMessage(message);
   },
   renderMode: RenderMode.POINT,
   orbitControls: {

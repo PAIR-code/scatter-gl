@@ -368,9 +368,11 @@ export class ScatterPlot {
     if (interactionMode === InteractionMode.SELECT) {
       this.selecting = true;
       this.container.style.cursor = 'crosshair';
+      this.orbitCameraControls.enabled = false;
     } else {
       this.selecting = false;
       this.container.style.cursor = 'default';
+      this.orbitCameraControls.enabled = true;
     }
   }
 
@@ -380,8 +382,6 @@ export class ScatterPlot {
     }
     // Only call event handlers if the click originated from the scatter plot.
     if (!this.isDragSequence && notify) {
-      const selection = this.nearestPoint != null ? [this.nearestPoint] : [];
-      this.selectCallback(selection);
       this.clickCallback(this.nearestPoint);
     }
     this.isDragSequence = false;
@@ -392,7 +392,6 @@ export class ScatterPlot {
     this.isDragSequence = false;
     this.mouseIsDown = true;
     if (this.selecting) {
-      this.orbitCameraControls.enabled = false;
       this.rectangleSelector.onMouseDown(e.offsetX, e.offsetY);
       this.setNearestPointToMouse(e);
     } else if (
@@ -419,7 +418,6 @@ export class ScatterPlot {
   /** When we stop dragging/zooming, return to normal behavior. */
   private onMouseUp(e: any) {
     if (this.selecting) {
-      this.orbitCameraControls.enabled = true;
       this.rectangleSelector.onMouseUp();
       this.render();
     }

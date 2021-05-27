@@ -114,7 +114,7 @@ const FRAGMENT_SHADER = `
     varying vec2 xyIndex;
     varying vec4 vColor;
 
-    uniform sampler2D texture;
+    uniform sampler2D spriteTexture;
     uniform float spritesPerRow;
     uniform float spritesPerColumn;
     uniform bool isImage;
@@ -131,7 +131,7 @@ const FRAGMENT_SHADER = `
         // Coordinates of the vertex within the entire sprite image.
         vec2 coords =
           (gl_PointCoord + xyIndex) / vec2(spritesPerRow, spritesPerColumn);
-        gl_FragColor = vColor * texture2D(texture, coords);
+        gl_FragColor = vColor * texture(spriteTexture, coords);
       } else {
         bool inside = point_in_unit_circle(gl_PointCoord);
         if (!inside) {
@@ -211,7 +211,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
 
   private createUniforms(): any {
     return {
-      texture: {type: 't'},
+      spriteTexture: {type: 't'},
       spritesPerRow: {type: 'f'},
       spritesPerColumn: {type: 'f'},
       fogColor: {type: 'c'},
@@ -481,7 +481,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     this.renderMaterial.uniforms.spritesPerRow.value = this.spritesPerRow;
     this.renderMaterial.uniforms.spritesPerColumn.value = this.spritesPerColumn;
     this.renderMaterial.uniforms.isImage.value = this.texture != null;
-    this.renderMaterial.uniforms.texture.value =
+    this.renderMaterial.uniforms.spriteTexture.value =
       this.texture != null ? this.texture : this.standinTextureForPoints;
     this.renderMaterial.uniforms.sizeAttenuation.value = sceneIs3D;
     this.renderMaterial.uniforms.pointSize.value = this.calculatePointSize(

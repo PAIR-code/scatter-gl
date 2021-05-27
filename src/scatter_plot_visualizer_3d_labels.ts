@@ -75,7 +75,7 @@ const makeVertexShader = (fontSize: number, scale: number) => `
       }`;
 
 const FRAGMENT_SHADER = `
-      uniform sampler2D texture;
+      uniform sampler2D glyphTexture;
       uniform bool picking;
       varying vec2 vUv;
       varying vec4 vColor;
@@ -84,7 +84,7 @@ const FRAGMENT_SHADER = `
         if (picking) {
           gl_FragColor = vColor;
         } else {
-          vec4 fromTexture = texture2D(texture, vUv);
+          vec4 fromTexture = texture(glyphTexture, vUv);
           gl_FragColor = vColor * fromTexture;
         }
       }`;
@@ -108,7 +108,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private pickingColors = new Float32Array(0);
   private renderColors = new Float32Array(0);
   private material!: THREE.ShaderMaterial;
-  private uniforms: Object = {};
+  private uniforms: { [uniform: string]: THREE.IUniform } = {};
   private labelsMesh!: THREE.Mesh;
   private positions!: THREE.BufferAttribute;
   private totalVertexCount = 0;
@@ -196,8 +196,8 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     this.glyphTexture = this.createGlyphTexture();
 
     this.uniforms = {
-      texture: {type: 't'},
-      picking: {type: 'bool'},
+      glyphTexture: {value: null},
+      picking: {value: false},
     };
 
     this.material = new THREE.ShaderMaterial({
@@ -344,7 +344,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       this.createLabels();
       return;
     }
-    this.material.uniforms.texture.value = this.glyphTexture.texture;
+    this.material.uniforms.glyphTexture.value = this.glyphTexture.texture;
     this.material.uniforms.picking.value = true;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     colors.array = this.pickingColors;
@@ -357,7 +357,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       return;
     }
     this.colorLabels(rc.pointColors);
-    this.material.uniforms.texture.value = this.glyphTexture.texture;
+    this.material.uniforms.glyphTexture.value = this.glyphTexture.texture;
     this.material.uniforms.picking.value = false;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     colors.array = this.renderColors;

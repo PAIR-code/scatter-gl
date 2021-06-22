@@ -140,12 +140,14 @@ export class ScatterPlot {
   private mouseIsDown = false;
   private isDragSequence = false;
   private rectangleSelector: ScatterPlotRectangleSelector;
+  private cameraParams: any;
 
   private readonly orbitControlParams: OrbitControlParams;
 
   constructor(containerElement: HTMLElement, params: ScatterPlotParams) {
     this.container = containerElement;
     this.styles = params.styles;
+    this.cameraParams = params.camera
     this.setParameters(params);
 
     this.computeLayoutValues();
@@ -175,7 +177,7 @@ export class ScatterPlot {
     );
     this.addInteractionListeners();
     this.setDimensions(3);
-    this.makeCamera(params.camera);
+    this.makeCamera(this.cameraParams);
     this.resize();
   }
 
@@ -644,7 +646,7 @@ export class ScatterPlot {
 
     if (this.dimensions !== dimensions) {
       this.dimensions = dimensions;
-      this.makeCamera();
+      this.makeCamera(this.cameraParams);
     }
   }
 

@@ -44,8 +44,8 @@ const PERSP_CAMERA_FAR_CLIP_PLANE = 100;
 const ORTHO_CAMERA_FRUSTUM_HALF_EXTENT = 1.2;
 
 // Key presses.
-const SHIFT_KEY = 16;
-const CTRL_KEY = 17;
+const SHIFT_KEY = 'Shift';
+const CTRL_KEY = 'Control';
 
 const START_CAMERA_POS_3D = new THREE.Vector3(0.45, 0.9, 1.6);
 const START_CAMERA_TARGET_3D = new THREE.Vector3(0, 0, 0);
@@ -382,6 +382,10 @@ export class ScatterPlot {
     }
     // Only call event handlers if the click originated from the scatter plot.
     if (!this.isDragSequence && notify) {
+      if (this.selectEnabled) {
+        const selected = this.nearestPoint != null ? [this.nearestPoint] : [];
+        this.selectCallback(selected);
+      }
       this.clickCallback(this.nearestPoint);
     }
     this.isDragSequence = false;
@@ -391,6 +395,7 @@ export class ScatterPlot {
   private onMouseDown(e: MouseEvent) {
     this.isDragSequence = false;
     this.mouseIsDown = true;
+
     if (this.selecting) {
       this.rectangleSelector.onMouseDown(e.offsetX, e.offsetY);
       this.setNearestPointToMouse(e);
@@ -447,28 +452,30 @@ export class ScatterPlot {
   /** For using ctrl + left click as right click, and for circle select */
   private onKeyDown(e: KeyboardEvent) {
     // If ctrl is pressed, use left click to orbit
-    if (e.keyCode === CTRL_KEY && this.sceneIs3D()) {
+    if (e.key === CTRL_KEY && this.sceneIs3D()) {
       this.orbitCameraControls.mouseButtons.ORBIT = THREE.MOUSE.RIGHT;
       this.orbitCameraControls.mouseButtons.PAN = THREE.MOUSE.LEFT;
     }
 
     // If shift is pressed, start selecting
-    if (e.keyCode === SHIFT_KEY && this.selectEnabled) {
+    if (e.key === SHIFT_KEY && this.selectEnabled) {
       this.selecting = true;
+      this.orbitCameraControls.enabled = false;
       this.container.style.cursor = 'crosshair';
     }
   }
 
   /** For using ctrl + left click as right click, and for circle select */
   private onKeyUp(e: KeyboardEvent) {
-    if (e.keyCode === CTRL_KEY && this.sceneIs3D()) {
+    if (e.key === CTRL_KEY && this.sceneIs3D()) {
       this.orbitCameraControls.mouseButtons.ORBIT = THREE.MOUSE.LEFT;
       this.orbitCameraControls.mouseButtons.PAN = THREE.MOUSE.RIGHT;
     }
 
     // If shift is released, stop selecting
-    if (e.keyCode === SHIFT_KEY && this.selectEnabled) {
+    if (e.key === SHIFT_KEY && this.selectEnabled) {
       this.selecting = false;
+      this.orbitCameraControls.enabled = true;
       this.container.style.cursor = 'default';
       this.render();
     }

@@ -9,10 +9,13 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "[typescript]": {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.rulers": [80],
   "files.insertFinalNewline": true,
   "editor.detectIndentation": false,
-  "editor.wrappingIndent": "none"
+  "editor.wrappingIndent": "none",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
 }

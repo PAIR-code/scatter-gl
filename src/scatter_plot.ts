@@ -187,9 +187,9 @@ export class ScatterPlot {
   }
 
   private addInteractionListeners() {
-    this.container.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
-    this.container.addEventListener('mouseup', this.onMouseUp.bind(this));
+    this.container.addEventListener('pointermove', this.onMouseMove.bind(this));
+    this.container.addEventListener('pointerdown', this.onMouseDown.bind(this));
+    this.container.addEventListener('pointerup', this.onMouseUp.bind(this));
     this.container.addEventListener('click', this.onClick.bind(this));
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
     window.addEventListener('keyup', this.onKeyUp.bind(this), false);

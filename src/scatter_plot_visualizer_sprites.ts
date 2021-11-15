@@ -376,7 +376,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   private setSpriteSheet(spriteSheetParams: SpriteSheetParams) {
-    const {spriteDimensions, spriteIndices, onImageLoad} = spriteSheetParams;
+    const {spriteDimensions, onImageLoad} = spriteSheetParams;
     let spriteSheet = spriteSheetParams.spritesheetImage;
 
     // Load the sprite sheet as an image if a URL is supplied
@@ -396,6 +396,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       onImageLoad();
     });
     this.spriteDimensions = spriteDimensions;
+
+    this.setSpriteIndexBuffer();
+  }
+
+  private setSpriteIndexBuffer() {
+    const {spriteIndices} = this.spriteSheetParams;
+
     this.spriteIndexBufferAttribute = new THREE.BufferAttribute(
       spriteIndices,
       INDEX_NUM_ELEMENTS
@@ -423,7 +430,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     }
 
     if (this.spriteSheetParams) {
-      this.setSpriteSheet(this.spriteSheetParams);
+      this.setSpriteIndexBuffer();
     }
 
     this.renderMaterial = this.createRenderMaterial();

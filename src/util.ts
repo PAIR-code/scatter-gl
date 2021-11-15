@@ -109,10 +109,15 @@ export function createTextureFromImage(
   onImageLoad: () => void
 ): THREE.Texture {
   const texture = new THREE.Texture(image);
-  image.onload = () => {
+  if (image.complete) {
     texture.needsUpdate = true;
     onImageLoad();
-  };
+  } else {
+    image.onload = () => {
+      texture.needsUpdate = true;
+      onImageLoad();
+    };
+  }
   return prepareTexture(texture, false);
 }
 

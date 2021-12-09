@@ -70,6 +70,10 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `startOrbitAnimation()`                       | Begin rotating until an interaction                        |
 | `stopOrbitAnimation()`                        | Stops automatic rotation                                   |
 
+#### ScatterGL Styles
+
+See [styles.ts](./src/styles.ts) for interfaces and descriptions of a user-configurable styles object that can be provided to ScatterGL to configure colors, sizes, fog, etc.
+
 ## Advanced usage
 
 See the [demo app](./demo/index.ts) for examples of interaction handling, spritesheet rendering, and point coloring.

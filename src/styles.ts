@@ -51,6 +51,17 @@ export interface PointStyles {
 export interface FogStyles {
   color: Color;
   enabled: boolean;
+  // Given the distance from the nearest to the farthest point from the camera,
+  // threshold defines the multiple at which points no longer are visible
+  // through the fog. 0 means all points invisible, 1 means only the furthest
+  // point is invisible, and >1 means more and more distant points are visible.
+  //
+  // i.e.
+  //               #camera   *nearest        *farthest
+  // threshold 0             ||invisble
+  // threshold 0.5           |       |invisible
+  // threshold 1             |               |invisible
+  // threshold 2             |                               |invisible
   threshold: number;
 }
 

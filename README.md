@@ -56,6 +56,7 @@ The `ScatterGL` constructor can accept a number of parameters via a `ScatterGLPa
 | `isOrbiting()`                                | Returns whether the orbit animation is currently on        |
 | `render(dataset: Dataset)`                    | Initializes and renders a dataset to the container element |
 | `resize()`                                    | Updates the render size based on the container element     |
+| `resetZoom()`                                 | Resets the camera zoom to default                          |
 | `select(pointIndices: number[])`              | Selects points by index                                    |
 | `setPanMode()`                                | Sets interaction mode to 'pan'                             |
 | `setPointColorer(pointColorer: PointColorer)` | Sets a function to determine colors                        |

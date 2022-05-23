@@ -143,6 +143,10 @@ export class ScatterGL {
     if (this.dataset) this.scatterPlot.render();
   }
 
+  resetZoom() {
+    this.scatterPlot.resetZoom();
+  }
+
   setRenderMode(renderMode: RenderMode) {
     this.renderMode = renderMode;
     this.setVisualizers();

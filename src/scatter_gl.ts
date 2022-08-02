@@ -208,7 +208,7 @@ export class ScatterGL {
     return pointColorer(index, this.selectedPointIndices, this.hoverPointIndex);
   }
 
-  setHoverPointIndex(index: number) {
+  setHoverPointIndex(index: number | null) {
     this.hoverPointIndex = index;
     this.updateScatterPlotAttributes();
     /* Skip render if currently animating */

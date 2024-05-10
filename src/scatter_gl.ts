@@ -221,6 +221,7 @@ export class ScatterGL {
   }
 
   private onHover = (pointIndex: number | null) => {
+    console.log(pointIndex);
     this.hoverCallback(pointIndex);
     this.hoverPointIndex = pointIndex;
     this.updateScatterPlotAttributes();

@@ -225,7 +225,6 @@ export class ScatterPlot {
     occ.zoomSpeed = this.orbitControlParams.zoomSpeed;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
-    occ.enableKeys = false;
     occ.rotateSpeed = this.orbitControlParams.mouseRotateSpeed;
     if (cameraIs3D) {
       occ.mouseButtons.LEFT = THREE.MOUSE.LEFT; // Orbit
@@ -617,6 +616,7 @@ export class ScatterPlot {
       boundingBox
     );
     this.nearestPoint = pointIndices.length ? pointIndices[0] : null;
+    console.log(this.nearestPoint, pointIndices)
   }
 
   private computeLayoutValues(): Point2D {

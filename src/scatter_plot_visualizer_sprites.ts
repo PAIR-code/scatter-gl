@@ -437,7 +437,15 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       .geometry as THREE.BufferGeometry).getAttribute(
       'position'
     ) as THREE.BufferAttribute;
+    /* if(positions.array.length === newPositions.length) {
+      positions.array.set(newPositions)
+      console.log('same')
+    } else {
+      console.log('different')
+      this.points.geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
+    } */
     this.points.geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
+
     // positions.array = newPositions;
     // positions.count = newPositions.length / XYZ_NUM_ELEMENTS;
 
@@ -459,29 +467,32 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     let colors = (this.points.geometry as THREE.BufferGeometry).getAttribute(
       'color'
     ) as THREE.BufferAttribute;
-    if (colors.array.length === this.pickingColors.length) {
+    colors.array = this.pickingColors;
+    /* if (colors.array.length === this.pickingColors.length) {
       colors.array.set(this.pickingColors);
     } else {
       this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS));
-    }
+    } */
   // colors.count = this.pickingColors.length / RGBA_NUM_ELEMENTS;
 
     /* colors.copy(
       new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS)); */
     colors.needsUpdate = true;
 
-    let scaleFactors = (this.points
+     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
+    /*
     if (scaleFactors.array.length === rc.pointScaleFactors.length) {
       scaleFactors.array.set(rc.pointScaleFactors);
 
     } else {
      this.points.geometry.setAttribute('scaleFactor', new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS));
 
-    }
+    } */
 
+    scaleFactors.array = rc.pointScaleFactors;
     // scaleFactors.count = rc.pointScaleFactors.length;
     // scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
 

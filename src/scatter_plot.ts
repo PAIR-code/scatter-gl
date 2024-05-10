@@ -551,6 +551,7 @@ export class ScatterPlot {
     }
 
     const pointCount = this.worldSpacePointPositions.length / 3;
+    console.log('pointCount', pointCount)
     const dpr = window.devicePixelRatio || 1;
     const x = Math.floor(boundingBox.x * dpr);
     const y = Math.floor(boundingBox.y * dpr);
@@ -559,6 +560,7 @@ export class ScatterPlot {
 
     // Create buffer for reading all of the pixels from the texture.
     let pixelBuffer = new Uint8Array(width * height * 4);
+    console.log(pixelBuffer.length)
 
     // Read the pixels from the bounding box.
     this.renderer.readRenderTargetPixels(
@@ -575,12 +577,16 @@ export class ScatterPlot {
     let pointIndicesSelection = new Uint8Array(
       this.worldSpacePointPositions.length
     );
+    console.log('totalPoints', this.worldSpacePointPositions.length)
     for (let i = 0; i < width * height; i++) {
       const id =
         (pixelBuffer[i * 4] << 16) |
         (pixelBuffer[i * 4 + 1] << 8) |
         pixelBuffer[i * 4 + 2];
-      if (id !== 0xffffff && id < pointCount) {
+        if (id !== 0xffffff){
+          console.log('foiund', id)
+        }
+      if (id !== 0xffffff) {
         pointIndicesSelection[id] = 1;
       }
     }
@@ -591,6 +597,7 @@ export class ScatterPlot {
       }
     }
 
+    console.log(pointIndices)
     return pointIndices;
   }
 
@@ -616,7 +623,6 @@ export class ScatterPlot {
       boundingBox
     );
     this.nearestPoint = pointIndices.length ? pointIndices[0] : null;
-    console.log(this.nearestPoint, pointIndices)
   }
 
   private computeLayoutValues(): Point2D {

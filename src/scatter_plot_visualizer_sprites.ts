@@ -301,11 +301,14 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     {
       let dst = 0;
       for (let i = 0; i < n; i++) {
-        const c = new THREE.Color(i);
-        this.pickingColors[dst++] = c.r;
-        this.pickingColors[dst++] = c.g;
-        this.pickingColors[dst++] = c.b;
-        this.pickingColors[dst++] = 1;
+        const r = (i >> 16) & 0xFF; // Extract red component
+    const g = (i >> 8) & 0xFF;  // Extract green component
+    const b = i & 0xFF;        // Extract blue component
+
+    this.pickingColors[i * 4] = r / 255;  // Normalize to 0-1
+    this.pickingColors[i * 4 + 1] = g / 255;
+    this.pickingColors[i * 4 + 2] = b / 255;
+    this.pickingColors[i * 4 + 3] = 1;     // Alpha
       }
     }
 
@@ -414,7 +417,6 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
-    console.log('changed', newPositions, this.worldSpacePointPositions)
     if (this.points != null) {
       if (this.worldSpacePointPositions.length !== newPositions.length) {
         this.disposeGeometry();
@@ -438,19 +440,9 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       .geometry as THREE.BufferGeometry).getAttribute(
       'position'
     ) as THREE.BufferAttribute;
-    /* if(positions.array.length === newPositions.length) {
-      positions.array.set(newPositions)
-      console.log('same')
-    } else {
-      console.log('different')
-      this.points.geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
-    } */
+
     this.points.geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
 
-    // positions.array = newPositions;
-    // positions.count = newPositions.length / XYZ_NUM_ELEMENTS;
-
-    // positions.copy(new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
     positions.needsUpdate = true;
   }
 
@@ -468,37 +460,16 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     let colors = (this.points.geometry as THREE.BufferGeometry).getAttribute(
       'color'
     ) as THREE.BufferAttribute;
+    this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS));
     colors.array = this.pickingColors;
-    /* if (colors.array.length === this.pickingColors.length) {
-      colors.array.set(this.pickingColors);
-    } else {
-      this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS));
-    } */
-  // colors.count = this.pickingColors.length / RGBA_NUM_ELEMENTS;
-
-    /* colors.copy(
-      new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS)); */
     colors.needsUpdate = true;
 
      let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
-    /*
-    if (scaleFactors.array.length === rc.pointScaleFactors.length) {
-      scaleFactors.array.set(rc.pointScaleFactors);
-
-    } else {
-     this.points.geometry.setAttribute('scaleFactor', new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS));
-
-    } */
 
     scaleFactors.array = rc.pointScaleFactors;
-    // scaleFactors.count = rc.pointScaleFactors.length;
-    // scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
-
-    /* scaleFactors.copy(
-      new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS)); */
     scaleFactors.needsUpdate = true;
   }
 
@@ -528,24 +499,14 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'color'
     ) as THREE.BufferAttribute;
     this.renderColors = rc.pointColors;
-    // this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.renderColors, RGBA_NUM_ELEMENTS));
-
     colors.array = this.renderColors;
-    // colors.count = this.renderColors.length / RGBA_NUM_ELEMENTS;
-
-    /* colors.copy(
-      new THREE.BufferAttribute(this.renderColors, RGBA_NUM_ELEMENTS)); */
     colors.needsUpdate = true;
+
     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
-    // this.points.geometry.setAttribute('scaleFactor', new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS));
-
     scaleFactors.array = rc.pointScaleFactors;
-
-    /* scaleFactors.copy(
-      new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS)); */
     scaleFactors.needsUpdate = true;
   }
 

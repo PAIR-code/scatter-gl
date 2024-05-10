@@ -174,9 +174,13 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
     for (let i = 0; i < pointCount; i++) {
       const pickingColor = new THREE.Color(i);
       this.labelVertexMap[i].forEach(j => {
-        this.pickingColors[RGB_NUM_ELEMENTS * j] = pickingColor.r;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = pickingColor.g;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = pickingColor.b;
+        const r = (i >> 16) & 0xFF; // Extract red component
+        const g = (i >> 8) & 0xFF;  // Extract green component
+        const b = i & 0xFF;        // Extract blue component
+
+        this.pickingColors[RGB_NUM_ELEMENTS * j] = r / 255;  // Normalize to 0-1
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = g / 255;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = b / 255;
         this.renderColors[RGB_NUM_ELEMENTS * j] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 1] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 2] = 1.0;

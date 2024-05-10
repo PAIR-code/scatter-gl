@@ -221,7 +221,6 @@ export class ScatterGL {
   }
 
   private onHover = (pointIndex: number | null) => {
-    console.log(pointIndex);
     this.hoverCallback(pointIndex);
     this.hoverPointIndex = pointIndex;
     this.updateScatterPlotAttributes();
@@ -523,7 +522,6 @@ export class ScatterGL {
       c = parseColor(colorSelected);
       for (const selectedPointIndex of selectedPointIndices.values()) {
         let dst = selectedPointIndex * RGBA_NUM_ELEMENTS;
-        console.log(selectedPointIndex, dataset.points[selectedPointIndex], dataset.metadata[selectedPointIndex])
         colors[dst++] = c.r;
         colors[dst++] = c.g;
         colors[dst++] = c.b;

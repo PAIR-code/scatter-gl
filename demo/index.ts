@@ -182,7 +182,7 @@ selectRandomButton.addEventListener('click', () => {
 
 const selectFixed = document.getElementById('select-fixed')!;
 selectFixed.addEventListener('click', () => {
-  scatterGL.select([5]);
+  scatterGL.select([9]);
 });
 
 const toggleOrbitButton = document.getElementById('toggle-orbit')!;

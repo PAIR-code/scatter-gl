@@ -180,6 +180,11 @@ selectRandomButton.addEventListener('click', () => {
   scatterGL.select([randomIndex]);
 });
 
+const selectFixed = document.getElementById('select-fixed')!;
+selectFixed.addEventListener('click', () => {
+  scatterGL.select([5]);
+});
+
 const toggleOrbitButton = document.getElementById('toggle-orbit')!;
 toggleOrbitButton.addEventListener('click', () => {
   if (scatterGL.isOrbiting()) {

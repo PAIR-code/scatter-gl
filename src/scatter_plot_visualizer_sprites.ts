@@ -414,6 +414,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
   }
 
   onPointPositionsChanged(newPositions: Float32Array) {
+    console.log('changed', newPositions, this.worldSpacePointPositions)
     if (this.points != null) {
       if (this.worldSpacePointPositions.length !== newPositions.length) {
         this.disposeGeometry();
@@ -529,7 +530,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     this.renderColors = rc.pointColors;
     // this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.renderColors, RGBA_NUM_ELEMENTS));
 
-    colors.array.set(this.renderColors);
+    colors.array = this.renderColors;
     // colors.count = this.renderColors.length / RGBA_NUM_ELEMENTS;
 
     /* colors.copy(
@@ -541,7 +542,7 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     ) as THREE.BufferAttribute;
     // this.points.geometry.setAttribute('scaleFactor', new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS));
 
-    scaleFactors.array.set(rc.pointScaleFactors);
+    scaleFactors.array = rc.pointScaleFactors;
 
     /* scaleFactors.copy(
       new THREE.BufferAttribute(rc.pointScaleFactors, INDEX_NUM_ELEMENTS)); */

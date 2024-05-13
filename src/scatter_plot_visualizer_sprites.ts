@@ -299,13 +299,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     // Fill pickingColors with each point's unique id as its color.
     this.pickingColors = new Float32Array(n * RGBA_NUM_ELEMENTS);
     {
-      let dst = 0;
       for (let i = 0; i < n; i++) {
-        const c = new THREE.Color(i);
-        this.pickingColors[dst++] = c.r;
-        this.pickingColors[dst++] = c.g;
-        this.pickingColors[dst++] = c.b;
-        this.pickingColors[dst++] = 1;
+        const encodedId = util.encodeIdToRgb(i);
+
+        this.pickingColors[i * 4] = encodedId.r;
+        this.pickingColors[i * 4 + 1] = encodedId.g;
+        this.pickingColors[i * 4 + 2] = encodedId.b;
+        this.pickingColors[i * 4 + 3] = 1; // Alpha
       }
     }
 
@@ -437,8 +437,12 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       .geometry as THREE.BufferGeometry).getAttribute(
       'position'
     ) as THREE.BufferAttribute;
-    positions.array = newPositions;
-    positions.count = newPositions.length / XYZ_NUM_ELEMENTS;
+
+    this.points.geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS)
+    );
+
     positions.needsUpdate = true;
   }
 
@@ -456,17 +460,19 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     let colors = (this.points.geometry as THREE.BufferGeometry).getAttribute(
       'color'
     ) as THREE.BufferAttribute;
+    this.points.geometry.setAttribute(
+      'color',
+      new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS)
+    );
     colors.array = this.pickingColors;
-    colors.count = this.pickingColors.length / RGBA_NUM_ELEMENTS;
     colors.needsUpdate = true;
 
     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
+
     scaleFactors.array = rc.pointScaleFactors;
-    scaleFactors.count = rc.pointScaleFactors.length;
-    scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
     scaleFactors.needsUpdate = true;
   }
 
@@ -497,14 +503,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     ) as THREE.BufferAttribute;
     this.renderColors = rc.pointColors;
     colors.array = this.renderColors;
-    colors.count = this.renderColors.length / RGBA_NUM_ELEMENTS;
     colors.needsUpdate = true;
+
     let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;
     scaleFactors.array = rc.pointScaleFactors;
-    scaleFactors.count = rc.pointScaleFactors.length / INDEX_NUM_ELEMENTS;
     scaleFactors.needsUpdate = true;
   }
 

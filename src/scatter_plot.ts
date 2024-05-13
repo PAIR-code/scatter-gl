@@ -225,7 +225,6 @@ export class ScatterPlot {
     occ.zoomSpeed = this.orbitControlParams.zoomSpeed;
     occ.enableRotate = cameraIs3D;
     occ.autoRotate = false;
-    occ.enableKeys = false;
     occ.rotateSpeed = this.orbitControlParams.mouseRotateSpeed;
     if (cameraIs3D) {
       occ.mouseButtons.LEFT = THREE.MOUSE.LEFT; // Orbit
@@ -550,7 +549,6 @@ export class ScatterPlot {
     if (this.worldSpacePointPositions == null) {
       return [];
     }
-
     const pointCount = this.worldSpacePointPositions.length / 3;
     const dpr = window.devicePixelRatio || 1;
     const x = Math.floor(boundingBox.x * dpr);
@@ -576,11 +574,13 @@ export class ScatterPlot {
     let pointIndicesSelection = new Uint8Array(
       this.worldSpacePointPositions.length
     );
+
     for (let i = 0; i < width * height; i++) {
-      const id =
-        (pixelBuffer[i * 4] << 16) |
-        (pixelBuffer[i * 4 + 1] << 8) |
-        pixelBuffer[i * 4 + 2];
+      const id = util.decodeIdFromRgb(
+        pixelBuffer[i * 4],
+        pixelBuffer[i * 4 + 1],
+        pixelBuffer[i * 4 + 2]
+      );
       if (id !== 0xffffff && id < pointCount) {
         pointIndicesSelection[id] = 1;
       }
@@ -881,6 +881,7 @@ export class ScatterPlot {
         renderCanvasSize.width * pixelRatio,
         renderCanvasSize.height * pixelRatio
       );
+
       this.pickingTexture.texture.minFilter = THREE.LinearFilter;
     }
 

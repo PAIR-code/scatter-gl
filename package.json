@@ -1,6 +1,6 @@
 {
   "name": "scatter-gl",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "webgl accelerated 3D/2D scatterplot renderer",
   "author": {
     "name": "Andy Coenen",
@@ -34,10 +34,11 @@
     "typescript": "^3.7",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.4.1"
+    "webpack-dev-server": "^3.4.1",
+    "@types/three": "0.161"
   },
   "dependencies": {
-    "three": "0.125"
+    "three": "0.161"
   },
   "prettier": {
     "bracketSpacing": false,

@@ -36,6 +36,7 @@ export interface Label3DStyles {
   backgroundColor: Color;
   colorUnselected: Color;
   colorNoSelection: Color;
+  colorHover: Color;
 }
 
 export interface PointStyles {
@@ -146,6 +147,7 @@ const makeDefaultStyles = () => {
       backgroundColor: '#ffffff',
       colorUnselected: '#ffffff',
       colorNoSelection: '#ffffff',
+      colorHover: 'yellow',
     },
 
     point: {
@@ -163,7 +165,7 @@ const makeDefaultStyles = () => {
       endHue: 360,
       saturation: 1,
       lightness: 0.3,
-      defaultOpacity: 0.2,
+      defaultOpacity: 0.8,
       defaultLineWidth: 2,
       selectedOpacity: 0.9,
       selectedLineWidth: 3,

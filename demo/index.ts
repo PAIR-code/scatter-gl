@@ -121,7 +121,7 @@ const lightTransparentColorsByLabel = hues.map(
 const heavyTransparentColorsByLabel = hues.map(
   hue => `hsla(${hue}, 100%, 50%, 0.75)`
 );
-const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`);
+const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 60%, 1)`);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="color"]')

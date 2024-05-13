@@ -108,7 +108,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private pickingColors = new Float32Array(0);
   private renderColors = new Float32Array(0);
   private material!: THREE.ShaderMaterial;
-  private uniforms: { [uniform: string]: THREE.IUniform } = {};
+  private uniforms: {[uniform: string]: THREE.IUniform} = {};
   private labelsMesh!: THREE.Mesh;
   private positions!: THREE.BufferAttribute;
   private totalVertexCount = 0;
@@ -172,11 +172,12 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     for (let i = 0; i < pointCount; i++) {
-      const pickingColor = new THREE.Color(i);
       this.labelVertexMap[i].forEach(j => {
-        this.pickingColors[RGB_NUM_ELEMENTS * j] = pickingColor.r;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = pickingColor.g;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = pickingColor.b;
+        const encodedId = util.encodeIdToRgb(i);
+
+        this.pickingColors[RGB_NUM_ELEMENTS * j] = encodedId.r;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = encodedId.g;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = encodedId.b;
         this.renderColors[RGB_NUM_ELEMENTS * j] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 1] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 2] = 1.0;
@@ -315,6 +316,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       }
       src += RGBA_NUM_ELEMENTS;
     }
+
     colors.needsUpdate = true;
   }
 

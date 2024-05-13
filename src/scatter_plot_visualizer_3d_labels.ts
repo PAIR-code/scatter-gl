@@ -310,24 +310,12 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
         pointColors[src + 1],
         pointColors[src + 2]
       );
-      const opacity = pointColors[src + 3]; // Get opacity from pointColors
-
-      // Premultiply RGB by alpha
-      const premultipliedR = c.r * opacity;
-      const premultipliedG = c.g * opacity;
-      const premultipliedB = c.b * opacity;
-
       const m = this.labelVertexMap[i].length;
       for (let j = 0; j < m; ++j) {
-        // Set the color with premultiplied alpha in renderColors
-        const vertexIndex = this.labelVertexMap[i][j];
-        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS] = premultipliedR;
-        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS + 1] = premultipliedG;
-        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS + 2] = premultipliedB;
+        colors.setXYZ(this.labelVertexMap[i][j], c.r, c.g, c.b);
       }
       src += RGBA_NUM_ELEMENTS;
     }
-    colors.array = this.renderColors;
 
     colors.needsUpdate = true;
   }

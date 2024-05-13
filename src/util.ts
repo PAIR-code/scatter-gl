@@ -200,3 +200,17 @@ export function getDefaultPointInPolylineColor(
   const hsl = `hsl(${hue}, ${toPercent(saturation)}, ${toPercent(lightness)})`;
   return new THREE.Color(hsl);
 }
+
+/** Given a numeric id, encodes its value into an rgb. Can be used to store id values in "color" */
+export function encodeIdToRgb(i: number): {r: number; g: number; b: number} {
+  const r = (i >> 16) & 0xff;
+  const g = (i >> 8) & 0xff;
+  const b = i & 0xff;
+
+  return {r: r / 255, g: g / 255, b: b / 255};
+}
+
+/** Given an rgb color, decodes the encoded numeric id value */
+export function decodeIdFromRgb(r: number, g: number, b: number): number {
+  return (r << 16) | (g << 8) | b;
+}

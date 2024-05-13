@@ -576,12 +576,12 @@ export class ScatterPlot {
     );
 
     for (let i = 0; i < width * height; i++) {
-      const id =
-        (pixelBuffer[i * 4] << 16) |
-        (pixelBuffer[i * 4 + 1] << 8) |
-        pixelBuffer[i * 4 + 2];
+      const id = util.decodeIdFromRgb(
+        pixelBuffer[i * 4],
+        pixelBuffer[i * 4 + 1],
+        pixelBuffer[i * 4 + 2]
+      );
       if (id !== 0xffffff && id < pointCount) {
-        console.log('id to select', id)
         pointIndicesSelection[id] = 1;
       }
     }
@@ -883,7 +883,6 @@ export class ScatterPlot {
       );
 
       this.pickingTexture.texture.minFilter = THREE.LinearFilter;
-
     }
 
     this.visualizers.forEach(v => v.onResize(newW, newH));
@@ -898,7 +897,6 @@ export class ScatterPlot {
   }
 
   clickOnPoint(pointIndex: number) {
-    console.log(pointIndex, 'clicked')
     this.nearestPoint = pointIndex;
     this.onClick(null, false);
   }

@@ -108,7 +108,7 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
   private pickingColors = new Float32Array(0);
   private renderColors = new Float32Array(0);
   private material!: THREE.ShaderMaterial;
-  private uniforms: { [uniform: string]: THREE.IUniform } = {};
+  private uniforms: {[uniform: string]: THREE.IUniform} = {};
   private labelsMesh!: THREE.Mesh;
   private positions!: THREE.BufferAttribute;
   private totalVertexCount = 0;
@@ -172,15 +172,12 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
       this.totalVertexCount * RGB_NUM_ELEMENTS
     );
     for (let i = 0; i < pointCount; i++) {
-      const pickingColor = new THREE.Color(i);
       this.labelVertexMap[i].forEach(j => {
-        const r = (i >> 16) & 0xFF; // Extract red component
-        const g = (i >> 8) & 0xFF;  // Extract green component
-        const b = i & 0xFF;        // Extract blue component
+        const encodedId = util.encodeIdToRgb(i);
 
-        this.pickingColors[RGB_NUM_ELEMENTS * j] = r / 255;  // Normalize to 0-1
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = g / 255;
-        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = b / 255;
+        this.pickingColors[RGB_NUM_ELEMENTS * j] = encodedId.r;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 1] = encodedId.g;
+        this.pickingColors[RGB_NUM_ELEMENTS * j + 2] = encodedId.b;
         this.renderColors[RGB_NUM_ELEMENTS * j] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 1] = 1.0;
         this.renderColors[RGB_NUM_ELEMENTS * j + 2] = 1.0;
@@ -313,12 +310,25 @@ export class ScatterPlotVisualizer3DLabels implements ScatterPlotVisualizer {
         pointColors[src + 1],
         pointColors[src + 2]
       );
+      const opacity = pointColors[src + 3]; // Get opacity from pointColors
+
+      // Premultiply RGB by alpha
+      const premultipliedR = c.r * opacity;
+      const premultipliedG = c.g * opacity;
+      const premultipliedB = c.b * opacity;
+
       const m = this.labelVertexMap[i].length;
       for (let j = 0; j < m; ++j) {
-        colors.setXYZ(this.labelVertexMap[i][j], c.r, c.g, c.b);
+        // Set the color with premultiplied alpha in renderColors
+        const vertexIndex = this.labelVertexMap[i][j];
+        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS] = premultipliedR;
+        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS + 1] = premultipliedG;
+        this.renderColors[vertexIndex * RGB_NUM_ELEMENTS + 2] = premultipliedB;
       }
       src += RGBA_NUM_ELEMENTS;
     }
+    colors.array = this.renderColors;
+
     colors.needsUpdate = true;
   }
 

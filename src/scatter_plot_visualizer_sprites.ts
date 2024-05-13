@@ -299,16 +299,13 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     // Fill pickingColors with each point's unique id as its color.
     this.pickingColors = new Float32Array(n * RGBA_NUM_ELEMENTS);
     {
-      let dst = 0;
       for (let i = 0; i < n; i++) {
-        const r = (i >> 16) & 0xFF; // Extract red component
-    const g = (i >> 8) & 0xFF;  // Extract green component
-    const b = i & 0xFF;        // Extract blue component
+        const encodedId = util.encodeIdToRgb(i);
 
-    this.pickingColors[i * 4] = r / 255;  // Normalize to 0-1
-    this.pickingColors[i * 4 + 1] = g / 255;
-    this.pickingColors[i * 4 + 2] = b / 255;
-    this.pickingColors[i * 4 + 3] = 1;     // Alpha
+        this.pickingColors[i * 4] = encodedId.r;
+        this.pickingColors[i * 4 + 1] = encodedId.g;
+        this.pickingColors[i * 4 + 2] = encodedId.b;
+        this.pickingColors[i * 4 + 3] = 1; // Alpha
       }
     }
 
@@ -441,7 +438,10 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
       'position'
     ) as THREE.BufferAttribute;
 
-    this.points.geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS));
+    this.points.geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(newPositions, XYZ_NUM_ELEMENTS)
+    );
 
     positions.needsUpdate = true;
   }
@@ -460,11 +460,14 @@ export class ScatterPlotVisualizerSprites implements ScatterPlotVisualizer {
     let colors = (this.points.geometry as THREE.BufferGeometry).getAttribute(
       'color'
     ) as THREE.BufferAttribute;
-    this.points.geometry.setAttribute('color', new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS));
+    this.points.geometry.setAttribute(
+      'color',
+      new THREE.BufferAttribute(this.pickingColors, RGBA_NUM_ELEMENTS)
+    );
     colors.array = this.pickingColors;
     colors.needsUpdate = true;
 
-     let scaleFactors = (this.points
+    let scaleFactors = (this.points
       .geometry as THREE.BufferGeometry).getAttribute(
       'scaleFactor'
     ) as THREE.BufferAttribute;

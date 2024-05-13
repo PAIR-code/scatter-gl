@@ -121,7 +121,7 @@ const lightTransparentColorsByLabel = hues.map(
 const heavyTransparentColorsByLabel = hues.map(
   hue => `hsla(${hue}, 100%, 50%, 0.75)`
 );
-const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 50%, 1)`);
+const opaqueColorsByLabel = hues.map(hue => `hsla(${hue}, 100%, 60%, 1)`);
 
 document
   .querySelectorAll<HTMLInputElement>('input[name="color"]')
@@ -178,11 +178,6 @@ const selectRandomButton = document.getElementById('select-random')!;
 selectRandomButton.addEventListener('click', () => {
   const randomIndex = Math.floor(dataPoints.length * Math.random());
   scatterGL.select([randomIndex]);
-});
-
-const selectFixed = document.getElementById('select-fixed')!;
-selectFixed.addEventListener('click', () => {
-  scatterGL.select([9]);
 });
 
 const toggleOrbitButton = document.getElementById('toggle-orbit')!;

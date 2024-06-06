@@ -354,7 +354,7 @@ export class ScatterGL {
 
   private generateVisibleLabelRenderParams(): LabelRenderParams {
     const {hoverPointIndex, selectedPointIndices, styles} = this;
-    const n = hoverPointIndex !== null ? 1 : 0;
+    const n = selectedPointIndices.size + (hoverPointIndex !== null ? 1 : 0);
 
     const visibleLabels = new Uint32Array(n);
     const scale = new Float32Array(n);
@@ -368,6 +368,7 @@ export class ScatterGL {
 
     let dst = 0;
 
+    // Hover point
     if (hoverPointIndex !== null) {
       labelStrings.push(this.getLabelText(hoverPointIndex));
       visibleLabels[dst] = hoverPointIndex;
@@ -401,26 +402,30 @@ export class ScatterGL {
         styles.label.strokeColorSelected
       );
 
-      if (selectedPointIndices.size === 1) {
-        const labelIndex = [...selectedPointIndices][0];
-        labelStrings.push(this.getLabelText(labelIndex));
-        visibleLabels[dst] = labelIndex;
-        scale[dst] = styles.label.scaleLarge;
-        opacityFlags[dst] = 0;
-        util.packRgbIntoUint8Array(
-          fillColors,
-          dst,
-          fillRgb[0],
-          fillRgb[1],
-          fillRgb[2]
-        );
-        util.packRgbIntoUint8Array(
-          strokeColors,
-          dst,
-          strokeRgb[0],
-          strokeRgb[1],
-          strokeRgb[2]
-        );
+      if (selectedPointIndices.size > 0) {
+        const arr = [...selectedPointIndices];
+        for (let i = 0; i < arr.length; i++) {
+          const labelIndex = arr[i];
+          labelStrings.push(this.getLabelText(labelIndex));
+          visibleLabels[dst] = labelIndex;
+          scale[dst] = styles.label.scaleLarge;
+          opacityFlags[dst] = 0;
+          util.packRgbIntoUint8Array(
+            fillColors,
+            dst,
+            fillRgb[0],
+            fillRgb[1],
+            fillRgb[2]
+          );
+          util.packRgbIntoUint8Array(
+            strokeColors,
+            dst,
+            strokeRgb[0],
+            strokeRgb[1],
+            strokeRgb[2]
+          );
+          ++dst;
+        }
       }
     }
 
@@ -657,9 +662,9 @@ export class ScatterGL {
   }
 
   private initializeCanvasLabelsVisualizer() {
-    if (!this.canvasLabelsVisualizer) {
+    if (!this.canvasLabelsVisualizer && this.containerElement) {
       this.canvasLabelsVisualizer = new ScatterPlotVisualizerCanvasLabels(
-        this.containerElement!,
+        this.containerElement,
         this.styles
       );
     }
@@ -749,7 +754,7 @@ export class ScatterGL {
       renderMode === RenderMode.POINT || renderMode === RenderMode.SPRITE;
     if (textLabelsRenderMode && this.showLabelsOnHover) {
       const visualizer = this.initializeCanvasLabelsVisualizer();
-      activeVisualizers.push(visualizer);
+      visualizer && activeVisualizers.push(visualizer);
     }
 
     this.scatterPlot.setActiveVisualizers(activeVisualizers);

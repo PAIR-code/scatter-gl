@@ -89,6 +89,7 @@ export class ScatterGL {
 
   constructor(containerElement: HTMLElement, params: ScatterGLParams = {}) {
     this.containerElement = containerElement;
+    this.containerElement.style.position = 'relative';
     this.styles = makeStyles(params.styles);
 
     // Instantiate params if they exist

@@ -34,7 +34,7 @@
     "typescript": "^5.4.2",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.4.1",
+    "webpack-dev-server": "^5.2.3",
     "@types/three": "0.161"
   },
   "dependencies": {
